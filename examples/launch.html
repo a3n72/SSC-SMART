@@ -187,9 +187,15 @@
             <div class="config-item">
                 <label for="issUrl">ISS Server URL（資源所在地）</label>
                 <input type="text" id="issUrl" 
-                    value="https://thas.mohw.gov.tw/v/r4/sim/WzlslilslilslkFVVE8iLDASMCwwLCIiLCIILCIİLCIİLCIİLCIİLCIILDAsMSwill0/fhir"
+                    value="https://thas.mohw.gov.tw/v/r4/sim/WzIsIiIsIiIsIkFVVE8iLDAsMCwwLCIiLCIiLCIiLCIiLCIiLCIiLCIiLDAsMSwiIl0/fhir"
                     placeholder="https://thas.mohw.gov.tw/v/r4/sim/.../fhir">
                 <small>衛福部 FHIR 伺服器的網址，告訴程式要連往哪台電腦取得資料</small>
+            </div>
+
+            <div class="config-item">
+                <label for="patientViewer">Patient Viewer（病人瀏覽）</label>
+                <input type="text" id="patientViewer" value="https://thas.mohw.gov.tw/patient-browser/" readonly>
+                <small>Provider Standalone 測試用病人瀏覽器（如需手動查看病人）</small>
             </div>
 
             <div class="config-item advanced-only">
@@ -400,9 +406,9 @@
                 const issOrigin = new URL(issUrl).origin;
                 const defaultAuthEndpoint =
                     mode === 'ehr-launch'
-                        ? (smartConfig && smartConfig.authorization_endpoint)
+                        ? ((smartConfig && smartConfig.authorization_endpoint) || `${issOrigin}/auth/authorize`)
                         : `${issOrigin}/provider-login`;
-                const authEndpoint = authEndpointInput || defaultAuthEndpoint || `${issOrigin}/provider-login`;
+                const authEndpoint = authEndpointInput || defaultAuthEndpoint;
                 const tokenEndpoint =
                     tokenEndpointInput ||
                     (smartConfig && smartConfig.token_endpoint) ||
@@ -495,13 +501,11 @@
                     return;
                 }
                 
-                // 如果已經有 access token，允許快速跳轉
-                const existingToken = sessionStorage.getItem('access_token');
-                if (existingToken) {
-                    updateStatus('✓ 偵測到已存在的授權狀態，正在導向主程式...', 'success');
-                    setTimeout(() => {
-                        window.location.href = './index.html';
-                    }, 1000);
+                // 避免登出後立即重複啟動流程
+                const logoutOnce = sessionStorage.getItem('logout_once');
+                if (logoutOnce) {
+                    sessionStorage.removeItem('logout_once');
+                    return;
                 }
             } catch (error) {
                 // 如果無法恢復，這是正常的（首次訪問）

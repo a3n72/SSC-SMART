@@ -698,11 +698,9 @@
         // 登出
         window.handleLogout = async function() {
             try {
-                if (fhirClient) {
-                    await fhirClient.logout();
-                }
                 // 清除 sessionStorage
                 sessionStorage.clear();
+                sessionStorage.setItem('logout_once', '1');
                 // 導向 launch.html
                 window.location.href = './launch.html';
             } catch (error) {
