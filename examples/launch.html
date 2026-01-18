@@ -133,6 +133,29 @@
             animation: spin 1s linear infinite;
             margin: 10px auto;
         }
+        .advanced-only {
+            display: none;
+        }
+        body.show-advanced .advanced-only {
+            display: block;
+        }
+        .advanced-toggle {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            background: #2c3e50;
+            color: #fff;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .advanced-toggle:hover {
+            background: #1f2d3a;
+        }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -158,7 +181,7 @@
                     <option value="provider-standalone">PROVIDER_STANDALONE_LAUNCH</option>
                     <option value="ehr-launch">EHR Launch</option>
                 </select>
-                <small>若從 EHR/SAND-BOX 觸發啟動，請選 EHR Launch（系統會帶入 iss/launch）</small>
+                <small>若從 EHR/SAND-BOX 觸發啟動，請選 EHR Launch（系統會自動帶入 iss/launch）</small>
             </div>
 
             <div class="config-item">
@@ -169,13 +192,13 @@
                 <small>衛福部 FHIR 伺服器的網址，告訴程式要連往哪台電腦取得資料</small>
             </div>
 
-            <div class="config-item">
+            <div class="config-item advanced-only">
                 <label for="authEndpoint">Authorization Endpoint（授權端點）</label>
                 <input type="text" id="authEndpoint" value="https://thas.mohw.gov.tw/provider-login" placeholder="https://thas.mohw.gov.tw/provider-login">
                 <small>THAS 授權頁面端點（Provider 登入），若可讀取 SMART 配置會自動帶入</small>
             </div>
 
-            <div class="config-item">
+            <div class="config-item advanced-only">
                 <label for="tokenEndpoint">Token Endpoint（交換 Token 端點）</label>
                 <input type="text" id="tokenEndpoint" value="" placeholder="https://.../fhir/auth/token">
                 <small>授權碼交換 Access Token 的端點，若可讀取 SMART 配置會自動帶入</small>
@@ -183,8 +206,8 @@
             
             <div class="config-item">
                 <label for="clientId">Client ID（系統身分證）</label>
-                <input type="text" id="clientId" value="my-client-id" placeholder="請輸入您在 THAS 註冊的 Client ID">
-                <small><strong>⚠️ 重要：</strong>必須使用在 THAS 沙盒環境中註冊的真實 Client ID，不能使用 "my-client-id"</small>
+                <input type="text" id="clientId" value="my-client-id" readonly>
+                <small>測試專用：已自動帶入通用 Client ID（my-client-id）</small>
             </div>
             
             <div class="config-item">
@@ -201,13 +224,13 @@
                 <small>您的主程式網址，通常是 ./index.html。授權完成後會自動導向此頁面並傳遞 Token</small>
             </div>
 
-            <div class="config-item">
+            <div class="config-item advanced-only">
                 <label for="loginType">Login Type（登入類型）</label>
                 <input type="text" id="loginType" value="provider" placeholder="provider">
                 <small>THAS 登入類型，醫事人員使用 provider</small>
             </div>
 
-            <div class="config-item">
+            <div class="config-item advanced-only">
                 <label for="launchParam">Launch（EHR Launch Token）</label>
                 <input type="text" id="launchParam" value="" placeholder="從 EHR/SAND-BOX 帶入的 launch">
                 <small>EHR Launch 必填；Provider Standalone 不需要</small>
@@ -220,6 +243,8 @@
 
         <button id="btnLaunch" onclick="handleLaunch()">🚀 開始授權</button>
     </div>
+
+    <button id="toggleAdvanced" class="advanced-toggle" type="button" onclick="toggleAdvanced()">顯示詳細設定</button>
 
     <script>
         // 更新狀態訊息
@@ -316,6 +341,12 @@
                 console.warn('SMART 配置讀取失敗:', error);
                 return null;
             }
+        }
+
+        function toggleAdvanced() {
+            const isOpen = document.body.classList.toggle('show-advanced');
+            const btn = document.getElementById('toggleAdvanced');
+            btn.textContent = isOpen ? '隱藏詳細設定' : '顯示詳細設定';
         }
 
         // 處理啟動授權
@@ -434,6 +465,9 @@
         // 頁面載入時檢查是否已有授權狀態
         window.addEventListener('DOMContentLoaded', async () => {
             try {
+                // 強制預設 Client ID
+                document.getElementById('clientId').value = 'my-client-id';
+
                 // 檢查 URL 參數，看是否是從授權頁面返回或 EHR Launch
                 const urlParams = new URLSearchParams(window.location.search);
                 const code = urlParams.get('code');
