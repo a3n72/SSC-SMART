@@ -232,8 +232,8 @@
 
             <div class="config-item advanced-only">
                 <label for="loginType">Login Type（登入類型）</label>
-                <input type="text" id="loginType" value="provider" placeholder="provider">
-                <small>THAS 登入類型，醫事人員使用 provider</small>
+                <input type="text" id="loginType" value="" placeholder="provider">
+                <small>進階選項：若需要指定登入類型再填寫（通常留空即可）</small>
             </div>
 
             <div class="config-item advanced-only">
@@ -360,6 +360,7 @@
             try {
                 // 取得設定值
                 const mode = document.getElementById('launchMode').value;
+                const showAdvanced = document.body.classList.contains('show-advanced');
                 const issUrl = document.getElementById('issUrl').value.trim();
                 const clientId = document.getElementById('clientId').value.trim();
                 const scope = document.getElementById('scope').value.trim();
@@ -382,9 +383,9 @@
                     return;
                 }
 
-                const authEndpointInput = document.getElementById('authEndpoint').value.trim();
-                const tokenEndpointInput = document.getElementById('tokenEndpoint').value.trim();
-                const loginType = document.getElementById('loginType').value.trim() || 'provider';
+                const authEndpointInput = showAdvanced ? document.getElementById('authEndpoint').value.trim() : '';
+                const tokenEndpointInput = showAdvanced ? document.getElementById('tokenEndpoint').value.trim() : '';
+                const loginType = showAdvanced ? document.getElementById('loginType').value.trim() : '';
 
                 // 如果沒有設定 redirectUri，使用預設值
                 if (!redirectUri) {
