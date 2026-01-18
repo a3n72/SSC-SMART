@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>888 長照 SDK - 主程式</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background-color: #f5f7fa;
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .header .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .nav {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .nav button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            background-color: #f8f9fa;
+            color: #495057;
+        }
+        .nav button:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+        }
+        .nav button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .nav button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .content-section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .content-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        .status {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+        }
+        .status.error {
+            background-color: #fee;
+            border-left-color: #e74c3c;
+        }
+        .status.success {
+            background-color: #efe;
+            border-left-color: #27ae60;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .data-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #495057;
+        }
+        .data-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        .chart-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        button.export-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 10px 5px;
+        }
+        button.export-btn:hover {
+            background-color: #218838;
+        }
+        .patient-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .info-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .info-card h3 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .info-card .value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        pre {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            border: 1px solid #ddd;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏥 888 長照 SDK - 主程式</h1>
+        <div class="subtitle">查看資料 | 分析 | 匯出</div>
+    </div>
+
+    <div class="nav">
+        <button id="btnPatient" onclick="showSection('patient')" class="active">👤 病人資料</button>
+        <button id="btnObservations" onclick="showSection('observations')">📊 健康記錄</button>
+        <button id="btnAnalysis" onclick="showSection('analysis')">📈 數據分析</button>
+        <button id="btnExport" onclick="showSection('export')">💾 匯出資料</button>
+        <button id="btnLogout" onclick="handleLogout()" style="margin-left: auto; background-color: #dc3545; color: white;">🚪 登出</button>
+    </div>
+
+    <div class="container">
+        <!-- 病人資料區塊 -->
+        <div id="section-patient" class="content-section active">
+            <h2>👤 病人基本資料</h2>
+            <div id="patient-status" class="status">正在載入病人資料...</div>
+            <div id="patient-content"></div>
+        </div>
+
+        <!-- 健康記錄區塊 -->
+        <div id="section-observations" class="content-section">
+            <h2>📊 健康記錄 (Observations)</h2>
+            <div id="observations-status" class="status">點擊上方「健康記錄」按鈕載入資料</div>
+            <div id="observations-content"></div>
+        </div>
+
+        <!-- 數據分析區塊 -->
+        <div id="section-analysis" class="content-section">
+            <h2>📈 數據分析</h2>
+            <div id="analysis-status" class="status">點擊上方「數據分析」按鈕進行分析</div>
+            <div id="analysis-content"></div>
+        </div>
+
+        <!-- 匯出資料區塊 -->
+        <div id="section-export" class="content-section">
+            <h2>💾 匯出資料</h2>
+            <div id="export-status" class="status">準備匯出資料</div>
+            <div id="export-content"></div>
+        </div>
+    </div>
+
+    <!-- 載入 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <script>
+        let accessToken = null;
+        let fhirBaseUrl = null;
+        let patientId = null;
+        let patientData = null;
+        let observationsData = null;
+
+        // 更新狀態訊息
+        function updateStatus(sectionId, message, type = 'info') {
+            const statusDiv = document.getElementById(`${sectionId}-status`);
+            if (statusDiv) {
+                statusDiv.textContent = message;
+                statusDiv.className = `status ${type}`;
+            }
+        }
+
+        // 顯示載入動畫
+        function showLoading(sectionId) {
+            const contentDiv = document.getElementById(`${sectionId}-content`);
+            if (contentDiv) {
+                contentDiv.innerHTML = '<div class="loading"><div class="spinner"></div><div>正在載入資料...</div></div>';
+            }
+        }
+
+        function getAuthContext() {
+            return {
+                iss: sessionStorage.getItem('oauth_iss'),
+                clientId: sessionStorage.getItem('oauth_client_id'),
+                redirectUri: sessionStorage.getItem('oauth_redirect_uri'),
+                scope: sessionStorage.getItem('oauth_scope'),
+                tokenEndpoint: sessionStorage.getItem('oauth_token_endpoint'),
+                state: sessionStorage.getItem('oauth_state'),
+                codeVerifier: sessionStorage.getItem('oauth_code_verifier')
+            };
+        }
+
+        async function authorizedFetch(url, options = {}) {
+            if (!accessToken) {
+                throw new Error('缺少 Access Token，請重新授權');
+            }
+            const headers = {
+                Accept: 'application/fhir+json',
+                Authorization: `Bearer ${accessToken}`,
+                ...(options.headers || {})
+            };
+            return fetch(url, { ...options, headers });
+        }
+
+        async function exchangeToken(code) {
+            const ctx = getAuthContext();
+            if (!ctx.tokenEndpoint || !ctx.clientId || !ctx.redirectUri || !ctx.codeVerifier) {
+                throw new Error('授權上下文不完整，請重新從 launch.html 開始');
+            }
+
+            const body = new URLSearchParams({
+                grant_type: 'authorization_code',
+                code: code,
+                redirect_uri: ctx.redirectUri,
+                client_id: ctx.clientId,
+                code_verifier: ctx.codeVerifier
+            });
+
+            const res = await fetch(ctx.tokenEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body
+            });
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(`交換 Token 失敗: ${res.status} ${res.statusText} - ${errorText}`);
+            }
+
+            const tokenResponse = await res.json();
+            sessionStorage.setItem('access_token', tokenResponse.access_token || '');
+            sessionStorage.setItem('token_response', JSON.stringify(tokenResponse));
+            if (tokenResponse.patient) {
+                sessionStorage.setItem('patient_id', tokenResponse.patient);
+            }
+            return tokenResponse;
+        }
+
+        // 切換區塊顯示 - 必須在全局作用域中定義，供 HTML onclick 調用
+        window.showSection = function(section) {
+            // 隱藏所有區塊
+            document.querySelectorAll('.content-section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            // 移除所有按鈕的 active 狀態
+            document.querySelectorAll('.nav button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // 顯示選中的區塊
+            const sectionEl = document.getElementById(`section-${section}`);
+            const btnId = `btn${section.charAt(0).toUpperCase() + section.slice(1)}`;
+            const btnEl = document.getElementById(btnId);
+            
+            if (sectionEl) sectionEl.classList.add('active');
+            if (btnEl) btnEl.classList.add('active');
+
+            // 根據區塊載入對應資料
+            if (section === 'patient' && !patientData) {
+                loadPatientData();
+            } else if (section === 'observations' && !observationsData) {
+                loadObservations();
+            } else if (section === 'analysis' && observationsData) {
+                showAnalysis();
+            } else if (section === 'export') {
+                showExportOptions();
+            }
+        };
+
+        // 載入病人資料
+        async function loadPatientData() {
+            try {
+                showLoading('patient');
+                updateStatus('patient', '正在載入病人資料...', 'info');
+
+                if (!accessToken || !fhirBaseUrl) {
+                    throw new Error('缺少授權資訊，請重新授權');
+                }
+                if (!patientId) {
+                    throw new Error('授權回應中沒有 patient，請確認 scope 包含 launch/patient 並完成病人選擇');
+                }
+
+                console.log('開始讀取病人資料...', { fhirBaseUrl, patientId });
+                const res = await authorizedFetch(`${fhirBaseUrl}/Patient/${patientId}`);
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(`讀取病人資料失敗: ${res.status} ${res.statusText} - ${text}`);
+                }
+                const patient = await res.json();
+
+                if (!patient || !patient.id) {
+                    throw new Error('無法取得有效的病人資料');
+                }
+
+                patientData = { patient, patientId: patient.id };
+
+                // 顯示病人資訊卡片
+                const contentDiv = document.getElementById('patient-content');
+                const name = patient.name?.[0] ? 
+                    `${patient.name[0].family || ''} ${patient.name[0].given?.join(' ') || ''}`.trim() : 
+                    '未知';
+                const gender = patient.gender === 'male' ? '男' : patient.gender === 'female' ? '女' : '未知';
+                const birthDate = patient.birthDate || '未知';
+                const age = birthDate !== '未知' ? 
+                    Math.floor((new Date() - new Date(birthDate)) / (365.25 * 24 * 60 * 60 * 1000)) : '未知';
+
+                contentDiv.innerHTML = `
+                    <div class="patient-info">
+                        <div class="info-card">
+                            <h3>病人 ID</h3>
+                            <div class="value">${patientId}</div>
+                        </div>
+                        <div class="info-card">
+                            <h3>姓名</h3>
+                            <div class="value">${name}</div>
+                        </div>
+                        <div class="info-card">
+                            <h3>性別</h3>
+                            <div class="value">${gender}</div>
+                        </div>
+                        <div class="info-card">
+                            <h3>年齡</h3>
+                            <div class="value">${age} 歲</div>
+                        </div>
+                    </div>
+                    <h3 style="margin-top: 30px;">完整資料</h3>
+                    <pre>${JSON.stringify(patient, null, 2)}</pre>
+                `;
+
+                updateStatus('patient', '✓ 成功載入病人資料', 'success');
+            } catch (error) {
+                console.error('載入病人資料失敗:', error);
+                console.error('錯誤詳情:', {
+                    message: error.message,
+                    stack: error.stack,
+                    accessToken: accessToken ? '存在' : '不存在',
+                    fhirBaseUrl: fhirBaseUrl || '未設定',
+                    patientId: patientId || '未設定'
+                });
+                
+                updateStatus('patient', `❌ 載入失敗: ${error.message}`, 'error');
+                
+                const errorHTML = `
+                    <div class="status error">
+                        <h3>載入病人資料失敗</h3>
+                        <p><strong>錯誤訊息:</strong> ${error.message}</p>
+                        <p><strong>可能的原因:</strong></p>
+                        <ul style="margin: 15px 0; padding-left: 20px;">
+                            <li>授權未完成或已過期</li>
+                            <li>FHIR Client 未正確初始化</li>
+                            <li>網路連線問題</li>
+                            <li>THAS 伺服器暫時無法回應</li>
+                        </ul>
+                        <p><strong>建議操作:</strong></p>
+                        <ol style="margin: 15px 0; padding-left: 20px;">
+                            <li>檢查瀏覽器控制台的詳細錯誤訊息</li>
+                            <li>確認已正確完成授權流程（登入、選擇病人、同意授權）</li>
+                            <li>嘗試重新從 <a href="./launch.html" style="color: #3498db;">launch.html</a> 開始</li>
+                        </ol>
+                        <button onclick="window.location.href='./launch.html'" 
+                                style="margin-top: 15px; padding: 10px 20px; background-color: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            重新授權
+                        </button>
+                    </div>
+                `;
+                document.getElementById('patient-content').innerHTML = errorHTML;
+            }
+        }
+
+        // 載入健康記錄
+        async function loadObservations() {
+            try {
+                showLoading('observations');
+                updateStatus('observations', '正在載入健康記錄...', 'info');
+
+                if (!accessToken || !fhirBaseUrl || !patientData) {
+                    throw new Error('請先完成授權並載入病人資料');
+                }
+
+                const res = await authorizedFetch(`${fhirBaseUrl}/Observation?subject=Patient/${patientData.patientId}`);
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(`讀取 Observation 失敗: ${res.status} ${res.statusText} - ${text}`);
+                }
+                const observations = await res.json();
+                observationsData = observations;
+
+                const contentDiv = document.getElementById('observations-content');
+                
+                if (!observations.entry || observations.entry.length === 0) {
+                    contentDiv.innerHTML = '<div class="status">目前沒有健康記錄</div>';
+                    updateStatus('observations', '✓ 載入完成（無記錄）', 'success');
+                    return;
+                }
+
+                // 建立表格
+                let tableHTML = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>日期時間</th>
+                                <th>類型</th>
+                                <th>數值</th>
+                                <th>單位</th>
+                                <th>狀態</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                observations.entry.forEach(entry => {
+                    const obs = entry.resource;
+                    const date = obs.effectiveDateTime || obs.meta?.lastUpdated || '未知';
+                    const code = obs.code?.coding?.[0]?.display || obs.code?.text || '未知';
+                    const value = obs.valueQuantity?.value || obs.valueString || obs.valueCodeableConcept?.text || '未知';
+                    const unit = obs.valueQuantity?.unit || '';
+                    const status = obs.status || '未知';
+
+                    tableHTML += `
+                        <tr>
+                            <td>${new Date(date).toLocaleString('zh-TW')}</td>
+                            <td>${code}</td>
+                            <td>${value}</td>
+                            <td>${unit}</td>
+                            <td>${status}</td>
+                        </tr>
+                    `;
+                });
+
+                tableHTML += '</tbody></table>';
+                contentDiv.innerHTML = tableHTML;
+
+                updateStatus('observations', `✓ 成功載入 ${observations.entry.length} 筆健康記錄`, 'success');
+            } catch (error) {
+                console.error('載入健康記錄失敗:', error);
+                updateStatus('observations', `❌ 載入失敗: ${error.message}`, 'error');
+                document.getElementById('observations-content').innerHTML = 
+                    `<div class="status error">錯誤: ${error.message}</div>`;
+            }
+        }
+
+        // 顯示數據分析
+        function showAnalysis() {
+            if (!observationsData || !observationsData.entry) {
+                document.getElementById('analysis-content').innerHTML = 
+                    '<div class="status error">請先載入健康記錄</div>';
+                return;
+            }
+
+            const contentDiv = document.getElementById('analysis-content');
+            
+            // 分析血壓數據
+            const bloodPressureData = observationsData.entry
+                .filter(e => {
+                    const code = e.resource.code?.coding?.[0]?.code;
+                    return code === '85354-9' || code === '85350-7'; // 血壓相關 LOINC codes
+                })
+                .map(e => {
+                    const obs = e.resource;
+                    const date = new Date(obs.effectiveDateTime || obs.meta?.lastUpdated);
+                    const components = obs.component || [];
+                    const systolic = components.find(c => c.code?.coding?.[0]?.code === '8480-6')?.valueQuantity?.value;
+                    const diastolic = components.find(c => c.code?.coding?.[0]?.code === '8462-4')?.valueQuantity?.value;
+                    return { date, systolic, diastolic };
+                })
+                .filter(d => d.systolic && d.diastolic)
+                .sort((a, b) => a.date - b.date);
+
+            let analysisHTML = '<h3>📊 血壓趨勢分析</h3>';
+            
+            if (bloodPressureData.length > 0) {
+                const avgSystolic = bloodPressureData.reduce((sum, d) => sum + d.systolic, 0) / bloodPressureData.length;
+                const avgDiastolic = bloodPressureData.reduce((sum, d) => sum + d.diastolic, 0) / bloodPressureData.length;
+                const latest = bloodPressureData[bloodPressureData.length - 1];
+
+                analysisHTML += `
+                    <div class="patient-info" style="margin: 20px 0;">
+                        <div class="info-card">
+                            <h3>平均收縮壓</h3>
+                            <div class="value">${avgSystolic.toFixed(1)}</div>
+                        </div>
+                        <div class="info-card">
+                            <h3>平均舒張壓</h3>
+                            <div class="value">${avgDiastolic.toFixed(1)}</div>
+                        </div>
+                        <div class="info-card">
+                            <h3>最新收縮壓</h3>
+                            <div class="value">${latest.systolic}</div>
+                        </div>
+                        <div class="info-card">
+                            <h3>最新舒張壓</h3>
+                            <div class="value">${latest.diastolic}</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="bpChart"></canvas>
+                    </div>
+                `;
+
+                contentDiv.innerHTML = analysisHTML;
+
+                // 繪製圖表
+                setTimeout(() => {
+                    const ctx = document.getElementById('bpChart');
+                    if (ctx) {
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: bloodPressureData.map(d => d.date.toLocaleDateString('zh-TW')),
+                                datasets: [{
+                                    label: '收縮壓',
+                                    data: bloodPressureData.map(d => d.systolic),
+                                    borderColor: 'rgb(255, 99, 132)',
+                                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                    tension: 0.1
+                                }, {
+                                    label: '舒張壓',
+                                    data: bloodPressureData.map(d => d.diastolic),
+                                    borderColor: 'rgb(54, 162, 235)',
+                                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                    tension: 0.1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: '血壓趨勢圖'
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: false,
+                                        title: {
+                                            display: true,
+                                            text: '血壓 (mmHg)'
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }, 100);
+            } else {
+                analysisHTML += '<div class="status">目前沒有足夠的血壓數據進行分析</div>';
+                contentDiv.innerHTML = analysisHTML;
+            }
+
+            updateStatus('analysis', '✓ 分析完成', 'success');
+        }
+
+        // 顯示匯出選項
+        function showExportOptions() {
+            const contentDiv = document.getElementById('export-content');
+            
+            contentDiv.innerHTML = `
+                <h3>選擇匯出格式</h3>
+                <div style="margin: 20px 0;">
+                    <button class="export-btn" onclick="exportData('json')">📄 匯出為 JSON</button>
+                    <button class="export-btn" onclick="exportData('csv')">📊 匯出為 CSV</button>
+                    <button class="export-btn" onclick="exportData('pdf')">📑 匯出為 PDF 報告</button>
+                </div>
+                <div id="export-result" style="margin-top: 20px;"></div>
+            `;
+        }
+
+        // 匯出資料
+        window.exportData = function(format) {
+            const resultDiv = document.getElementById('export-result');
+            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div><div>正在匯出資料...</div></div>';
+
+            try {
+                let data = {};
+                if (patientData) data.patient = patientData.patient;
+                if (observationsData) data.observations = observationsData;
+
+                if (format === 'json') {
+                    const jsonStr = JSON.stringify(data, null, 2);
+                    const blob = new Blob([jsonStr], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `patient-data-${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    resultDiv.innerHTML = '<div class="status success">✓ JSON 檔案已下載</div>';
+                } else if (format === 'csv') {
+                    // 簡化的 CSV 匯出（僅匯出 Observations）
+                    if (observationsData && observationsData.entry) {
+                        let csv = '日期時間,類型,數值,單位,狀態\n';
+                        observationsData.entry.forEach(entry => {
+                            const obs = entry.resource;
+                            const date = obs.effectiveDateTime || obs.meta?.lastUpdated || '';
+                            const code = obs.code?.coding?.[0]?.display || obs.code?.text || '';
+                            const value = obs.valueQuantity?.value || obs.valueString || '';
+                            const unit = obs.valueQuantity?.unit || '';
+                            const status = obs.status || '';
+                            csv += `"${date}","${code}","${value}","${unit}","${status}"\n`;
+                        });
+                        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `observations-${new Date().toISOString().split('T')[0]}.csv`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        resultDiv.innerHTML = '<div class="status success">✓ CSV 檔案已下載</div>';
+                    } else {
+                        resultDiv.innerHTML = '<div class="status error">沒有資料可匯出</div>';
+                    }
+                } else if (format === 'pdf') {
+                    resultDiv.innerHTML = '<div class="status">PDF 匯出功能開發中，請使用 JSON 或 CSV 格式</div>';
+                }
+            } catch (error) {
+                console.error('匯出失敗:', error);
+                resultDiv.innerHTML = `<div class="status error">匯出失敗: ${error.message}</div>`;
+            }
+        };
+
+        // 登出
+        window.handleLogout = async function() {
+            try {
+                if (fhirClient) {
+                    await fhirClient.logout();
+                }
+                // 清除 sessionStorage
+                sessionStorage.clear();
+                // 導向 launch.html
+                window.location.href = './launch.html';
+            } catch (error) {
+                console.error('登出失敗:', error);
+                // 即使登出失敗，也導向 launch.html
+                window.location.href = './launch.html';
+            }
+        };
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                updateStatus('patient', '正在初始化...', 'info');
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const code = urlParams.get('code');
+                const state = urlParams.get('state');
+                const error = urlParams.get('error');
+
+                if (error) {
+                    const errorDesc = urlParams.get('error_description') || error;
+                    throw new Error(`授權失敗: ${errorDesc}`);
+                }
+
+                const ctx = getAuthContext();
+                fhirBaseUrl = ctx.iss;
+                accessToken = sessionStorage.getItem('access_token');
+                patientId = sessionStorage.getItem('patient_id');
+
+                if (code) {
+                    if (!state || state !== ctx.state) {
+                        throw new Error('State 驗證失敗，可能是授權流程不完整或被攔截');
+                    }
+
+                    updateStatus('patient', '正在交換 Access Token...', 'info');
+                    const tokenResponse = await exchangeToken(code);
+                    accessToken = tokenResponse.access_token;
+                    patientId = tokenResponse.patient || sessionStorage.getItem('patient_id');
+
+                    // 清除 URL 上的 code/state
+                    const cleanUrl = window.location.origin + window.location.pathname;
+                    window.history.replaceState({}, document.title, cleanUrl);
+                }
+
+                if (!accessToken || !fhirBaseUrl) {
+                    updateStatus('patient', '❌ 錯誤：缺少授權憑證。請先從 launch.html 啟動應用程式。', 'error');
+                    document.getElementById('patient-content').innerHTML = `
+                        <div class="status error">
+                            <h3>錯誤：缺少安全憑證</h3>
+                            <p>此應用程式使用 SMART on FHIR 標準協議，需要經過授權流程才能存取資料。</p>
+                            <p>請按照以下步驟操作：</p>
+                            <ol style="margin: 15px 0; padding-left: 20px;">
+                                <li>開啟 <a href="./launch.html" style="color: #3498db;">launch.html</a> 進行授權</li>
+                                <li>完成身分驗證和病人選擇</li>
+                                <li>系統會自動導向此頁面</li>
+                            </ol>
+                            <button onclick="window.location.href='./launch.html'" 
+                                    style="margin-top: 15px; padding: 10px 20px; background-color: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                前往 launch.html
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (!patientId) {
+                    throw new Error('授權完成但沒有取得病人 ID，請確認 scope 包含 launch/patient 並完成病人選擇');
+                }
+
+                updateStatus('patient', '✓ 初始化成功，正在載入病人資料...', 'success');
+                await loadPatientData();
+
+            } catch (error) {
+                console.error('初始化失敗:', error);
+                updateStatus('patient', `❌ 初始化失敗: ${error.message}`, 'error');
+                document.getElementById('patient-content').innerHTML = `
+                    <div class="status error">
+                        <h3>初始化失敗</h3>
+                        <p>${error.message}</p>
+                        <p>請確認：</p>
+                        <ul style="margin: 15px 0; padding-left: 20px;">
+                            <li>已正確完成授權流程</li>
+                            <li>授權 token 尚未過期</li>
+                            <li>網路連線正常</li>
+                        </ul>
+                        <button onclick="window.location.href='./launch.html'" 
+                                style="margin-top: 15px; padding: 10px 20px; background-color: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            重新授權
+                        </button>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "name": "ltc-888-sdk",
+  "version": "1.0.0",
+  "description": "888 長照標準化 SDK - 協助長照 App 與 THAS 沙盒環境進行 SMART on FHIR 介接",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "dev": "node --watch src/index.js",
+    "example": "node examples/basic-usage.js"
+  },
+  "keywords": [
+    "fhir",
+    "smart-on-fhir",
+    "long-term-care",
+    "ltc",
+    "taiwan",
+    "tw-core",
+    "888"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "fhirclient": "^2.6.3"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

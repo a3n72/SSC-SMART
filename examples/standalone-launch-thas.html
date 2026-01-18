@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Standalone Launch - THAS 沙盒環境</title>
+    <style>
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        .config-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+        }
+        .config-item {
+            margin: 10px 0;
+        }
+        .config-item label {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
+            color: #555;
+        }
+        .config-item input {
+            width: 600px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .config-item .copy-btn {
+            width: auto;
+            padding: 8px 15px;
+            margin-left: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .config-item .copy-btn:hover {
+            background-color: #2980b9;
+        }
+        .status {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+        }
+        .error {
+            background-color: #fee;
+            border-left-color: #e74c3c;
+        }
+        .success {
+            background-color: #efe;
+            border-left-color: #27ae60;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background-color: #27ae60;
+        }
+        .btn-primary:hover {
+            background-color: #229954;
+        }
+        pre {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #ddd;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .info {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .info ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .info li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Provider Standalone Launch - THAS 沙盒環境</h1>
+        
+        <div class="info">
+            <strong>📋 使用說明：</strong>
+            <ul>
+                <li>此頁面示範如何使用 <strong>Provider Standalone Launch</strong> 模式連接到 THAS 沙盒環境</li>
+                <li>請先從 THAS 沙盒環境的 SAND-BOX 對話框取得 ISS server URL</li>
+                <li>確保您已在 THAS 註冊應用程式並取得 Client ID</li>
+                <li>設定正確的 Redirect URI（必須與註冊時設定的一致）</li>
+                <li>點擊「開始 Standalone Launch」按鈕後，會導向授權頁面進行登入和病人選擇</li>
+            </ul>
+        </div>
+
+        <h2>⚙️ 連線設定</h2>
+        <div class="config-section">
+            <div class="config-item">
+                <label>ISS Server URL:</label>
+                <input type="text" id="issUrl" value="https://thas.mohw.gov.tw/v/r4/sim/WzlslilslilslkFVVE8iLDASMCwwLCIiLCIILCIİLCIİLCIİLCIİLCIILDAsMSwill0/fhir">
+                <button class="copy-btn" onclick="copyToClipboard('issUrl')">📋 複製</button>
+            </div>
+            <div class="config-item">
+                <label>Patient Viewer URL:</label>
+                <input type="text" id="patientViewerUrl" value="https://thas.mohw.gov.tw/patient-browser/" readonly>
+                <button class="copy-btn" onclick="copyToClipboard('patientViewerUrl')">📋 複製</button>
+            </div>
+            <div class="config-item">
+                <label>Client ID:</label>
+                <input type="text" id="clientId" value="ltc-888-sdk" placeholder="請輸入您在 THAS 註冊的 Client ID">
+            </div>
+            <div class="config-item">
+                <label>Redirect URI:</label>
+                <input type="text" id="redirectUri" value="" placeholder="自動使用當前頁面 URL">
+            </div>
+            <div class="config-item">
+                <label>Scope:</label>
+                <input type="text" id="scope" value="launch/patient openid fhiruser patient/*.read patient/*.write">
+            </div>
+        </div>
+
+        <div id="status" class="status">
+            準備就緒，請設定上方參數後點擊「開始 Standalone Launch」按鈕
+        </div>
+
+        <div>
+            <button class="btn-primary" id="btnStandaloneLaunch" onclick="handleStandaloneLaunch()">
+                🚀 開始 Standalone Launch
+            </button>
+            <button id="btnGetPatient" onclick="handleGetPatient()" disabled>👤 取得病人資料</button>
+            <button id="btnGetObservations" onclick="handleGetObservations()" disabled>📊 讀取 Observation</button>
+            <button id="btnCreateBP" onclick="handleCreateBloodPressure()" disabled>💓 建立血壓記錄</button>
+            <button id="btnLogout" onclick="handleLogout()" disabled>🚪 登出</button>
+        </div>
+
+        <h2>📄 結果</h2>
+        <div id="result" style="margin-top: 20px;"></div>
+    </div>
+
+    <script type="module">
+        import { LTC888Client, mapBloodPressure } from '../src/index.js';
+
+        let client = null;
+
+        // 複製到剪貼簿
+        window.copyToClipboard = function(inputId) {
+            const input = document.getElementById(inputId);
+            input.select();
+            document.execCommand('copy');
+            alert('已複製到剪貼簿！');
+        };
+
+        // 更新狀態訊息
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        // 顯示結果
+        function showResult(data, title = '') {
+            const resultDiv = document.getElementById('result');
+            const titleHtml = title ? `<h3>${title}</h3>` : '';
+            resultDiv.innerHTML = `${titleHtml}<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        // Standalone Launch
+        window.handleStandaloneLaunch = async function() {
+            try {
+                updateStatus('正在執行 Standalone Launch...', 'info');
+                
+                // 取得設定值
+                const issUrl = document.getElementById('issUrl').value.trim();
+                const clientId = document.getElementById('clientId').value.trim();
+                const scope = document.getElementById('scope').value.trim();
+                let redirectUri = document.getElementById('redirectUri').value.trim();
+                
+                // 如果沒有設定 redirectUri，使用當前頁面 URL
+                if (!redirectUri) {
+                    redirectUri = window.location.href.split('?')[0];
+                    document.getElementById('redirectUri').value = redirectUri;
+                }
+
+                if (!issUrl) {
+                    updateStatus('錯誤：請輸入 ISS Server URL', 'error');
+                    return;
+                }
+
+                if (!clientId) {
+                    updateStatus('錯誤：請輸入 Client ID', 'error');
+                    return;
+                }
+
+                // 使用 LTC888Client 進行 Standalone Launch
+                client = new LTC888Client(issUrl, {
+                    clientId: clientId,
+                    scope: scope,
+                    redirectUri: redirectUri
+                });
+
+                await client.initialize();
+
+                updateStatus('✓ Standalone Launch 成功！已取得授權', 'success');
+                document.getElementById('btnGetPatient').disabled = false;
+                document.getElementById('btnGetObservations').disabled = false;
+                document.getElementById('btnCreateBP').disabled = false;
+                document.getElementById('btnLogout').disabled = false;
+                
+                showResult({ 
+                    status: 'success',
+                    message: 'Standalone Launch 成功完成',
+                    issUrl: issUrl,
+                    clientId: clientId
+                }, '授權成功');
+
+            } catch (error) {
+                updateStatus(`✗ Standalone Launch 失敗: ${error.message}`, 'error');
+                console.error('詳細錯誤:', error);
+                showResult({ 
+                    error: error.message,
+                    stack: error.stack 
+                }, '錯誤資訊');
+            }
+        };
+
+        // 取得病人資料
+        window.handleGetPatient = async function() {
+            try {
+                if (!client) {
+                    updateStatus('錯誤：尚未初始化 Client', 'error');
+                    return;
+                }
+
+                updateStatus('正在讀取病人資料...', 'info');
+                const patient = await client.getPatientInfo();
+                const patientId = await client.getPatientId();
+                
+                showResult({
+                    patientId: patientId,
+                    patient: patient
+                }, '病人資料');
+                
+                updateStatus('✓ 成功取得病人資料！', 'success');
+            } catch (error) {
+                updateStatus(`✗ 讀取病人資料失敗: ${error.message}`, 'error');
+                console.error('詳細錯誤:', error);
+                showResult({ error: error.message }, '錯誤資訊');
+            }
+        };
+
+        // 讀取 Observation
+        window.handleGetObservations = async function() {
+            try {
+                if (!client) {
+                    updateStatus('錯誤：尚未初始化 Client', 'error');
+                    return;
+                }
+
+                updateStatus('正在讀取 Observation...', 'info');
+                const observations = await client.getObservation();
+                
+                showResult(observations, 'Observation 列表');
+                
+                const count = observations.entry?.length || 0;
+                updateStatus(`✓ 成功讀取 ${count} 筆 Observation！`, 'success');
+            } catch (error) {
+                updateStatus(`✗ 讀取 Observation 失敗: ${error.message}`, 'error');
+                console.error('詳細錯誤:', error);
+                showResult({ error: error.message }, '錯誤資訊');
+            }
+        };
+
+        // 建立血壓記錄
+        window.handleCreateBloodPressure = async function() {
+            try {
+                if (!client) {
+                    updateStatus('錯誤：尚未初始化 Client', 'error');
+                    return;
+                }
+
+                updateStatus('正在建立血壓記錄...', 'info');
+                
+                const patientId = await client.getPatientId();
+                
+                // 使用 mapper 建立血壓 Observation
+                const bloodPressure = mapBloodPressure(
+                    120,  // 收縮壓
+                    80,   // 舒張壓
+                    patientId,
+                    new Date()
+                );
+                
+                const result = await client.createObservation(bloodPressure);
+                
+                showResult(result, '建立的血壓 Observation');
+                updateStatus('✓ 成功建立血壓記錄！', 'success');
+            } catch (error) {
+                updateStatus(`✗ 建立血壓記錄失敗: ${error.message}`, 'error');
+                console.error('詳細錯誤:', error);
+                showResult({ error: error.message }, '錯誤資訊');
+            }
+        };
+
+        // 登出
+        window.handleLogout = async function() {
+            try {
+                if (client) {
+                    await client.logout();
+                    client = null;
+                }
+                updateStatus('已登出', 'info');
+                document.getElementById('btnGetPatient').disabled = true;
+                document.getElementById('btnGetObservations').disabled = true;
+                document.getElementById('btnCreateBP').disabled = true;
+                document.getElementById('btnLogout').disabled = true;
+                document.getElementById('result').innerHTML = '';
+            } catch (error) {
+                updateStatus(`登出失敗: ${error.message}`, 'error');
+                console.error('詳細錯誤:', error);
+            }
+        };
+
+        // 頁面載入時嘗試恢復授權狀態
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const issUrl = document.getElementById('issUrl').value.trim();
+                if (!issUrl) return;
+
+                client = new LTC888Client(issUrl);
+                const restored = await client.initialize();
+                
+                if (restored && client.getClient()) {
+                    updateStatus('✓ 已恢復授權狀態', 'success');
+                    document.getElementById('btnGetPatient').disabled = false;
+                    document.getElementById('btnGetObservations').disabled = false;
+                    document.getElementById('btnCreateBP').disabled = false;
+                    document.getElementById('btnLogout').disabled = false;
+                }
+            } catch (error) {
+                // 如果無法恢復，這是正常的（首次訪問）
+                console.log('無法恢復授權狀態（首次訪問或已過期）');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>888 長照 SDK - 啟動授權</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .status {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 16px;
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+            color: #2c3e50;
+        }
+        .status.loading {
+            background-color: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        .status.success {
+            background-color: #d4edda;
+            border-left-color: #28a745;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        .config-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .config-item {
+            margin: 15px 0;
+        }
+        .config-item label {
+            display: block;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .config-item input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .config-item small {
+            display: block;
+            color: #6c757d;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .info-box strong {
+            color: #1976D2;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 888 長照 SDK</h1>
+        <p class="subtitle">SMART on FHIR 授權啟動</p>
+        
+        <div class="info-box">
+            <strong>📋 標準登入路徑：</strong><br>
+            步驟 1: 開啟 launch.html（取得存取權限的「鑰匙」）<br>
+            步驟 2: 身分驗證（系統確認應用程式身分與權限範圍）<br>
+            步驟 3: 轉跳 index.html（帶著核發的鑰匙(TOKEN)安全開啟主程式）
+        </div>
+
+        <div class="config-section">
+            <div class="config-item">
+                <label for="issUrl">ISS Server URL（資源所在地）</label>
+                <input type="text" id="issUrl" 
+                    value="https://thas.mohw.gov.tw/v/r4/sim/WzlslilslilslkFVVE8iLDASMCwwLCIiLCIILCIİLCIİLCIİLCIİLCIILDAsMSwill0/fhir"
+                    placeholder="https://thas.mohw.gov.tw/v/r4/sim/.../fhir">
+                <small>衛福部 FHIR 伺服器的網址，告訴程式要連往哪台電腦取得資料</small>
+            </div>
+
+            <div class="config-item">
+                <label for="authEndpoint">Authorization Endpoint（授權端點）</label>
+                <input type="text" id="authEndpoint" value="https://thas.mohw.gov.tw/provider-login" placeholder="https://thas.mohw.gov.tw/provider-login">
+                <small>THAS 授權頁面端點（Provider 登入），若可讀取 SMART 配置會自動帶入</small>
+            </div>
+
+            <div class="config-item">
+                <label for="tokenEndpoint">Token Endpoint（交換 Token 端點）</label>
+                <input type="text" id="tokenEndpoint" value="" placeholder="https://.../fhir/auth/token">
+                <small>授權碼交換 Access Token 的端點，若可讀取 SMART 配置會自動帶入</small>
+            </div>
+            
+            <div class="config-item">
+                <label for="clientId">Client ID（系統身分證）</label>
+                <input type="text" id="clientId" value="my-client-id" placeholder="請輸入您在 THAS 註冊的 Client ID">
+                <small><strong>⚠️ 重要：</strong>必須使用在 THAS 沙盒環境中註冊的真實 Client ID，不能使用 "my-client-id"</small>
+            </div>
+            
+            <div class="config-item">
+                <label for="scope">Scope（權限範圍清單）</label>
+                <input type="text" id="scope" 
+                    value="launch/patient patient/*.read patient/*.write openid fhirUser"
+                    placeholder="launch/patient patient/*.read openid fhirUser">
+                <small>明確定義這把鑰匙能開哪些門、可以讀取哪些病人資料</small>
+            </div>
+            
+            <div class="config-item">
+                <label for="redirectUri">Redirect URI（傳送門）</label>
+                <input type="text" id="redirectUri" value="./index.html" placeholder="./index.html">
+                <small>您的主程式網址，通常是 ./index.html。授權完成後會自動導向此頁面並傳遞 Token</small>
+            </div>
+
+            <div class="config-item">
+                <label for="loginType">Login Type（登入類型）</label>
+                <input type="text" id="loginType" value="provider" placeholder="provider">
+                <small>THAS 登入類型，醫事人員使用 provider</small>
+            </div>
+        </div>
+
+        <div id="status" class="status">
+            準備就緒，請設定上方參數後點擊「開始授權」按鈕
+        </div>
+
+        <button id="btnLaunch" onclick="handleLaunch()">🚀 開始授權</button>
+    </div>
+
+    <script>
+        // 更新狀態訊息
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+        
+        // 顯示詳細錯誤資訊
+        function showDetailedError(error, authParams) {
+            const errorDetails = `
+                <div style="margin-top: 15px; padding: 15px; background-color: #fee; border-radius: 5px; border-left: 4px solid #e74c3c;">
+                    <strong style="color: #c0392b;">錯誤詳情：</strong><br>
+                    <code>${error.message}</code><br><br>
+                    <strong>請檢查以下項目：</strong><br>
+                    <ol style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>Client ID：</strong>必須使用在 THAS 註冊的真實 ID，不能使用 "my-client-id"<br>
+                            <code>${authParams.clientId}</code></li>
+                        <li><strong>Redirect URI：</strong>必須與 THAS 註冊時設定完全一致（包括協議、域名、路徑、端口）<br>
+                            <code>${authParams.redirectUri}</code></li>
+                        <li><strong>ISS URL：</strong>確認 URL 正確且可訪問<br>
+                            <code>${authParams.iss}</code></li>
+                        <li><strong>Scope：</strong>確認權限範圍正確<br>
+                            <code>${authParams.scope}</code></li>
+                    </ol>
+                    <p style="margin-top: 10px;"><strong>常見問題：</strong></p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>如果看到 "invalid_request" 錯誤，通常是 Client ID 或 Redirect URI 不正確</li>
+                        <li>如果看到 JSON 解析錯誤，可能是參數格式問題，請確認所有參數都正確</li>
+                        <li>請確認已在 THAS 沙盒環境中註冊應用程式</li>
+                    </ul>
+                </div>
+            `;
+            document.getElementById('status').innerHTML += errorDetails;
+        }
+
+        // 顯示載入動畫
+        function showLoading() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = '<div class="spinner"></div><div>正在處理授權流程...</div>';
+            statusDiv.className = 'status loading';
+        }
+
+        function randomString(length) {
+            const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+            const values = new Uint8Array(length);
+            window.crypto.getRandomValues(values);
+            return Array.from(values, (v) => charset[v % charset.length]).join('');
+        }
+
+        function base64UrlEncode(buffer) {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            bytes.forEach((b) => (binary += String.fromCharCode(b)));
+            return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+
+        async function sha256(plain) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(plain);
+            return crypto.subtle.digest('SHA-256', data);
+        }
+
+        async function generatePkce() {
+            const codeVerifier = randomString(96);
+            const hashed = await sha256(codeVerifier);
+            const codeChallenge = base64UrlEncode(hashed);
+            return { codeVerifier, codeChallenge };
+        }
+
+        function toAbsoluteUrl(input) {
+            const currentUrl = new URL(window.location.href);
+            const basePath = currentUrl.pathname.substring(0, currentUrl.pathname.lastIndexOf('/') + 1);
+            if (input.startsWith('http://') || input.startsWith('https://')) {
+                return input;
+            }
+            if (input.startsWith('./')) {
+                return currentUrl.origin + basePath + input.substring(2);
+            }
+            if (input.startsWith('/')) {
+                return currentUrl.origin + input;
+            }
+            return currentUrl.origin + basePath + input;
+        }
+
+        async function resolveSmartConfig(issUrl) {
+            try {
+                const configUrl = `${issUrl}/.well-known/smart-configuration`;
+                const res = await fetch(configUrl);
+                if (!res.ok) return null;
+                return await res.json();
+            } catch (error) {
+                console.warn('SMART 配置讀取失敗:', error);
+                return null;
+            }
+        }
+
+        // 處理啟動授權
+        async function handleLaunch() {
+            try {
+                // 取得設定值
+                const issUrl = document.getElementById('issUrl').value.trim();
+                const clientId = document.getElementById('clientId').value.trim();
+                const scope = document.getElementById('scope').value.trim();
+                let redirectUri = document.getElementById('redirectUri').value.trim();
+
+                // 驗證必填欄位
+                if (!issUrl) {
+                    updateStatus('❌ 錯誤：請輸入 ISS Server URL', 'error');
+                    return;
+                }
+
+                if (!clientId || clientId === 'my-client-id') {
+                    updateStatus('❌ 錯誤：請輸入在 THAS 註冊的真實 Client ID（不能使用 "my-client-id"）', 'error');
+                    alert('⚠️ 重要提醒：\n\n您必須使用在 THAS 沙盒環境中註冊的真實 Client ID。\n\n"my-client-id" 只是範例，無法通過授權驗證。\n\n請前往 THAS 註冊應用程式並取得真實的 Client ID。');
+                    return;
+                }
+
+                if (!scope) {
+                    updateStatus('❌ 錯誤：請輸入 Scope', 'error');
+                    return;
+                }
+
+                const authEndpointInput = document.getElementById('authEndpoint').value.trim();
+                const tokenEndpointInput = document.getElementById('tokenEndpoint').value.trim();
+                const loginType = document.getElementById('loginType').value.trim() || 'provider';
+
+                // 如果沒有設定 redirectUri，使用預設值
+                if (!redirectUri) {
+                    redirectUri = './index.html';
+                    document.getElementById('redirectUri').value = redirectUri;
+                }
+
+                // 轉換為絕對 URL
+                redirectUri = toAbsoluteUrl(redirectUri);
+                document.getElementById('redirectUri').value = redirectUri;
+
+                // 顯示載入狀態
+                showLoading();
+                document.getElementById('btnLaunch').disabled = true;
+
+                updateStatus('正在產生授權參數與 PKCE...', 'loading');
+
+                const smartConfig = await resolveSmartConfig(issUrl);
+                const authEndpoint = authEndpointInput || (smartConfig && smartConfig.authorization_endpoint) || 'https://thas.mohw.gov.tw/provider-login';
+                const tokenEndpoint = tokenEndpointInput || (smartConfig && smartConfig.token_endpoint) || `${issUrl}/auth/token`;
+
+                document.getElementById('authEndpoint').value = authEndpoint;
+                document.getElementById('tokenEndpoint').value = tokenEndpoint;
+
+                const { codeVerifier, codeChallenge } = await generatePkce();
+                const state = randomString(24);
+
+                // 保存授權上下文
+                sessionStorage.setItem('oauth_state', state);
+                sessionStorage.setItem('oauth_code_verifier', codeVerifier);
+                sessionStorage.setItem('oauth_iss', issUrl);
+                sessionStorage.setItem('oauth_client_id', clientId);
+                sessionStorage.setItem('oauth_redirect_uri', redirectUri);
+                sessionStorage.setItem('oauth_scope', scope);
+                sessionStorage.setItem('oauth_auth_endpoint', authEndpoint);
+                sessionStorage.setItem('oauth_token_endpoint', tokenEndpoint);
+                sessionStorage.setItem('oauth_login_type', loginType);
+
+                // 組合授權 URL
+                const authUrl = new URL(authEndpoint);
+                authUrl.searchParams.set('response_type', 'code');
+                authUrl.searchParams.set('client_id', clientId);
+                authUrl.searchParams.set('redirect_uri', redirectUri);
+                authUrl.searchParams.set('scope', scope);
+                authUrl.searchParams.set('state', state);
+                authUrl.searchParams.set('code_challenge', codeChallenge);
+                authUrl.searchParams.set('code_challenge_method', 'S256');
+                authUrl.searchParams.set('aud', issUrl);
+                if (loginType) {
+                    authUrl.searchParams.set('login_type', loginType);
+                }
+
+                console.log('授權 URL:', authUrl.toString());
+                updateStatus('正在導向授權頁面（THAS 登入）...', 'loading');
+
+                window.location.href = authUrl.toString();
+
+            } catch (error) {
+                console.error('授權錯誤:', error);
+                updateStatus(`❌ 授權失敗: ${error.message}`, 'error');
+                document.getElementById('btnLaunch').disabled = false;
+            }
+        }
+
+        // 頁面載入時檢查是否已有授權狀態
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // 檢查 URL 參數，看是否是從授權頁面返回
+                const urlParams = new URLSearchParams(window.location.search);
+                const code = urlParams.get('code');
+                const state = urlParams.get('state');
+                
+                if (code && state) {
+                    // 這是從授權頁面返回，應該導向 index.html
+                    updateStatus('✓ 授權完成，正在導向主程式...', 'success');
+                    setTimeout(() => {
+                        window.location.href = './index.html';
+                    }, 1000);
+                    return;
+                }
+                
+                // 如果已經有 access token，允許快速跳轉
+                const existingToken = sessionStorage.getItem('access_token');
+                if (existingToken) {
+                    updateStatus('✓ 偵測到已存在的授權狀態，正在導向主程式...', 'success');
+                    setTimeout(() => {
+                        window.location.href = './index.html';
+                    }, 1000);
+                }
+            } catch (error) {
+                // 如果無法恢復，這是正常的（首次訪問）
+                console.log('首次訪問或需要重新授權:', error);
+            }
+        });
+    </script>
+</body>
+</html>
