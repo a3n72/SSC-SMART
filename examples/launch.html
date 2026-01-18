@@ -335,9 +335,8 @@
                     return;
                 }
 
-                if (!clientId || clientId === 'my-client-id') {
-                    updateStatus('❌ 錯誤：請輸入在 THAS 註冊的真實 Client ID（不能使用 "my-client-id"）', 'error');
-                    alert('⚠️ 重要提醒：\n\n您必須使用在 THAS 沙盒環境中註冊的真實 Client ID。\n\n"my-client-id" 只是範例，無法通過授權驗證。\n\n請前往 THAS 註冊應用程式並取得真實的 Client ID。');
+                if (!clientId) {
+                    updateStatus('❌ 錯誤：請輸入 Client ID', 'error');
                     return;
                 }
 
