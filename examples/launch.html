@@ -153,6 +153,15 @@
 
         <div class="config-section">
             <div class="config-item">
+                <label for="launchMode">Launch Mode（啟動模式）</label>
+                <select id="launchMode" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="provider-standalone">PROVIDER_STANDALONE_LAUNCH</option>
+                    <option value="ehr-launch">EHR Launch</option>
+                </select>
+                <small>若從 EHR/SAND-BOX 觸發啟動，請選 EHR Launch（系統會帶入 iss/launch）</small>
+            </div>
+
+            <div class="config-item">
                 <label for="issUrl">ISS Server URL（資源所在地）</label>
                 <input type="text" id="issUrl" 
                     value="https://thas.mohw.gov.tw/v/r4/sim/WzlslilslilslkFVVE8iLDASMCwwLCIiLCIILCIİLCIİLCIİLCIİLCIILDAsMSwill0/fhir"
@@ -196,6 +205,12 @@
                 <label for="loginType">Login Type（登入類型）</label>
                 <input type="text" id="loginType" value="provider" placeholder="provider">
                 <small>THAS 登入類型，醫事人員使用 provider</small>
+            </div>
+
+            <div class="config-item">
+                <label for="launchParam">Launch（EHR Launch Token）</label>
+                <input type="text" id="launchParam" value="" placeholder="從 EHR/SAND-BOX 帶入的 launch">
+                <small>EHR Launch 必填；Provider Standalone 不需要</small>
             </div>
         </div>
 
@@ -307,10 +322,12 @@
         async function handleLaunch() {
             try {
                 // 取得設定值
+                const mode = document.getElementById('launchMode').value;
                 const issUrl = document.getElementById('issUrl').value.trim();
                 const clientId = document.getElementById('clientId').value.trim();
                 const scope = document.getElementById('scope').value.trim();
                 let redirectUri = document.getElementById('redirectUri').value.trim();
+                const launchParam = document.getElementById('launchParam').value.trim();
 
                 // 驗證必填欄位
                 if (!issUrl) {
@@ -350,8 +367,16 @@
                 updateStatus('正在產生授權參數與 PKCE...', 'loading');
 
                 const smartConfig = await resolveSmartConfig(issUrl);
-                const authEndpoint = authEndpointInput || (smartConfig && smartConfig.authorization_endpoint) || 'https://thas.mohw.gov.tw/provider-login';
-                const tokenEndpoint = tokenEndpointInput || (smartConfig && smartConfig.token_endpoint) || `${issUrl}/auth/token`;
+                const issOrigin = new URL(issUrl).origin;
+                const defaultAuthEndpoint =
+                    mode === 'ehr-launch'
+                        ? (smartConfig && smartConfig.authorization_endpoint)
+                        : `${issOrigin}/provider-login`;
+                const authEndpoint = authEndpointInput || defaultAuthEndpoint || `${issOrigin}/provider-login`;
+                const tokenEndpoint =
+                    tokenEndpointInput ||
+                    (smartConfig && smartConfig.token_endpoint) ||
+                    `${issOrigin}/auth/token`;
 
                 document.getElementById('authEndpoint').value = authEndpoint;
                 document.getElementById('tokenEndpoint').value = tokenEndpoint;
@@ -369,6 +394,15 @@
                 sessionStorage.setItem('oauth_auth_endpoint', authEndpoint);
                 sessionStorage.setItem('oauth_token_endpoint', tokenEndpoint);
                 sessionStorage.setItem('oauth_login_type', loginType);
+                if (mode === 'ehr-launch') {
+                    sessionStorage.setItem('oauth_launch', launchParam);
+                }
+
+                if (mode === 'ehr-launch' && !launchParam) {
+                    updateStatus('❌ 錯誤：EHR Launch 需要 launch 參數', 'error');
+                    document.getElementById('btnLaunch').disabled = false;
+                    return;
+                }
 
                 // 組合授權 URL
                 const authUrl = new URL(authEndpoint);
@@ -380,7 +414,9 @@
                 authUrl.searchParams.set('code_challenge', codeChallenge);
                 authUrl.searchParams.set('code_challenge_method', 'S256');
                 authUrl.searchParams.set('aud', issUrl);
-                if (loginType) {
+                if (mode === 'ehr-launch') {
+                    authUrl.searchParams.set('launch', launchParam);
+                } else if (loginType) {
                     authUrl.searchParams.set('login_type', loginType);
                 }
 
@@ -399,10 +435,12 @@
         // 頁面載入時檢查是否已有授權狀態
         window.addEventListener('DOMContentLoaded', async () => {
             try {
-                // 檢查 URL 參數，看是否是從授權頁面返回
+                // 檢查 URL 參數，看是否是從授權頁面返回或 EHR Launch
                 const urlParams = new URLSearchParams(window.location.search);
                 const code = urlParams.get('code');
                 const state = urlParams.get('state');
+                const iss = urlParams.get('iss');
+                const launch = urlParams.get('launch');
                 
                 if (code && state) {
                     // 這是從授權頁面返回，應該導向 index.html
@@ -410,6 +448,17 @@
                     setTimeout(() => {
                         window.location.href = './index.html';
                     }, 1000);
+                    return;
+                }
+
+                if (iss && launch) {
+                    document.getElementById('launchMode').value = 'ehr-launch';
+                    document.getElementById('issUrl').value = iss;
+                    document.getElementById('launchParam').value = launch;
+                    updateStatus('已偵測到 EHR Launch 參數，正在啟動授權流程...', 'loading');
+                    setTimeout(() => {
+                        handleLaunch();
+                    }, 300);
                     return;
                 }
                 
