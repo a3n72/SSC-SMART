@@ -1,4 +1,6 @@
-# 888 長照標準化 SDK
+# SSC-SMART
+
+## 888 長照標準化 SDK
 
 協助長照 App 與臺灣衛福部資訊處提供的「醫療資訊大平台（THAS）」沙盒環境進行 SMART on FHIR 介接的 Node.js SDK。
 
