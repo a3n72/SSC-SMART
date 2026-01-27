@@ -1,0 +1,571 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "timestamp": "2025-11-14T10:00:00+08:00",
+  "entry": [
+    {
+      "fullUrl": "http://example.org/fhir/Observation/physio-20240417",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "physio-20240417",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "生命徵象"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "85354-9",
+              "display": "Blood pressure panel"
+            }
+          ],
+          "text": "血壓"
+        },
+        "subject": {
+          "reference": "Patient/metabolic-syndrome-001"
+        },
+        "effectiveDateTime": "2024-04-17T17:02:00+08:00",
+        "component": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "8480-6",
+                  "display": "Systolic blood pressure"
+                }
+              ],
+              "text": "收縮壓"
+            },
+            "valueQuantity": {
+              "value": 125,
+              "unit": "mmHg",
+              "system": "http://unitsofmeasure.org",
+              "code": "mm[Hg]"
+            }
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "8462-4",
+                  "display": "Diastolic blood pressure"
+                }
+              ],
+              "text": "舒張壓"
+            },
+            "valueQuantity": {
+              "value": 66,
+              "unit": "mmHg",
+              "system": "http://unitsofmeasure.org",
+              "code": "mm[Hg]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "http://example.org/fhir/Observation/pulse-20240417",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "pulse-20240417",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "生命徵象"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8867-4",
+              "display": "Heart rate"
+            }
+          ],
+          "text": "脈搏"
+        },
+        "subject": {
+          "reference": "Patient/metabolic-syndrome-001"
+        },
+        "effectiveDateTime": "2024-04-17T17:02:00+08:00",
+        "valueQuantity": {
+          "value": 78,
+          "unit": "/min",
+          "system": "http://unitsofmeasure.org",
+          "code": "/min"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://example.org/fhir/Observation/spo2-20240417",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "spo2-20240417",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "生命徵象"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2708-6",
+              "display": "Oxygen saturation in Arterial blood"
+            }
+          ],
+          "text": "血氧"
+        },
+        "subject": {
+          "reference": "Patient/metabolic-syndrome-001"
+        },
+        "effectiveDateTime": "2024-04-17T17:02:00+08:00",
+        "valueQuantity": {
+          "value": 94,
+          "unit": "%",
+          "system": "http://unitsofmeasure.org",
+          "code": "%"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://example.org/fhir/Observation/temp-20240417",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "temp-20240417",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "生命徵象"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8310-5",
+              "display": "Body temperature"
+            }
+          ],
+          "text": "體溫"
+        },
+        "subject": {
+          "reference": "Patient/metabolic-syndrome-001"
+        },
+        "effectiveDateTime": "2024-04-17T17:02:00+08:00",
+        "valueQuantity": {
+          "value": 36.9,
+          "unit": "°C",
+          "system": "http://unitsofmeasure.org",
+          "code": "Cel"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://example.org/fhir/Observation/physio-20240418",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "physio-20240418",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "生命徵象"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "85354-9",
+              "display": "Blood pressure panel"
+            }
+          ],
+          "text": "血壓"
+        },
+        "subject": {
+          "reference": "Patient/metabolic-syndrome-001"
+        },
+        "effectiveDateTime": "2024-04-18T08:50:00+08:00",
+        "component": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "8480-6",
+                  "display": "Systolic blood pressure"
+                }
+              ],
+              "text": "收縮壓"
+            },
+            "valueQuantity": {
+              "value": 136,
+              "unit": "mmHg",
+              "system": "http://unitsofmeasure.org",
+              "code": "mm[Hg]"
+            }
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "8462-4",
+                  "display": "Diastolic blood pressure"
+                }
+              ],
+              "text": "舒張壓"
+            },
+            "valueQuantity": {
+              "value": 72,
+              "unit": "mmHg",
+              "system": "http://unitsofmeasure.org",
+              "code": "mm[Hg]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "http://example.org/fhir/Observation/pulse-20240418",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "pulse-20240418",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "生命徵象"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8867-4",
+              "display": "Heart rate"
+            }
+          ],
+          "text": "脈搏"
+        },
+        "subject": {
+          "reference": "Patient/metabolic-syndrome-001"
+        },
+        "effectiveDateTime": "2024-04-18T08:50:00+08:00",
+        "valueQuantity": {
+          "value": 69,
+          "unit": "/min",
+          "system": "http://unitsofmeasure.org",
+          "code": "/min"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://example.org/fhir/Observation/spo2-20240418",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "spo2-20240418",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "生命徵象"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2708-6",
+              "display": "Oxygen saturation in Arterial blood"
+            }
+          ],
+          "text": "血氧"
+        },
+        "subject": {
+          "reference": "Patient/metabolic-syndrome-001"
+        },
+        "effectiveDateTime": "2024-04-18T08:50:00+08:00",
+        "valueQuantity": {
+          "value": 95,
+          "unit": "%",
+          "system": "http://unitsofmeasure.org",
+          "code": "%"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://example.org/fhir/Observation/temp-20240418",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "temp-20240418",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "生命徵象"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8310-5",
+              "display": "Body temperature"
+            }
+          ],
+          "text": "體溫"
+        },
+        "subject": {
+          "reference": "Patient/metabolic-syndrome-001"
+        },
+        "effectiveDateTime": "2024-04-18T08:50:00+08:00",
+        "valueQuantity": {
+          "value": 36.8,
+          "unit": "°C",
+          "system": "http://unitsofmeasure.org",
+          "code": "Cel"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://example.org/fhir/Observation/physio-20240419",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "physio-20240419",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "生命徵象"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "85354-9",
+              "display": "Blood pressure panel"
+            }
+          ],
+          "text": "血壓"
+        },
+        "subject": {
+          "reference": "Patient/metabolic-syndrome-001"
+        },
+        "effectiveDateTime": "2024-04-19T16:51:00+08:00",
+        "component": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "8480-6",
+                  "display": "Systolic blood pressure"
+                }
+              ],
+              "text": "收縮壓"
+            },
+            "valueQuantity": {
+              "value": 138,
+              "unit": "mmHg",
+              "system": "http://unitsofmeasure.org",
+              "code": "mm[Hg]"
+            }
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "8462-4",
+                  "display": "Diastolic blood pressure"
+                }
+              ],
+              "text": "舒張壓"
+            },
+            "valueQuantity": {
+              "value": 79,
+              "unit": "mmHg",
+              "system": "http://unitsofmeasure.org",
+              "code": "mm[Hg]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "http://example.org/fhir/Observation/pulse-20240419",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "pulse-20240419",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "生命徵象"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8867-4",
+              "display": "Heart rate"
+            }
+          ],
+          "text": "脈搏"
+        },
+        "subject": {
+          "reference": "Patient/metabolic-syndrome-001"
+        },
+        "effectiveDateTime": "2024-04-19T16:51:00+08:00",
+        "valueQuantity": {
+          "value": 73,
+          "unit": "/min",
+          "system": "http://unitsofmeasure.org",
+          "code": "/min"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://example.org/fhir/Observation/spo2-20240419",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "spo2-20240419",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "生命徵象"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2708-6",
+              "display": "Oxygen saturation in Arterial blood"
+            }
+          ],
+          "text": "血氧"
+        },
+        "subject": {
+          "reference": "Patient/metabolic-syndrome-001"
+        },
+        "effectiveDateTime": "2024-04-19T16:51:00+08:00",
+        "valueQuantity": {
+          "value": 95,
+          "unit": "%",
+          "system": "http://unitsofmeasure.org",
+          "code": "%"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://example.org/fhir/Observation/temp-20240419",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "temp-20240419",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "生命徵象"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8310-5",
+              "display": "Body temperature"
+            }
+          ],
+          "text": "體溫"
+        },
+        "subject": {
+          "reference": "Patient/metabolic-syndrome-001"
+        },
+        "effectiveDateTime": "2024-04-19T16:51:00+08:00",
+        "valueQuantity": {
+          "value": 36.8,
+          "unit": "°C",
+          "system": "http://unitsofmeasure.org",
+          "code": "Cel"
+        }
+      }
+    }
+  ]
+}

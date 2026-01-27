@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>血壓趨勢圖</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft JhengHei', 'PingFang TC', Arial, sans-serif;
+            background-color: #f5f7fa;
+            min-height: 100vh;
+        }
+        .header {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .header h1 {
+            flex: 1;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+        .header-icons {
+            display: flex;
+            gap: 15px;
+        }
+        .tabs {
+            background: white;
+            padding: 10px 20px;
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .tab-btn {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .tab-btn.active {
+            color: #3498db;
+            border-bottom: 2px solid #3498db;
+        }
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .chart-title {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+        }
+        .edit-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .footer-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+        .footer-item.active {
+            color: #3498db;
+        }
+        .footer-item span {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <h1>血壓趨勢圖</h1>
+        <div class="header-icons">
+            <span>🔔</span>
+            <span>💬</span>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchPeriod('day', event)">日</button>
+        <button class="tab-btn" onclick="switchPeriod('month', event)">月</button>
+        <button class="tab-btn" onclick="switchPeriod('year', event)">年</button>
+        <button class="tab-btn" onclick="switchView('asc', event)">升</button>
+        <button class="tab-btn" onclick="switchView('desc', event)">降</button>
+        <button class="tab-btn" onclick="switchView('list', event)">列表</button>
+    </div>
+
+    <div class="container">
+        <div class="chart-container">
+            <div class="chart-title">血壓趨勢圖</div>
+            <button class="edit-btn" onclick="editRecord()">✏️</button>
+            <div class="chart-wrapper">
+                <canvas id="bpChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-title">血壓紀錄分布圖</div>
+            <div class="chart-wrapper">
+                <canvas id="bpDistributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-item">
+            <span>💬</span>
+            <span>聊天室</span>
+        </div>
+        <div class="footer-item">
+            <span>📅</span>
+            <span>行事曆</span>
+        </div>
+        <div class="footer-item active">
+            <span>🏠</span>
+            <span>首頁</span>
+        </div>
+        <div class="footer-item">
+            <span>📋</span>
+            <span>清單</span>
+        </div>
+        <div class="footer-item">
+            <span>🔧</span>
+            <span>工具箱</span>
+        </div>
+    </div>
+
+    <script type="module">
+        import { LTC888Client } from '../src/index.js';
+
+        let client = null;
+        let patientId = null;
+        let bpChart = null;
+        let distributionChart = null;
+
+        // 範例資料
+        const sampleData = [
+            { date: '2023-08-17T14:14:00', systolic: 138, diastolic: 89 },
+            { date: '2023-08-19T14:08:00', systolic: 145, diastolic: 97 },
+            { date: '2023-08-21T14:07:00', systolic: 136, diastolic: 80 },
+            { date: '2023-08-25T14:07:00', systolic: 138, diastolic: 98 },
+            { date: '2023-08-26T17:06:00', systolic: 140, diastolic: 89 }
+        ];
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                client = new LTC888Client();
+                await client.initialize();
+                patientId = await client.getPatientId();
+                
+                // 載入血壓資料
+                await loadBloodPressureData();
+            } catch (error) {
+                console.error('初始化失敗:', error);
+                // 使用範例資料
+                renderChart(sampleData);
+            }
+        });
+
+        async function loadBloodPressureData() {
+            try {
+                const observations = await client.getObservation(null, {
+                    code: 'http://loinc.org|85354-9'
+                });
+
+                const bpData = parseObservations(observations);
+                renderChart(bpData);
+            } catch (error) {
+                console.error('載入資料失敗:', error);
+                renderChart(sampleData);
+            }
+        }
+
+        function parseObservations(observations) {
+            const entries = observations.entry || [];
+            return entries.map(entry => {
+                const obs = entry.resource;
+                const systolic = obs.component?.find(c => c.code?.coding?.[0]?.code === '8480-6')?.valueQuantity?.value;
+                const diastolic = obs.component?.find(c => c.code?.coding?.[0]?.code === '8462-4')?.valueQuantity?.value;
+                return {
+                    date: obs.effectiveDateTime,
+                    systolic: systolic,
+                    diastolic: diastolic
+                };
+            }).filter(d => d.systolic && d.diastolic)
+              .sort((a, b) => new Date(a.date) - new Date(b.date));
+        }
+
+        function renderChart(data) {
+            const ctx = document.getElementById('bpChart').getContext('2d');
+            
+            if (bpChart) {
+                bpChart.destroy();
+            }
+
+            bpChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => new Date(d.date).toLocaleDateString('zh-TW')),
+                    datasets: [
+                        {
+                            label: '收縮壓 (mmHg)',
+                            data: data.map(d => d.systolic),
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            tension: 0.1
+                        },
+                        {
+                            label: '舒張壓 (mmHg)',
+                            data: data.map(d => d.diastolic),
+                            borderColor: 'rgb(153, 102, 255)',
+                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 70,
+                            max: 150
+                        }
+                    }
+                }
+            });
+
+            // 分布圖
+            const distCtx = document.getElementById('bpDistributionChart').getContext('2d');
+            if (distributionChart) {
+                distributionChart.destroy();
+            }
+
+            distributionChart = new Chart(distCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['正常', '偏高', '高'],
+                    datasets: [{
+                        label: '血壓分布',
+                        data: calculateDistribution(data),
+                        backgroundColor: [
+                            'rgba(75, 192, 192, 0.6)',
+                            'rgba(255, 206, 86, 0.6)',
+                            'rgba(255, 99, 132, 0.6)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function calculateDistribution(data) {
+            let normal = 0, high = 0, veryHigh = 0;
+            data.forEach(d => {
+                if (d.systolic >= 140 || d.diastolic >= 90) {
+                    veryHigh++;
+                } else if (d.systolic >= 130 || d.diastolic >= 85) {
+                    high++;
+                } else {
+                    normal++;
+                }
+            });
+            return [normal, high, veryHigh];
+        }
+
+        window.switchPeriod = function(period, event) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+            // 重新載入資料（可以根據 period 過濾資料）
+            loadBloodPressureData();
+        };
+
+        window.switchView = function(view, event) {
+            if (event && event.target) {
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+            // 切換視圖邏輯
+            if (view === 'list') {
+                // 顯示列表視圖
+                alert('列表視圖功能開發中');
+            }
+        };
+
+        window.editRecord = function() {
+            alert('編輯功能開發中');
+        };
+
+        window.goBack = function() {
+            window.location.href = './metabolic-syndrome.html';
+        };
+    </script>
+</body>
+</html>

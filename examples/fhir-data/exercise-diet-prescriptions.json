@@ -1,0 +1,243 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "timestamp": "2025-11-14T10:00:00+08:00",
+  "entry": [
+    {
+      "fullUrl": "http://example.org/fhir/ServiceRequest/exercise-prescription-001",
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "exercise-prescription-001",
+        "status": "active",
+        "intent": "order",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "229065009",
+              "display": "Exercise therapy"
+            }
+          ],
+          "text": "運動處方"
+        },
+        "subject": {
+          "reference": "Patient/metabolic-syndrome-001"
+        },
+        "authoredOn": "2025-11-14T10:00:00+08:00",
+        "requester": {
+          "reference": "Practitioner/current"
+        },
+        "extension": [
+          {
+            "url": "http://twcore.mohw.gov.tw/fhir/StructureDefinition/tw-exercise-prescription",
+            "extension": [
+              {
+                "url": "type",
+                "valueCode": "moderate"
+              },
+              {
+                "url": "duration",
+                "valueInteger": 30
+              },
+              {
+                "url": "frequency",
+                "valueInteger": 3
+              }
+            ]
+          }
+        ],
+        "note": [
+          {
+            "text": "中強度運動 (活動時可交談,無法唱歌, 如慢跑、游泳、騎腳踏車、有氧舞蹈)，每次30分鐘，每週3天"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "http://example.org/fhir/NutritionOrder/diet-prescription-001",
+      "resource": {
+        "resourceType": "NutritionOrder",
+        "id": "diet-prescription-001",
+        "status": "active",
+        "patient": {
+          "reference": "Patient/metabolic-syndrome-001"
+        },
+        "dateTime": "2025-11-14T10:00:00+08:00",
+        "orderer": {
+          "reference": "Practitioner/current"
+        },
+        "oralDiet": {
+          "type": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "226529007",
+                "display": "Therapeutic diet"
+              }
+            ],
+            "text": "飲食處方"
+          },
+          "schedule": [
+            {
+              "repeat": {
+                "frequency": 3,
+                "period": 1,
+                "periodUnit": "d"
+              }
+            }
+          ],
+          "nutrient": [
+            {
+              "modifier": {
+                "coding": [
+                  {
+                    "system": "http://snomed.info/sct",
+                    "code": "226529007",
+                    "display": "Calorie"
+                  }
+                ],
+                "text": "熱量"
+              },
+              "amount": {
+                "value": 1800,
+                "unit": "kcal",
+                "system": "http://unitsofmeasure.org",
+                "code": "kcal"
+              }
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://twcore.mohw.gov.tw/fhir/StructureDefinition/tw-diet-adjustments",
+              "extension": [
+                {
+                  "url": "reduceFried",
+                  "valueBoolean": true
+                },
+                {
+                  "url": "reduceSweets",
+                  "valueBoolean": true
+                },
+                {
+                  "url": "reduceCarbs",
+                  "valueBoolean": true
+                },
+                {
+                  "url": "reduceSalt",
+                  "valueBoolean": true
+                },
+                {
+                  "url": "reduceSugaryDrinks",
+                  "valueBoolean": true
+                },
+                {
+                  "url": "increaseProtein",
+                  "valueBoolean": true
+                },
+                {
+                  "url": "increaseVegetables",
+                  "valueBoolean": true
+                }
+              ]
+            }
+          ],
+          "texture": [
+            {
+              "modifier": {
+                "coding": [
+                  {
+                    "system": "http://snomed.info/sct",
+                    "code": "226529007",
+                    "display": "Diet modification"
+                  }
+                ],
+                "text": "飲食調整內容"
+              }
+            }
+          ]
+        },
+        "note": [
+          {
+            "text": "建議攝取熱量: 1800 大卡。飲食調整: 減少油炸物、減少甜食、減少精緻澱粉類、減鹽、減少含糖飲料、增加蛋白質、增加蔬菜"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "http://example.org/fhir/CarePlan/metabolic-syndrome-careplan-001",
+      "resource": {
+        "resourceType": "CarePlan",
+        "id": "metabolic-syndrome-careplan-001",
+        "status": "active",
+        "intent": "plan",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "698360004",
+                "display": "Metabolic syndrome management"
+              }
+            ],
+            "text": "代謝症候群管理"
+          }
+        ],
+        "subject": {
+          "reference": "Patient/metabolic-syndrome-001"
+        },
+        "period": {
+          "start": "2025-11-14"
+        },
+        "created": "2025-11-14T10:00:00+08:00",
+        "author": {
+          "reference": "Practitioner/current"
+        },
+        "activity": [
+          {
+            "detail": {
+              "kind": "ServiceRequest",
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://snomed.info/sct",
+                    "code": "229065009",
+                    "display": "Exercise therapy"
+                  }
+                ],
+                "text": "運動處方"
+              },
+              "status": "in-progress",
+              "scheduledPeriod": {
+                "start": "2025-11-14"
+              },
+              "performer": [
+                {
+                  "reference": "Patient/metabolic-syndrome-001"
+                }
+              ]
+            }
+          },
+          {
+            "detail": {
+              "kind": "NutritionOrder",
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://snomed.info/sct",
+                    "code": "226529007",
+                    "display": "Therapeutic diet"
+                  }
+                ],
+                "text": "飲食處方"
+              },
+              "status": "in-progress",
+              "scheduledPeriod": {
+                "start": "2025-11-14"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

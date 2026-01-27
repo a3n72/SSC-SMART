@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生理紀錄</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft JhengHei', 'PingFang TC', Arial, sans-serif;
+            background-color: #f5f7fa;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        .header {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .header h1 {
+            flex: 1;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+        .header-icons {
+            display: flex;
+            gap: 15px;
+        }
+        .chat-container {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .date-group {
+            margin-bottom: 30px;
+        }
+        .date-header {
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 15px;
+            padding: 5px 0;
+        }
+        .message {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        .message-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .record-item:last-child {
+            border-bottom: none;
+        }
+        .record-label {
+            color: #6c757d;
+        }
+        .record-value {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .input-area {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .input-area button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <h1>子家屬群(3)</h1>
+        <div class="header-icons">
+            <span>🔍</span>
+            <span>📤</span>
+        </div>
+    </div>
+
+    <div class="chat-container" id="chatContainer">
+        <!-- 訊息會動態載入 -->
+    </div>
+
+    <div class="input-area">
+        <button onclick="showAddRecord()">+</button>
+        <input type="text" placeholder="輸入訊息" id="messageInput">
+        <button onclick="sendMessage()">📤</button>
+    </div>
+
+    <script type="module">
+        import { LTC888Client } from '../src/index.js';
+
+        let client = null;
+        let patientId = null;
+
+        // 範例資料
+        const sampleRecords = [
+            {
+                date: '2024-04-17',
+                time: '17:02',
+                day: '三',
+                systolic: 125,
+                diastolic: 66,
+                pulse: 78,
+                bloodOxygen: 94,
+                temperature: 36.9
+            },
+            {
+                date: '2024-04-18',
+                time: '08:50',
+                day: '四',
+                systolic: 136,
+                diastolic: 72,
+                pulse: 69,
+                bloodOxygen: 95,
+                temperature: 36.8
+            },
+            {
+                date: '2024-04-19',
+                time: '16:51',
+                day: '五',
+                systolic: 138,
+                diastolic: 79,
+                pulse: 73,
+                bloodOxygen: 95,
+                temperature: 36.8
+            }
+        ];
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                client = new LTC888Client();
+                await client.initialize();
+                patientId = await client.getPatientId();
+                
+                // 載入生理紀錄
+                await loadPhysiologicalRecords();
+            } catch (error) {
+                console.error('初始化失敗:', error);
+                // 使用範例資料
+                renderRecords(sampleRecords);
+            }
+        });
+
+        async function loadPhysiologicalRecords() {
+            try {
+                const observations = await client.getObservation();
+                const records = parsePhysiologicalRecords(observations);
+                renderRecords(records);
+            } catch (error) {
+                console.error('載入資料失敗:', error);
+                renderRecords(sampleRecords);
+            }
+        }
+
+        function parsePhysiologicalRecords(observations) {
+            const entries = observations.entry || [];
+            const records = [];
+            const groupedByDate = {};
+
+            entries.forEach(entry => {
+                const obs = entry.resource;
+                const date = obs.effectiveDateTime ? obs.effectiveDateTime.split('T')[0] : null;
+                if (!date) return;
+
+                if (!groupedByDate[date]) {
+                    groupedByDate[date] = {
+                        date: date,
+                        time: obs.effectiveDateTime ? new Date(obs.effectiveDateTime).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }) : '',
+                        day: getDayOfWeek(date),
+                        systolic: null,
+                        diastolic: null,
+                        pulse: null,
+                        bloodOxygen: null,
+                        temperature: null
+                    };
+                }
+
+                const code = obs.code?.coding?.[0]?.code;
+                const record = groupedByDate[date];
+
+                if (code === '85354-9') {
+                    // 血壓
+                    record.systolic = obs.component?.find(c => c.code?.coding?.[0]?.code === '8480-6')?.valueQuantity?.value;
+                    record.diastolic = obs.component?.find(c => c.code?.coding?.[0]?.code === '8462-4')?.valueQuantity?.value;
+                } else if (code === '8867-4') {
+                    // 脈搏
+                    record.pulse = obs.valueQuantity?.value;
+                } else if (code === '2708-6') {
+                    // 血氧
+                    record.bloodOxygen = obs.valueQuantity?.value;
+                } else if (code === '8310-5') {
+                    // 體溫
+                    record.temperature = obs.valueQuantity?.value;
+                }
+            });
+
+            return Object.values(groupedByDate).sort((a, b) => new Date(b.date) - new Date(a.date));
+        }
+
+        function getDayOfWeek(dateStr) {
+            const days = ['日', '一', '二', '三', '四', '五', '六'];
+            const date = new Date(dateStr);
+            return days[date.getDay()];
+        }
+
+        function renderRecords(records) {
+            const container = document.getElementById('chatContainer');
+            container.innerHTML = '';
+
+            let currentDate = '';
+            records.forEach(record => {
+                if (record.date !== currentDate) {
+                    currentDate = record.date;
+                    const dateHeader = document.createElement('div');
+                    dateHeader.className = 'date-header';
+                    dateHeader.textContent = `${formatDate(record.date)} (${record.day})`;
+                    container.appendChild(dateHeader);
+                }
+
+                const message = document.createElement('div');
+                message.className = 'message';
+                message.innerHTML = `
+                    <div class="message-header">
+                        <span>生理紀錄</span>
+                        <span>${record.time}</span>
+                    </div>
+                    <div class="message-title">(個案)</div>
+                    <div class="record-item">
+                        <span class="record-label">收縮壓</span>
+                        <span class="record-value">${record.systolic || '--'}</span>
+                    </div>
+                    <div class="record-item">
+                        <span class="record-label">舒張壓</span>
+                        <span class="record-value">${record.diastolic || '--'}</span>
+                    </div>
+                    <div class="record-item">
+                        <span class="record-label">脈搏</span>
+                        <span class="record-value">${record.pulse || '--'} 次/min</span>
+                    </div>
+                    <div class="record-item">
+                        <span class="record-label">血氧</span>
+                        <span class="record-value">${record.bloodOxygen || '--'}%</span>
+                    </div>
+                    <div class="record-item">
+                        <span class="record-label">體溫</span>
+                        <span class="record-value">${record.temperature || '--'}°C</span>
+                    </div>
+                `;
+                container.appendChild(message);
+            });
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+        }
+
+        window.showAddRecord = function() {
+            alert('新增紀錄功能開發中');
+        };
+
+        window.sendMessage = function() {
+            const input = document.getElementById('messageInput');
+            if (input.value.trim()) {
+                // 發送訊息邏輯
+                input.value = '';
+            }
+        };
+
+        window.goBack = function() {
+            window.location.href = './metabolic-syndrome.html';
+        };
+    </script>
+</body>
+</html>

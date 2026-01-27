@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代謝症候群疾病管理紀錄表</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft JhengHei', 'PingFang TC', Arial, sans-serif;
+            background-color: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #ff6b35;
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .tab {
+            padding: 12px 24px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 15px;
+            color: #495057;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            background: #28a745;
+            color: white;
+        }
+        .form-section {
+            margin-bottom: 30px;
+        }
+        .form-section h2 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .form-group .unit {
+            display: inline-block;
+            margin-left: 8px;
+            color: #6c757d;
+        }
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .radio-option {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: white;
+        }
+        .radio-option:hover {
+            border-color: #3498db;
+        }
+        .radio-option.selected {
+            border-color: #3498db;
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .radio-option input[type="radio"] {
+            display: none;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .checkbox-option {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: white;
+        }
+        .checkbox-option:hover {
+            border-color: #28a745;
+        }
+        .checkbox-option.checked {
+            border-color: #28a745;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .checkbox-option input[type="checkbox"] {
+            display: none;
+        }
+        .risk-assessment {
+            margin-top: 20px;
+        }
+        .risk-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .risk-item h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+        .risk-options {
+            display: flex;
+            gap: 10px;
+        }
+        .risk-option {
+            padding: 6px 12px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            background: white;
+        }
+        .risk-option:hover {
+            border-color: #ff6b35;
+        }
+        .risk-option.selected {
+            border-color: #ff6b35;
+            background: #fff3e0;
+            color: #e65100;
+        }
+        .risk-option input[type="radio"] {
+            display: none;
+        }
+        .reference-values {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-close {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-save {
+            background: #ff6b35;
+            color: white;
+        }
+        .btn-close-case {
+            background: #dc3545;
+            color: white;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 {
+            color: #28a745;
+            font-size: 20px;
+            margin: 0;
+            border: none;
+            padding: 0;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+        .dropdown-group {
+            margin-bottom: 20px;
+        }
+        .dropdown-group label {
+            display: block;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .dropdown-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>代謝症候群疾病管理紀錄表</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('basic', event)">基本資料</button>
+            <button class="tab" onclick="showTab('indicators', event)">五大指標</button>
+            <button class="tab" onclick="showTab('prescriptions', event)">處方管理</button>
+        </div>
+
+        <!-- 基本資料標籤 -->
+        <div id="tab-basic" class="tab-content">
+            <!-- 評估資訊 -->
+            <div class="form-section">
+                <div class="form-group">
+                    <label>評估類型</label>
+                    <div class="radio-group">
+                        <label class="radio-option selected">
+                            <input type="radio" name="assessmentType" value="enrollment" checked>
+                            收案評估
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="assessmentType" value="annual">
+                            年度評估
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>評估日期</label>
+                    <input type="date" id="assessmentDate" value="2025-11-14">
+                </div>
+            </div>
+
+            <!-- 基本資料與生活習慣 -->
+            <div class="form-section">
+                <h2>基本資料與生活習慣</h2>
+                <div class="form-group">
+                    <label>身高 <span class="unit">公分</span></label>
+                    <input type="text" id="height" placeholder="172">
+                </div>
+                <div class="form-group">
+                    <label>體重 <span class="unit">公斤</span></label>
+                    <input type="text" id="weight" placeholder="74">
+                </div>
+                <div class="form-group">
+                    <label>運動</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="exercise" value="none">
+                            無
+                        </label>
+                        <label class="radio-option selected">
+                            <input type="radio" name="exercise" value="occasional" checked>
+                            偶爾
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="exercise" value="regular">
+                            經常(每週累計達150分鐘)
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>抽菸</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="smoking" value="none">
+                            無
+                        </label>
+                        <label class="radio-option selected">
+                            <input type="radio" name="smoking" value="occasional" checked>
+                            偶爾
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="smoking" value="less10">
+                            平均一天約吸10支菸以下
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="smoking" value="more10">
+                            平均一天約吸10支菸(含)以上
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>嚼檳榔</label>
+                    <div class="radio-group">
+                        <label class="radio-option selected">
+                            <input type="radio" name="betelNut" value="none" checked>
+                            無
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="betelNut" value="occasional">
+                            偶爾
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="betelNut" value="regular">
+                            經常
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>伴隨疾病</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="comorbidities" value="none">
+                            無
+                        </label>
+                        <label class="checkbox-option checked">
+                            <input type="checkbox" name="comorbidities" value="diabetes" checked>
+                            糖尿病
+                        </label>
+                        <label class="checkbox-option checked">
+                            <input type="checkbox" name="comorbidities" value="hypertension" checked>
+                            高血壓
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 伴隨疾病選擇 -->
+            <div class="form-section">
+                <h2>伴隨疾病</h2>
+                <div class="checkbox-group">
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="associatedDiseases" value="cardiovascular">
+                        心臟血管疾病
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="associatedDiseases" value="hyperlipidemia">
+                        高血脂症
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="associatedDiseases" value="kidney">
+                        腎臟病
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="associatedDiseases" value="cerebrovascular">
+                        腦血管疾病
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="associatedDiseases" value="obesity">
+                        肥胖
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="associatedDiseases" value="other">
+                        其他
+                    </label>
+                </div>
+            </div>
+
+            <!-- 慢性病風險評估 -->
+            <div class="form-section">
+                <h2>得到慢性病的風險 (僅需收案時評估)</h2>
+                <div class="risk-assessment">
+                    <div class="risk-item">
+                        <h4>冠心病</h4>
+                        <div class="risk-options">
+                            <label class="risk-option">
+                                <input type="radio" name="coronaryRisk" value="high">
+                                高
+                            </label>
+                            <label class="risk-option">
+                                <input type="radio" name="coronaryRisk" value="medium">
+                                中
+                            </label>
+                            <label class="risk-option">
+                                <input type="radio" name="coronaryRisk" value="low">
+                                低
+                            </label>
+                            <label class="risk-option">
+                                <input type="radio" name="coronaryRisk" value="na">
+                                不適用
+                            </label>
+                        </div>
+                    </div>
+                    <div class="risk-item">
+                        <h4>糖尿病</h4>
+                        <div class="risk-options">
+                            <label class="risk-option">
+                                <input type="radio" name="diabetesRisk" value="high">
+                                高
+                            </label>
+                            <label class="risk-option">
+                                <input type="radio" name="diabetesRisk" value="medium">
+                                中
+                            </label>
+                            <label class="risk-option">
+                                <input type="radio" name="diabetesRisk" value="low">
+                                低
+                            </label>
+                            <label class="risk-option">
+                                <input type="radio" name="diabetesRisk" value="na">
+                                不適用
+                            </label>
+                        </div>
+                    </div>
+                    <div class="risk-item">
+                        <h4>高血壓</h4>
+                        <div class="risk-options">
+                            <label class="risk-option">
+                                <input type="radio" name="hypertensionRisk" value="high">
+                                高
+                            </label>
+                            <label class="risk-option">
+                                <input type="radio" name="hypertensionRisk" value="medium">
+                                中
+                            </label>
+                            <label class="risk-option">
+                                <input type="radio" name="hypertensionRisk" value="low">
+                                低
+                            </label>
+                            <label class="risk-option">
+                                <input type="radio" name="hypertensionRisk" value="na">
+                                不適用
+                            </label>
+                        </div>
+                    </div>
+                    <div class="risk-item">
+                        <h4>腦中風</h4>
+                        <div class="risk-options">
+                            <label class="risk-option">
+                                <input type="radio" name="strokeRisk" value="high">
+                                高
+                            </label>
+                            <label class="risk-option">
+                                <input type="radio" name="strokeRisk" value="medium">
+                                中
+                            </label>
+                            <label class="risk-option">
+                                <input type="radio" name="strokeRisk" value="low">
+                                低
+                            </label>
+                            <label class="risk-option">
+                                <input type="radio" name="strokeRisk" value="na">
+                                不適用
+                            </label>
+                        </div>
+                    </div>
+                    <div class="risk-item">
+                        <h4>心血管不良事件</h4>
+                        <div class="risk-options">
+                            <label class="risk-option">
+                                <input type="radio" name="maceRisk" value="high">
+                                高
+                            </label>
+                            <label class="risk-option">
+                                <input type="radio" name="maceRisk" value="medium">
+                                中
+                            </label>
+                            <label class="risk-option">
+                                <input type="radio" name="maceRisk" value="low">
+                                低
+                            </label>
+                            <label class="risk-option">
+                                <input type="radio" name="maceRisk" value="na">
+                                不適用
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn btn-close-case" onclick="closeCase()">結案</button>
+                <button class="btn btn-close" onclick="closeForm()">關閉</button>
+                <button class="btn btn-save" onclick="saveBasicData()">收案</button>
+            </div>
+        </div>
+
+        <!-- 五大指標標籤 -->
+        <div id="tab-indicators" class="tab-content hidden">
+            <div class="form-section">
+                <h2>代謝症候群五大指標及身體質量指數 (參考值)</h2>
+                <div class="form-group">
+                    <label>檢驗日期</label>
+                    <input type="date" id="examDate" value="2025-07-15">
+                </div>
+                <div class="form-group">
+                    <label>腰圍 <span class="unit">公分</span></label>
+                    <input type="text" id="waistCircumference" placeholder="90">
+                    <div class="reference-values">參考值: 男性 ≥ 90 公分, 女性 ≥ 80 公分</div>
+                </div>
+                <div class="form-group">
+                    <label>飯前血糖值 <span class="unit">mg/dL</span></label>
+                    <input type="text" id="fastingGlucose" placeholder="90">
+                </div>
+                <div class="form-group">
+                    <label>醣化血紅素(HbA1c) <span class="unit">%</span></label>
+                    <input type="text" id="hba1c" placeholder="5.5">
+                    <div class="reference-values">正常範圍: 4.0-6.0%</div>
+                </div>
+                <div class="form-group">
+                    <label>收縮壓 <span class="unit">mmHg</span></label>
+                    <input type="text" id="systolicBP" placeholder="135">
+                </div>
+                <div class="form-group">
+                    <label>舒張壓 <span class="unit">mmHg</span></label>
+                    <input type="text" id="diastolicBP" placeholder="80">
+                    <div class="reference-values">參考值: (收縮壓 ≥ 130mmHg, 舒張壓 ≥ 85mmHg)</div>
+                </div>
+                <div class="form-group">
+                    <label>三酸甘油脂值 <span class="unit">mg/dL</span></label>
+                    <input type="text" id="triglycerides" placeholder="232">
+                </div>
+                <div class="form-group">
+                    <label>高密度脂蛋白膽固醇值 <span class="unit">mg/dL</span></label>
+                    <input type="text" id="hdlCholesterol" placeholder="45">
+                    <div class="reference-values">參考值: 男性 < 40 mg/dL, 女性 < 50 mg/dL</div>
+                </div>
+                <div class="form-group">
+                    <label>低密度脂蛋白膽固醇值 (LDL) <span class="unit">mg/dL</span></label>
+                    <input type="text" id="ldlCholesterol" placeholder="86.6">
+                </div>
+                <div class="form-group">
+                    <label>總膽固醇值 <span class="unit">mg/dL</span></label>
+                    <input type="text" id="totalCholesterol" placeholder="178">
+                </div>
+                <div class="form-group">
+                    <label>身體質量指數(BMI) <span class="unit">kg/m²</span></label>
+                    <input type="text" id="bmi" placeholder="25.0" readonly>
+                </div>
+                <div class="form-section">
+                    <p style="color: #6c757d; font-size: 14px; margin-top: 20px;">
+                        <strong>疾病管理指引:</strong> (醫師對病人說明治療用藥外, 亦須改善危險因子的重要性)
+                    </p>
+                </div>
+            </div>
+            <div class="buttons">
+                <button class="btn btn-close" onclick="closeForm()">關閉</button>
+                <button class="btn btn-save" onclick="saveIndicators()">收案</button>
+            </div>
+        </div>
+
+        <!-- 處方管理標籤 -->
+        <div id="tab-prescriptions" class="tab-content hidden">
+            <div class="form-section">
+                <h2>處方管理</h2>
+                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                    <button class="btn btn-save" onclick="openExercisePrescription()">運動處方</button>
+                    <button class="btn btn-save" onclick="openDietPrescription()">飲食處方</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 運動處方模態框 -->
+    <div id="exerciseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>運動處方</h2>
+                <button class="modal-close" onclick="closeModal('exerciseModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>類型</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="exerciseType" value="light">
+                        輕度運動 (散步、走路、原地踏步)
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="exerciseType" value="moderate">
+                        中強度運動 (活動時可交談,無法唱歌, 如慢跑、游泳、騎腳踏車、有氧舞蹈)
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="exerciseType" value="high">
+                        高強度運動 (高強度間歇、拳擊)
+                    </label>
+                </div>
+            </div>
+            <div class="dropdown-group">
+                <label>時間(分)</label>
+                <select id="exerciseDuration">
+                    <option value="">請選擇</option>
+                    <option value="15">15</option>
+                    <option value="30">30</option>
+                    <option value="45">45</option>
+                    <option value="60">60</option>
+                </select>
+            </div>
+            <div class="dropdown-group">
+                <label>每週(天)</label>
+                <select id="exerciseFrequency">
+                    <option value="">請選擇</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                </select>
+            </div>
+            <div class="buttons">
+                <button class="btn btn-close" onclick="closeModal('exerciseModal')">返回</button>
+                <button class="btn btn-save" onclick="saveExercisePrescription()">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 飲食處方模態框 -->
+    <div id="dietModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>飲食處方</h2>
+                <button class="modal-close" onclick="closeModal('dietModal')">&times;</button>
+            </div>
+            <div class="dropdown-group">
+                <label>建議攝取熱量 (大卡):</label>
+                <select id="caloricIntake">
+                    <option value="">請選擇</option>
+                    <option value="1200">1200</option>
+                    <option value="1500">1500</option>
+                    <option value="1800">1800</option>
+                    <option value="2000">2000</option>
+                    <option value="2200">2200</option>
+                    <option value="2500">2500</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>飲食調整內容:</label>
+                <div class="checkbox-group" style="flex-direction: column; align-items: flex-start;">
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="dietAdjustments" value="reduceFried">
+                        減少油炸物
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="dietAdjustments" value="reduceSweets">
+                        減少甜食
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="dietAdjustments" value="reduceCarbs">
+                        減少精緻澱粉類(飯、麵、麵包)
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="dietAdjustments" value="reduceSalt">
+                        減鹽(醬料)
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="dietAdjustments" value="reduceSugaryDrinks">
+                        減少含糖飲料(含果汁)
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="dietAdjustments" value="increaseProtein">
+                        增加蛋白質
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="dietAdjustments" value="increaseVegetables">
+                        增加蔬菜
+                    </label>
+                </div>
+            </div>
+            <div class="buttons">
+                <button class="btn btn-close" onclick="closeModal('dietModal')">返回</button>
+                <button class="btn btn-save" onclick="saveDietPrescription()">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { LTC888Client } from '../src/index.js';
+
+        let client = null;
+        let patientId = null;
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                client = new LTC888Client();
+                await client.initialize();
+                patientId = await client.getPatientId();
+                
+                // 載入現有資料
+                await loadExistingData();
+            } catch (error) {
+                console.error('初始化失敗:', error);
+            }
+
+            // 設定 BMI 自動計算
+            document.getElementById('height').addEventListener('input', calculateBMI);
+            document.getElementById('weight').addEventListener('input', calculateBMI);
+
+            // 設定單選按鈕樣式
+            setupRadioButtons();
+            setupCheckboxes();
+            setupRiskOptions();
+        });
+
+        // 顯示標籤
+        window.showTab = function(tabName, event) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            
+            if (event && event.target) {
+                event.target.classList.add('active');
+            } else {
+                // 如果沒有 event，找到對應的按鈕
+                document.querySelectorAll('.tab').forEach(tab => {
+                    if (tab.textContent.includes(tabName === 'basic' ? '基本資料' : tabName === 'indicators' ? '五大指標' : '處方管理')) {
+                        tab.classList.add('active');
+                    }
+                });
+            }
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+        };
+
+        // 計算 BMI
+        function calculateBMI() {
+            const height = parseFloat(document.getElementById('height').value) / 100; // 轉換為公尺
+            const weight = parseFloat(document.getElementById('weight').value);
+            
+            if (height && weight) {
+                const bmi = (weight / (height * height)).toFixed(1);
+                document.getElementById('bmi').value = bmi;
+            }
+        }
+
+        // 設定單選按鈕
+        function setupRadioButtons() {
+            document.querySelectorAll('.radio-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        // 移除同組其他選項的選中狀態
+                        const groupName = radio.name;
+                        document.querySelectorAll(`input[name="${groupName}"]`).forEach(r => {
+                            r.closest('.radio-option').classList.remove('selected');
+                        });
+                        // 選中當前選項
+                        radio.checked = true;
+                        this.classList.add('selected');
+                    }
+                });
+            });
+        }
+
+        // 設定複選框
+        function setupCheckboxes() {
+            document.querySelectorAll('.checkbox-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const checkbox = this.querySelector('input[type="checkbox"]');
+                    if (checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                        this.classList.toggle('checked', checkbox.checked);
+                    }
+                });
+            });
+        }
+
+        // 設定風險評估選項
+        function setupRiskOptions() {
+            document.querySelectorAll('.risk-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        // 移除同組其他選項的選中狀態
+                        const groupName = radio.name;
+                        document.querySelectorAll(`input[name="${groupName}"]`).forEach(r => {
+                            r.closest('.risk-option').classList.remove('selected');
+                        });
+                        // 選中當前選項
+                        radio.checked = true;
+                        this.classList.add('selected');
+                    }
+                });
+            });
+        }
+
+        // 開啟運動處方
+        window.openExercisePrescription = function() {
+            document.getElementById('exerciseModal').classList.add('active');
+        };
+
+        // 開啟飲食處方
+        window.openDietPrescription = function() {
+            document.getElementById('dietModal').classList.add('active');
+        };
+
+        // 關閉模態框
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        };
+
+        // 儲存基本資料
+        window.saveBasicData = async function() {
+            try {
+                const data = collectBasicData();
+                const fhirResources = convertToFHIR(data);
+                
+                // 上傳到 FHIR Server
+                await uploadToFHIR(fhirResources);
+                
+                alert('資料已成功儲存！');
+            } catch (error) {
+                console.error('儲存失敗:', error);
+                alert('儲存失敗: ' + error.message);
+            }
+        };
+
+        // 儲存指標資料
+        window.saveIndicators = async function() {
+            try {
+                const data = collectIndicatorsData();
+                const fhirResources = convertIndicatorsToFHIR(data);
+                
+                // 上傳到 FHIR Server
+                await uploadToFHIR(fhirResources);
+                
+                alert('指標資料已成功儲存！');
+            } catch (error) {
+                console.error('儲存失敗:', error);
+                alert('儲存失敗: ' + error.message);
+            }
+        };
+
+        // 儲存運動處方
+        window.saveExercisePrescription = async function() {
+            try {
+                if (!client) {
+                    throw new Error('客戶端未初始化');
+                }
+
+                const data = collectExercisePrescription();
+                if (!data.type || !data.duration || !data.frequency) {
+                    alert('請填寫完整的運動處方資訊');
+                    return;
+                }
+
+                const fhirResource = convertExercisePrescriptionToFHIR(data);
+                await client.createResource(fhirResource);
+                closeModal('exerciseModal');
+                alert('運動處方已成功儲存！');
+            } catch (error) {
+                console.error('儲存失敗:', error);
+                alert('儲存失敗: ' + error.message);
+            }
+        };
+
+        // 儲存飲食處方
+        window.saveDietPrescription = async function() {
+            try {
+                if (!client) {
+                    throw new Error('客戶端未初始化');
+                }
+
+                const data = collectDietPrescription();
+                if (!data.caloricIntake) {
+                    alert('請選擇建議攝取熱量');
+                    return;
+                }
+
+                const fhirResource = convertDietPrescriptionToFHIR(data);
+                await client.createResource(fhirResource);
+                closeModal('dietModal');
+                alert('飲食處方已成功儲存！');
+            } catch (error) {
+                console.error('儲存失敗:', error);
+                alert('儲存失敗: ' + error.message);
+            }
+        };
+
+        // 收集基本資料
+        function collectBasicData() {
+            return {
+                assessmentType: document.querySelector('input[name="assessmentType"]:checked')?.value,
+                assessmentDate: document.getElementById('assessmentDate').value,
+                height: document.getElementById('height').value,
+                weight: document.getElementById('weight').value,
+                exercise: document.querySelector('input[name="exercise"]:checked')?.value,
+                smoking: document.querySelector('input[name="smoking"]:checked')?.value,
+                betelNut: document.querySelector('input[name="betelNut"]:checked')?.value,
+                comorbidities: Array.from(document.querySelectorAll('input[name="comorbidities"]:checked')).map(c => c.value),
+                associatedDiseases: Array.from(document.querySelectorAll('input[name="associatedDiseases"]:checked')).map(c => c.value),
+                risks: {
+                    coronary: document.querySelector('input[name="coronaryRisk"]:checked')?.value,
+                    diabetes: document.querySelector('input[name="diabetesRisk"]:checked')?.value,
+                    hypertension: document.querySelector('input[name="hypertensionRisk"]:checked')?.value,
+                    stroke: document.querySelector('input[name="strokeRisk"]:checked')?.value,
+                    mace: document.querySelector('input[name="maceRisk"]:checked')?.value
+                }
+            };
+        }
+
+        // 收集指標資料
+        function collectIndicatorsData() {
+            return {
+                examDate: document.getElementById('examDate').value,
+                waistCircumference: document.getElementById('waistCircumference').value,
+                fastingGlucose: document.getElementById('fastingGlucose').value,
+                hba1c: document.getElementById('hba1c').value,
+                systolicBP: document.getElementById('systolicBP').value,
+                diastolicBP: document.getElementById('diastolicBP').value,
+                triglycerides: document.getElementById('triglycerides').value,
+                hdlCholesterol: document.getElementById('hdlCholesterol').value,
+                ldlCholesterol: document.getElementById('ldlCholesterol').value,
+                totalCholesterol: document.getElementById('totalCholesterol').value,
+                bmi: document.getElementById('bmi').value
+            };
+        }
+
+        // 收集運動處方
+        function collectExercisePrescription() {
+            return {
+                type: document.querySelector('input[name="exerciseType"]:checked')?.value,
+                duration: document.getElementById('exerciseDuration').value,
+                frequency: document.getElementById('exerciseFrequency').value
+            };
+        }
+
+        // 收集飲食處方
+        function collectDietPrescription() {
+            return {
+                caloricIntake: document.getElementById('caloricIntake').value,
+                adjustments: Array.from(document.querySelectorAll('input[name="dietAdjustments"]:checked')).map(c => c.value)
+            };
+        }
+
+        // 轉換為 FHIR 格式
+        function convertToFHIR(data) {
+            const resources = [];
+            const date = data.assessmentDate || new Date().toISOString().split('T')[0];
+
+            // Observation: 身高
+            if (data.height) {
+                resources.push({
+                    resourceType: 'Observation',
+                    status: 'final',
+                    category: [{
+                        coding: [{
+                            system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+                            code: 'vital-signs',
+                            display: '生命徵象'
+                        }]
+                    }],
+                    code: {
+                        coding: [{
+                            system: 'http://loinc.org',
+                            code: '8302-2',
+                            display: 'Body height'
+                        }],
+                        text: '身高'
+                    },
+                    subject: { reference: `Patient/${patientId}` },
+                    effectiveDateTime: date,
+                    valueQuantity: {
+                        value: parseFloat(data.height),
+                        unit: 'cm',
+                        system: 'http://unitsofmeasure.org',
+                        code: 'cm'
+                    }
+                });
+            }
+
+            // Observation: 體重
+            if (data.weight) {
+                resources.push({
+                    resourceType: 'Observation',
+                    status: 'final',
+                    category: [{
+                        coding: [{
+                            system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+                            code: 'vital-signs',
+                            display: '生命徵象'
+                        }]
+                    }],
+                    code: {
+                        coding: [{
+                            system: 'http://loinc.org',
+                            code: '29463-7',
+                            display: 'Body weight'
+                        }],
+                        text: '體重'
+                    },
+                    subject: { reference: `Patient/${patientId}` },
+                    effectiveDateTime: date,
+                    valueQuantity: {
+                        value: parseFloat(data.weight),
+                        unit: 'kg',
+                        system: 'http://unitsofmeasure.org',
+                        code: 'kg'
+                    }
+                });
+            }
+
+            // Observation: 運動習慣
+            if (data.exercise) {
+                resources.push({
+                    resourceType: 'Observation',
+                    status: 'final',
+                    category: [{
+                        coding: [{
+                            system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+                            code: 'social-history',
+                            display: '社會史'
+                        }]
+                    }],
+                    code: {
+                        coding: [{
+                            system: 'http://loinc.org',
+                            code: '68515-6',
+                            display: 'Exercise'
+                        }],
+                        text: '運動習慣'
+                    },
+                    subject: { reference: `Patient/${patientId}` },
+                    effectiveDateTime: date,
+                    valueCodeableConcept: {
+                        coding: [{
+                            system: 'http://snomed.info/sct',
+                            code: getExerciseCode(data.exercise),
+                            display: getExerciseDisplay(data.exercise)
+                        }],
+                        text: getExerciseDisplay(data.exercise)
+                    }
+                });
+            }
+
+            // Condition: 伴隨疾病
+            if (data.comorbidities && data.comorbidities.length > 0) {
+                data.comorbidities.forEach(comorbidity => {
+                    if (comorbidity !== 'none') {
+                        resources.push({
+                            resourceType: 'Condition',
+                            clinicalStatus: {
+                                coding: [{
+                                    system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+                                    code: 'active',
+                                    display: 'Active'
+                                }]
+                            },
+                            code: {
+                                coding: [{
+                                    system: 'http://snomed.info/sct',
+                                    code: getConditionCode(comorbidity),
+                                    display: getConditionDisplay(comorbidity)
+                                }],
+                                text: getConditionDisplay(comorbidity)
+                            },
+                            subject: { reference: `Patient/${patientId}` },
+                            onsetDateTime: date
+                        });
+                    }
+                });
+            }
+
+            // RiskAssessment: 風險評估
+            if (data.risks) {
+                const riskMap = {
+                    coronary: { code: '408512008', display: 'Risk of coronary heart disease', text: '冠心病' },
+                    diabetes: { code: '73211009', display: 'Diabetes mellitus', text: '糖尿病' },
+                    hypertension: { code: '38341003', display: 'Hypertensive disorder', text: '高血壓' },
+                    stroke: { code: '422504002', display: 'Stroke', text: '腦中風' },
+                    mace: { code: '408512008', display: 'Major adverse cardiovascular event', text: '心血管不良事件' }
+                };
+
+                const riskLevelMap = {
+                    high: { code: 'high', display: 'High', text: '高' },
+                    medium: { code: 'moderate', display: 'Moderate', text: '中' },
+                    low: { code: 'low', display: 'Low', text: '低' }
+                };
+
+                Object.keys(data.risks).forEach(riskType => {
+                    const riskValue = data.risks[riskType];
+                    if (riskValue && riskValue !== 'na' && riskMap[riskType]) {
+                        const riskInfo = riskMap[riskType];
+                        const levelInfo = riskLevelMap[riskValue];
+                        
+                        if (levelInfo) {
+                            resources.push({
+                                resourceType: 'RiskAssessment',
+                                status: 'final',
+                                code: {
+                                    coding: [{
+                                        system: 'http://snomed.info/sct',
+                                        code: riskInfo.code,
+                                        display: riskInfo.display
+                                    }],
+                                    text: riskInfo.text + '風險'
+                                },
+                                subject: { reference: `Patient/${patientId}` },
+                                occurrenceDateTime: date,
+                                prediction: [{
+                                    outcome: {
+                                        coding: [{
+                                            system: 'http://snomed.info/sct',
+                                            code: riskInfo.code,
+                                            display: riskInfo.display
+                                        }],
+                                        text: riskInfo.text
+                                    },
+                                    qualitativeRisk: {
+                                        coding: [{
+                                            system: 'http://terminology.hl7.org/CodeSystem/risk-probability',
+                                            code: levelInfo.code,
+                                            display: levelInfo.display
+                                        }],
+                                        text: levelInfo.text
+                                    }
+                                }]
+                            });
+                        }
+                    }
+                });
+            }
+
+            return resources;
+        }
+
+        // 轉換指標為 FHIR
+        function convertIndicatorsToFHIR(data) {
+            const resources = [];
+            const date = data.examDate || new Date().toISOString().split('T')[0];
+
+            // 腰圍
+            if (data.waistCircumference) {
+                resources.push({
+                    resourceType: 'Observation',
+                    status: 'final',
+                    code: {
+                        coding: [{
+                            system: 'http://loinc.org',
+                            code: '8280-0',
+                            display: 'Waist Circumference'
+                        }],
+                        text: '腰圍'
+                    },
+                    subject: { reference: `Patient/${patientId}` },
+                    effectiveDateTime: date,
+                    valueQuantity: {
+                        value: parseFloat(data.waistCircumference),
+                        unit: 'cm',
+                        system: 'http://unitsofmeasure.org',
+                        code: 'cm'
+                    }
+                });
+            }
+
+            // 飯前血糖
+            if (data.fastingGlucose) {
+                resources.push({
+                    resourceType: 'Observation',
+                    status: 'final',
+                    code: {
+                        coding: [{
+                            system: 'http://loinc.org',
+                            code: '33747-0',
+                            display: 'Glucose [Mass/volume] in Blood --fasting'
+                        }],
+                        text: '飯前血糖值'
+                    },
+                    subject: { reference: `Patient/${patientId}` },
+                    effectiveDateTime: date,
+                    valueQuantity: {
+                        value: parseFloat(data.fastingGlucose),
+                        unit: 'mg/dL',
+                        system: 'http://unitsofmeasure.org',
+                        code: 'mg/dL'
+                    }
+                });
+            }
+
+            // HbA1c
+            if (data.hba1c) {
+                resources.push({
+                    resourceType: 'Observation',
+                    status: 'final',
+                    code: {
+                        coding: [{
+                            system: 'http://loinc.org',
+                            code: '4548-4',
+                            display: 'Hemoglobin A1c/Hemoglobin.total in Blood'
+                        }],
+                        text: '醣化血紅素'
+                    },
+                    subject: { reference: `Patient/${patientId}` },
+                    effectiveDateTime: date,
+                    valueQuantity: {
+                        value: parseFloat(data.hba1c),
+                        unit: '%',
+                        system: 'http://unitsofmeasure.org',
+                        code: '%'
+                    }
+                });
+            }
+
+            // 血壓
+            if (data.systolicBP && data.diastolicBP) {
+                resources.push({
+                    resourceType: 'Observation',
+                    status: 'final',
+                    code: {
+                        coding: [{
+                            system: 'http://loinc.org',
+                            code: '85354-9',
+                            display: 'Blood pressure panel'
+                        }],
+                        text: '血壓'
+                    },
+                    subject: { reference: `Patient/${patientId}` },
+                    effectiveDateTime: date,
+                    component: [
+                        {
+                            code: {
+                                coding: [{
+                                    system: 'http://loinc.org',
+                                    code: '8480-6',
+                                    display: 'Systolic blood pressure'
+                                }],
+                                text: '收縮壓'
+                            },
+                            valueQuantity: {
+                                value: parseFloat(data.systolicBP),
+                                unit: 'mmHg',
+                                system: 'http://unitsofmeasure.org',
+                                code: 'mm[Hg]'
+                            }
+                        },
+                        {
+                            code: {
+                                coding: [{
+                                    system: 'http://loinc.org',
+                                    code: '8462-4',
+                                    display: 'Diastolic blood pressure'
+                                }],
+                                text: '舒張壓'
+                            },
+                            valueQuantity: {
+                                value: parseFloat(data.diastolicBP),
+                                unit: 'mmHg',
+                                system: 'http://unitsofmeasure.org',
+                                code: 'mm[Hg]'
+                            }
+                        }
+                    ]
+                });
+            }
+
+            // 三酸甘油脂
+            if (data.triglycerides) {
+                resources.push({
+                    resourceType: 'Observation',
+                    status: 'final',
+                    code: {
+                        coding: [{
+                            system: 'http://loinc.org',
+                            code: '2571-8',
+                            display: 'Triglyceride [Mass/volume] in Serum or Plasma'
+                        }],
+                        text: '三酸甘油脂'
+                    },
+                    subject: { reference: `Patient/${patientId}` },
+                    effectiveDateTime: date,
+                    valueQuantity: {
+                        value: parseFloat(data.triglycerides),
+                        unit: 'mg/dL',
+                        system: 'http://unitsofmeasure.org',
+                        code: 'mg/dL'
+                    }
+                });
+            }
+
+            // HDL 膽固醇
+            if (data.hdlCholesterol) {
+                resources.push({
+                    resourceType: 'Observation',
+                    status: 'final',
+                    code: {
+                        coding: [{
+                            system: 'http://loinc.org',
+                            code: '2085-9',
+                            display: 'Cholesterol in HDL [Mass/volume] in Serum or Plasma'
+                        }],
+                        text: '高密度脂蛋白膽固醇'
+                    },
+                    subject: { reference: `Patient/${patientId}` },
+                    effectiveDateTime: date,
+                    valueQuantity: {
+                        value: parseFloat(data.hdlCholesterol),
+                        unit: 'mg/dL',
+                        system: 'http://unitsofmeasure.org',
+                        code: 'mg/dL'
+                    }
+                });
+            }
+
+            // LDL 膽固醇
+            if (data.ldlCholesterol) {
+                resources.push({
+                    resourceType: 'Observation',
+                    status: 'final',
+                    code: {
+                        coding: [{
+                            system: 'http://loinc.org',
+                            code: '2089-1',
+                            display: 'Cholesterol in LDL [Mass/volume] in Serum or Plasma'
+                        }],
+                        text: '低密度脂蛋白膽固醇'
+                    },
+                    subject: { reference: `Patient/${patientId}` },
+                    effectiveDateTime: date,
+                    valueQuantity: {
+                        value: parseFloat(data.ldlCholesterol),
+                        unit: 'mg/dL',
+                        system: 'http://unitsofmeasure.org',
+                        code: 'mg/dL'
+                    }
+                });
+            }
+
+            // 總膽固醇
+            if (data.totalCholesterol) {
+                resources.push({
+                    resourceType: 'Observation',
+                    status: 'final',
+                    code: {
+                        coding: [{
+                            system: 'http://loinc.org',
+                            code: '2093-3',
+                            display: 'Cholesterol [Mass/volume] in Serum or Plasma'
+                        }],
+                        text: '總膽固醇'
+                    },
+                    subject: { reference: `Patient/${patientId}` },
+                    effectiveDateTime: date,
+                    valueQuantity: {
+                        value: parseFloat(data.totalCholesterol),
+                        unit: 'mg/dL',
+                        system: 'http://unitsofmeasure.org',
+                        code: 'mg/dL'
+                    }
+                });
+            }
+
+            // BMI
+            if (data.bmi) {
+                resources.push({
+                    resourceType: 'Observation',
+                    status: 'final',
+                    code: {
+                        coding: [{
+                            system: 'http://loinc.org',
+                            code: '39156-5',
+                            display: 'Body mass index (BMI) [Ratio]'
+                        }],
+                        text: '身體質量指數'
+                    },
+                    subject: { reference: `Patient/${patientId}` },
+                    effectiveDateTime: date,
+                    valueQuantity: {
+                        value: parseFloat(data.bmi),
+                        unit: 'kg/m2',
+                        system: 'http://unitsofmeasure.org',
+                        code: 'kg/m2'
+                    }
+                });
+            }
+
+            return resources;
+        }
+
+        // 轉換運動處方為 FHIR
+        function convertExercisePrescriptionToFHIR(data) {
+            return {
+                resourceType: 'ServiceRequest',
+                status: 'active',
+                intent: 'order',
+                code: {
+                    coding: [{
+                        system: 'http://snomed.info/sct',
+                        code: '229065009',
+                        display: 'Exercise therapy'
+                    }],
+                    text: '運動處方'
+                },
+                subject: { reference: `Patient/${patientId}` },
+                authoredOn: new Date().toISOString(),
+                requester: { reference: `Practitioner/current` },
+                extension: [{
+                    url: 'http://twcore.mohw.gov.tw/fhir/StructureDefinition/tw-exercise-prescription',
+                    extension: [
+                        {
+                            url: 'type',
+                            valueCode: data.type
+                        },
+                        {
+                            url: 'duration',
+                            valueInteger: parseInt(data.duration)
+                        },
+                        {
+                            url: 'frequency',
+                            valueInteger: parseInt(data.frequency)
+                        }
+                    ]
+                }]
+            };
+        }
+
+        // 轉換飲食處方為 FHIR
+        function convertDietPrescriptionToFHIR(data) {
+            return {
+                resourceType: 'NutritionOrder',
+                status: 'active',
+                patient: { reference: `Patient/${patientId}` },
+                dateTime: new Date().toISOString(),
+                orderer: { reference: `Practitioner/current` },
+                oralDiet: {
+                    type: {
+                        coding: [{
+                            system: 'http://snomed.info/sct',
+                            code: '226529007',
+                            display: 'Therapeutic diet'
+                        }],
+                        text: '飲食處方'
+                    },
+                    calorie: {
+                        value: parseInt(data.caloricIntake),
+                        unit: 'kcal',
+                        system: 'http://unitsofmeasure.org',
+                        code: 'kcal'
+                    },
+                    extension: [{
+                        url: 'http://twcore.mohw.gov.tw/fhir/StructureDefinition/tw-diet-adjustments',
+                        valueString: data.adjustments.join(', ')
+                    }]
+                }
+            };
+        }
+
+        // 上傳到 FHIR
+        async function uploadToFHIR(resources) {
+            if (!client) {
+                throw new Error('客戶端未初始化');
+            }
+
+            for (const resource of resources) {
+                try {
+                    if (resource.resourceType === 'Observation') {
+                        await client.createObservation(resource);
+                    } else {
+                        await client.createResource(resource);
+                    }
+                } catch (error) {
+                    console.error(`上傳 ${resource.resourceType} 失敗:`, error);
+                    // 繼續上傳其他資源，不中斷整個流程
+                }
+            }
+        }
+
+        // 載入現有資料
+        async function loadExistingData() {
+            try {
+                // 載入最近的 Observation
+                const observations = await client.getObservation();
+                // 這裡可以填充表單資料
+            } catch (error) {
+                console.error('載入資料失敗:', error);
+            }
+        }
+
+        // 輔助函數
+        function getExerciseCode(value) {
+            const map = {
+                'none': '160245001',
+                'occasional': '228050000',
+                'regular': '228055005'
+            };
+            return map[value] || '228050000';
+        }
+
+        function getExerciseDisplay(value) {
+            const map = {
+                'none': '無運動',
+                'occasional': '偶爾運動',
+                'regular': '經常運動'
+            };
+            return map[value] || '未知';
+        }
+
+        function getConditionCode(value) {
+            const map = {
+                'diabetes': '73211009',
+                'hypertension': '38341003'
+            };
+            return map[value] || '';
+        }
+
+        function getConditionDisplay(value) {
+            const map = {
+                'diabetes': '糖尿病',
+                'hypertension': '高血壓'
+            };
+            return map[value] || value;
+        }
+
+        // 關閉表單
+        window.closeForm = function() {
+            if (confirm('確定要關閉嗎？未儲存的資料將會遺失。')) {
+                window.location.href = './metabolic-syndrome.html';
+            }
+        };
+
+        // 結案
+        window.closeCase = function() {
+            if (confirm('確定要結案嗎？')) {
+                // 執行結案邏輯
+                alert('已結案');
+            }
+        };
+    </script>
+</body>
+</html>

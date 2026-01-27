@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代謝健康紅綠燈 - Metabolic Syndrome Intelligent Warning System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft JhengHei', 'PingFang TC', Arial, sans-serif;
+            background-color: #f5f7fa;
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 25px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        .header .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .nav {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .nav button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s;
+            background-color: #f8f9fa;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav button:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+        }
+        .nav button.active {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+        .nav button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 30px;
+        }
+        .content-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .content-section h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #ecf0f1;
+            font-size: 24px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .info-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        .info-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .info-row {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #555;
+        }
+        .info-value {
+            color: #2c3e50;
+        }
+        .lab-section {
+            margin-bottom: 30px;
+        }
+        .lab-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .data-table thead {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+        .data-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .data-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .status-normal {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-abnormal {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .alert-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .alert-box.critical {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        .alert-box .alert-icon {
+            font-size: 24px;
+        }
+        .alert-box .alert-content h4 {
+            color: #856404;
+            margin-bottom: 5px;
+        }
+        .alert-box.critical .alert-content h4 {
+            color: #721c24;
+        }
+        .alert-box .alert-content p {
+            color: #856404;
+            font-size: 14px;
+        }
+        .alert-box.critical .alert-content p {
+            color: #721c24;
+        }
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .score-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .score-card.metabolic {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .score-card.cardiovascular {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .score-card.kidney-liver {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        .score-value {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .score-label {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .risk-factors {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        .risk-factor-card {
+            background: white;
+            border: 2px solid #dc3545;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .risk-factor-card .risk-icon {
+            font-size: 24px;
+            color: #dc3545;
+        }
+        .risk-factor-card .risk-content h4 {
+            color: #721c24;
+            margin-bottom: 5px;
+        }
+        .risk-factor-card .risk-content p {
+            color: #555;
+            font-size: 14px;
+        }
+        .metabolic-criteria {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .criteria-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .criteria-card.abnormal {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+        .criteria-card.normal {
+            border-color: #28a745;
+            background: #f0fff4;
+        }
+        .criteria-card h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .criteria-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .criteria-reference {
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        .criteria-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .export-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .export-btn.json {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .export-btn.csv {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>代謝健康紅綠燈</h1>
+        <div class="subtitle">Metabolic Syndrome Intelligent Warning System</div>
+    </div>
+
+    <div class="nav">
+        <button id="btnPatient" class="active" onclick="showSection('patient')">
+            <span>👤</span> 病人資料
+        </button>
+        <button id="btnLab" onclick="showSection('lab')">
+            <span>🔍</span> 檢驗報告
+        </button>
+        <button id="btnClinical" onclick="showSection('clinical')">
+            <span>📊</span> 臨床評估
+        </button>
+        <button id="btnExport" onclick="showSection('export')">
+            <span>📄</span> 匯出報告
+        </button>
+        <button onclick="logout()" style="margin-left: auto; background: #dc3545; color: white;">
+            <span>🚪</span> 登出
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- 病人資料區塊 -->
+        <div id="section-patient" class="content-section active">
+            <h2>👤 病人資料</h2>
+            <div id="patient-content">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>正在載入病人資料...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 檢驗報告區塊 -->
+        <div id="section-lab" class="content-section">
+            <h2>🔍 檢驗報告</h2>
+            <div id="lab-content">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>正在載入檢驗報告...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 臨床評估區塊 -->
+        <div id="section-clinical" class="content-section">
+            <h2>📊 臨床評估</h2>
+            <div id="clinical-content">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>正在載入臨床評估...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 匯出報告區塊 -->
+        <div id="section-export" class="content-section">
+            <h2>📄 匯出報告</h2>
+            <div id="export-content">
+                <p style="margin-bottom: 20px; color: #555;">選擇匯出格式以下載完整的健康報告資料：</p>
+                <div class="export-buttons">
+                    <button class="export-btn json" onclick="exportData('json')">
+                        <span>📄</span> 匯出 JSON 格式
+                    </button>
+                    <button class="export-btn csv" onclick="exportData('csv')">
+                        <span>📊</span> 匯出 CSV 格式
+                    </button>
+                </div>
+                <div id="export-result" style="margin-top: 30px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { LTC888Client } from '../src/index.js';
+
+        let client = null;
+        let patientData = null;
+        let observationsData = null;
+        let conditionsData = null;
+        let fhirResources = null;
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // 檢查授權狀態
+                const urlParams = new URLSearchParams(window.location.search);
+                const error = urlParams.get('error');
+                
+                if (error) {
+                    throw new Error(`授權失敗: ${urlParams.get('error_description') || error}`);
+                }
+
+                // 初始化 SDK 客戶端
+                client = new LTC888Client();
+                await client.initialize();
+
+                // 載入病人資料
+                await loadPatientData();
+            } catch (error) {
+                console.error('初始化失敗:', error);
+                document.getElementById('patient-content').innerHTML = `
+                    <div class="alert-box critical">
+                        <span class="alert-icon">⚠️</span>
+                        <div class="alert-content">
+                            <h4>初始化失敗</h4>
+                            <p>${error.message}</p>
+                            <p style="margin-top: 10px;">
+                                <a href="./launch.html" style="color: #721c24; text-decoration: underline;">請重新授權</a>
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        // 切換區塊顯示
+        window.showSection = function(section) {
+            // 隱藏所有區塊
+            document.querySelectorAll('.content-section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            // 移除所有按鈕的 active 狀態
+            document.querySelectorAll('.nav button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // 顯示選中的區塊
+            const sectionEl = document.getElementById(`section-${section}`);
+            const btnId = `btn${section.charAt(0).toUpperCase() + section.slice(1)}`;
+            const btnEl = document.getElementById(btnId);
+            
+            if (sectionEl) sectionEl.classList.add('active');
+            if (btnEl) btnEl.classList.add('active');
+
+            // 根據區塊載入對應資料
+            if (section === 'patient' && !patientData) {
+                loadPatientData();
+            } else if (section === 'lab' && !observationsData) {
+                loadLabReports();
+            } else if (section === 'clinical' && !conditionsData) {
+                loadClinicalAssessment();
+            }
+        };
+
+        // 載入病人資料
+        async function loadPatientData() {
+            try {
+                if (!client) {
+                    throw new Error('客戶端未初始化');
+                }
+
+                const patient = await client.getPatientInfo();
+                patientData = patient;
+
+                // 格式化顯示
+                const name = patient.name?.[0] ? 
+                    `${patient.name[0].family || ''}${patient.name[0].given?.join('') || ''}`.trim() : 
+                    '未知';
+                const gender = patient.gender === 'male' ? '男性' : patient.gender === 'female' ? '女' : '未知';
+                const birthDate = patient.birthDate || '未知';
+                const age = birthDate !== '未知' ? 
+                    Math.floor((new Date() - new Date(birthDate)) / (365.25 * 24 * 60 * 60 * 1000)) : '未知';
+
+                // 取得擴展資料（地址、電話等）
+                const address = patient.address?.[0] ? 
+                    `${patient.address[0].postalCode || ''}${patient.address[0].city || ''}${patient.address[0].district || ''}`.trim() : 
+                    '未提供';
+                const phone = patient.telecom?.find(t => t.system === 'phone')?.value || '未提供';
+
+                // 取得社會史
+                const observations = await client.getObservation();
+                const socialHistory = extractSocialHistory(observations);
+
+                const html = `
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h3>受檢者基本資料</h3>
+                            <div class="info-row">
+                                <span class="info-label">姓名</span>
+                                <span class="info-value">${name}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">出生日期</span>
+                                <span class="info-value">${birthDate}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">身分證字號</span>
+                                <span class="info-value">${patient.identifier?.[0]?.value || '未提供'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">地址</span>
+                                <span class="info-value">${address}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">就診機構</span>
+                                <span class="info-value">${patient.managingOrganization?.display || '未提供'}</span>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <h3>聯絡資訊</h3>
+                            <div class="info-row">
+                                <span class="info-label">性別</span>
+                                <span class="info-value">${gender}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">年齡</span>
+                                <span class="info-value">${age}歲</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">聯絡電話</span>
+                                <span class="info-value">${phone}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">主治醫師</span>
+                                <span class="info-value">${patient.generalPractitioner?.[0]?.display || '未指定'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>社會史與生活習慣</h3>
+                        <div class="info-row">
+                            <span class="info-label">飲酒習慣</span>
+                            <span class="info-value">${socialHistory.drinking || '未提供'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">運動習慣</span>
+                            <span class="info-value">${socialHistory.exercise || '未提供'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">檳榔習慣</span>
+                            <span class="info-value">${socialHistory.betelNut || '未提供'}</span>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('patient-content').innerHTML = html;
+            } catch (error) {
+                console.error('載入病人資料失敗:', error);
+                document.getElementById('patient-content').innerHTML = `
+                    <div class="alert-box critical">
+                        <span class="alert-icon">⚠️</span>
+                        <div class="alert-content">
+                            <h4>載入失敗</h4>
+                            <p>${error.message}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // 載入檢驗報告
+        async function loadLabReports() {
+            try {
+                if (!client) {
+                    throw new Error('客戶端未初始化');
+                }
+
+                const observations = await client.getObservation();
+                observationsData = observations;
+
+                const labData = categorizeObservations(observations);
+                const html = renderLabReports(labData);
+
+                document.getElementById('lab-content').innerHTML = html;
+            } catch (error) {
+                console.error('載入檢驗報告失敗:', error);
+                document.getElementById('lab-content').innerHTML = `
+                    <div class="alert-box critical">
+                        <span class="alert-icon">⚠️</span>
+                        <div class="alert-content">
+                            <h4>載入失敗</h4>
+                            <p>${error.message}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // 載入臨床評估
+        async function loadClinicalAssessment() {
+            try {
+                if (!client) {
+                    throw new Error('客戶端未初始化');
+                }
+
+                // 取得所有相關資料
+                const observations = await client.getObservation();
+                const conditions = await client.readResource('Condition', null, {
+                    subject: `Patient/${await client.getPatientId()}`
+                });
+
+                conditionsData = conditions;
+                observationsData = observations;
+
+                // 計算代謝症候群評估
+                const assessment = assessMetabolicSyndrome(observations, patientData);
+                const scores = calculateHealthScores(observations, assessment);
+                const riskFactors = identifyRiskFactors(assessment);
+
+                const html = renderClinicalAssessment(assessment, scores, riskFactors);
+
+                document.getElementById('clinical-content').innerHTML = html;
+            } catch (error) {
+                console.error('載入臨床評估失敗:', error);
+                document.getElementById('clinical-content').innerHTML = `
+                    <div class="alert-box critical">
+                        <span class="alert-icon">⚠️</span>
+                        <div class="alert-content">
+                            <h4>載入失敗</h4>
+                            <p>${error.message}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // 匯出資料
+        window.exportData = async function(format) {
+            try {
+                if (!client) {
+                    throw new Error('客戶端未初始化');
+                }
+
+                // 收集所有 FHIR 資源
+                const patient = await client.getPatientInfo();
+                const observations = await client.getObservation();
+                const conditions = await client.readResource('Condition', null, {
+                    subject: `Patient/${patient.id}`
+                });
+
+                fhirResources = {
+                    patient,
+                    observations: observations.entry?.map(e => e.resource) || [],
+                    conditions: conditions.entry?.map(e => e.resource) || []
+                };
+
+                if (format === 'json') {
+                    exportJSON(fhirResources);
+                } else if (format === 'csv') {
+                    exportCSV(fhirResources);
+                }
+            } catch (error) {
+                console.error('匯出失敗:', error);
+                document.getElementById('export-result').innerHTML = `
+                    <div class="alert-box critical">
+                        <span class="alert-icon">⚠️</span>
+                        <div class="alert-content">
+                            <h4>匯出失敗</h4>
+                            <p>${error.message}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        };
+
+        // 登出
+        window.logout = async function() {
+            try {
+                if (client) {
+                    await client.logout();
+                }
+                sessionStorage.clear();
+                window.location.href = './launch.html';
+            } catch (error) {
+                console.error('登出失敗:', error);
+                sessionStorage.clear();
+                window.location.href = './launch.html';
+            }
+        };
+
+        // 輔助函數：提取社會史
+        function extractSocialHistory(observations) {
+            const socialHistory = {
+                drinking: '未提供',
+                exercise: '未提供',
+                betelNut: '未提供'
+            };
+
+            // 這裡應該從 Observation 中提取社會史資料
+            // 暫時使用預設值，實際應該從 FHIR 資源中解析
+            return socialHistory;
+        }
+
+        // 輔助函數：分類檢驗項目
+        function categorizeObservations(observations) {
+            const categories = {
+                bloodPressure: [],
+                bloodGlucose: [],
+                bloodLipids: [],
+                liverFunction: [],
+                kidneyFunction: []
+            };
+
+            const entries = observations.entry || [];
+            entries.forEach(entry => {
+                const obs = entry.resource;
+                const code = obs.code?.coding?.[0]?.code;
+
+                // 血壓
+                if (code === '85354-9') {
+                    categories.bloodPressure.push(obs);
+                }
+                // 血糖
+                else if (['33747-0', '33748-8', '2339-0'].includes(code)) {
+                    categories.bloodGlucose.push(obs);
+                }
+                // 血脂
+                else if (['2093-3', '2571-8', '2085-9', '2089-1'].includes(code)) {
+                    categories.bloodLipids.push(obs);
+                }
+                // 肝功能
+                else if (['1975-2', '1968-7'].includes(code)) {
+                    categories.liverFunction.push(obs);
+                }
+                // 腎功能
+                else if (['2160-0', '33914-3'].includes(code)) {
+                    categories.kidneyFunction.push(obs);
+                }
+            });
+
+            return categories;
+        }
+
+        // 輔助函數：渲染檢驗報告
+        function renderLabReports(labData) {
+            let html = '';
+
+            // 血壓
+            if (labData.bloodPressure.length > 0) {
+                html += renderLabSection('❤ 血壓', labData.bloodPressure, 'bloodPressure');
+            }
+
+            // 血糖
+            if (labData.bloodGlucose.length > 0) {
+                html += renderLabSection('💧 血糖', labData.bloodGlucose, 'bloodGlucose');
+            }
+
+            // 血脂
+            if (labData.bloodLipids.length > 0) {
+                html += renderLabSection('🧪 血脂', labData.bloodLipids, 'bloodLipids');
+            }
+
+            // 肝功能
+            if (labData.liverFunction.length > 0) {
+                html += renderLabSection('🔬 肝功能', labData.liverFunction, 'liverFunction');
+            }
+
+            // 腎功能
+            if (labData.kidneyFunction.length > 0) {
+                html += renderLabSection('⚗️ 腎功能', labData.kidneyFunction, 'kidneyFunction');
+            }
+
+            return html || '<p>目前沒有檢驗報告資料</p>';
+        }
+
+        // 輔助函數：渲染單一檢驗類別
+        function renderLabSection(title, observations, category) {
+            const rows = observations.map(obs => {
+                const code = obs.code?.coding?.[0]?.code;
+                const display = obs.code?.coding?.[0]?.display || obs.code?.text || '未知';
+                const value = extractObservationValue(obs);
+                const referenceRange = extractReferenceRange(obs);
+                const date = obs.effectiveDateTime ? new Date(obs.effectiveDateTime).toLocaleDateString('zh-TW') : '未知';
+                const interpretation = determineInterpretation(obs, referenceRange);
+
+                return `
+                    <tr>
+                        <td>${getDisplayName(code, display)}</td>
+                        <td>${value}</td>
+                        <td>${referenceRange}</td>
+                        <td>${date}</td>
+                        <td>
+                            <span class="status-badge ${interpretation.status === 'normal' ? 'status-normal' : 'status-abnormal'}">
+                                ${interpretation.label}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+                <div class="lab-section">
+                    <h3>${title}</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>檢查項目</th>
+                                <th>檢測結果</th>
+                                <th>正常範圍</th>
+                                <th>檢驗日期</th>
+                                <th>判定</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // 輔助函數：提取觀測值
+        function extractObservationValue(obs) {
+            if (obs.valueQuantity) {
+                return `${obs.valueQuantity.value} ${obs.valueQuantity.unit || ''}`;
+            } else if (obs.component) {
+                // 血壓有兩個 component
+                const systolic = obs.component.find(c => c.code?.coding?.[0]?.code === '8480-6');
+                const diastolic = obs.component.find(c => c.code?.coding?.[0]?.code === '8462-4');
+                if (systolic && diastolic) {
+                    return `${systolic.valueQuantity.value}/${diastolic.valueQuantity.value} ${systolic.valueQuantity.unit || 'mmHg'}`;
+                }
+            }
+            return '未知';
+        }
+
+        // 輔助函數：提取參考範圍
+        function extractReferenceRange(obs) {
+            if (obs.referenceRange && obs.referenceRange.length > 0) {
+                const range = obs.referenceRange[0];
+                if (range.text) return range.text;
+                if (range.low && range.high) {
+                    return `${range.low.value}${range.low.unit || ''} - ${range.high.value}${range.high.unit || ''}`;
+                } else if (range.low) {
+                    return `> ${range.low.value}${range.low.unit || ''}`;
+                } else if (range.high) {
+                    return `< ${range.high.value}${range.high.unit || ''}`;
+                }
+            }
+            return '未提供';
+        }
+
+        // 輔助函數：判斷解讀
+        function determineInterpretation(obs, referenceRange) {
+            if (obs.interpretation && obs.interpretation.length > 0) {
+                const interp = obs.interpretation[0];
+                const code = interp.coding?.[0]?.code;
+                if (code === 'H' || code === 'HH') {
+                    return { status: 'abnormal', label: '偏高' };
+                } else if (code === 'L' || code === 'LL') {
+                    return { status: 'abnormal', label: '偏低' };
+                } else if (code === 'N') {
+                    return { status: 'normal', label: '正常' };
+                }
+            }
+            return { status: 'normal', label: '正常' };
+        }
+
+        // 輔助函數：取得顯示名稱
+        function getDisplayName(code, display) {
+            const nameMap = {
+                '8480-6': '收縮壓',
+                '8462-4': '舒張壓',
+                '33747-0': '空腹血糖',
+                '2339-0': '血糖',
+                '2093-3': '總膽固醇',
+                '2571-8': '三酸甘油脂',
+                '2085-9': 'HDL膽固醇',
+                '2089-1': 'LDL膽固醇',
+                '1975-2': 'ALT/GPT',
+                '1968-7': 'AST/GOT',
+                '2160-0': '肌酸酐',
+                '33914-3': '尿酸'
+            };
+            return nameMap[code] || display || '未知';
+        }
+
+        // 輔助函數：評估代謝症候群
+        function assessMetabolicSyndrome(observations, patient) {
+            const criteria = {
+                waistCircumference: { value: null, abnormal: false, threshold: 90 },
+                bloodPressure: { systolic: null, diastolic: null, abnormal: false, threshold: { systolic: 130, diastolic: 85 } },
+                fastingGlucose: { value: null, abnormal: false, threshold: 100 },
+                triglycerides: { value: null, abnormal: false, threshold: 150 },
+                hdlCholesterol: { value: null, abnormal: false, threshold: 40, gender: patient?.gender }
+            };
+
+            const entries = observations.entry || [];
+            entries.forEach(entry => {
+                const obs = entry.resource;
+                const code = obs.code?.coding?.[0]?.code;
+
+                // 血壓
+                if (code === '85354-9' && obs.component) {
+                    const systolic = obs.component.find(c => c.code?.coding?.[0]?.code === '8480-6');
+                    const diastolic = obs.component.find(c => c.code?.coding?.[0]?.code === '8462-4');
+                    if (systolic) criteria.bloodPressure.systolic = systolic.valueQuantity.value;
+                    if (diastolic) criteria.bloodPressure.diastolic = diastolic.valueQuantity.value;
+                }
+                // 空腹血糖
+                else if (code === '33747-0') {
+                    criteria.fastingGlucose.value = obs.valueQuantity.value;
+                }
+                // 三酸甘油脂
+                else if (code === '2571-8') {
+                    criteria.triglycerides.value = obs.valueQuantity.value;
+                }
+                // HDL膽固醇
+                else if (code === '2085-9') {
+                    criteria.hdlCholesterol.value = obs.valueQuantity.value;
+                }
+            });
+
+            // 判斷異常
+            criteria.waistCircumference.abnormal = criteria.waistCircumference.value > criteria.waistCircumference.threshold;
+            criteria.bloodPressure.abnormal = criteria.bloodPressure.systolic > criteria.bloodPressure.threshold.systolic || 
+                                            criteria.bloodPressure.diastolic > criteria.bloodPressure.threshold.diastolic;
+            criteria.fastingGlucose.abnormal = criteria.fastingGlucose.value > criteria.fastingGlucose.threshold;
+            criteria.triglycerides.abnormal = criteria.triglycerides.value > criteria.triglycerides.threshold;
+            
+            const hdlThreshold = criteria.hdlCholesterol.gender === 'female' ? 50 : 40;
+            criteria.hdlCholesterol.abnormal = criteria.hdlCholesterol.value < hdlThreshold;
+
+            // 計算符合項目數
+            const abnormalCount = [
+                criteria.waistCircumference.abnormal,
+                criteria.bloodPressure.abnormal,
+                criteria.fastingGlucose.abnormal,
+                criteria.triglycerides.abnormal,
+                criteria.hdlCholesterol.abnormal
+            ].filter(Boolean).length;
+
+            return {
+                criteria,
+                abnormalCount,
+                meetsCriteria: abnormalCount >= 3
+            };
+        }
+
+        // 輔助函數：計算健康評分
+        function calculateHealthScores(observations, assessment) {
+            // 簡化的評分邏輯
+            const overallScore = 80;
+            const metabolicScore = assessment.meetsCriteria ? 70 : 85;
+            const cardiovascularScore = 77;
+            const kidneyLiverScore = 100;
+
+            return {
+                overall: overallScore,
+                metabolic: metabolicScore,
+                cardiovascular: cardiovascularScore,
+                kidneyLiver: kidneyLiverScore
+            };
+        }
+
+        // 輔助函數：識別危險因子
+        function identifyRiskFactors(assessment) {
+            const factors = [];
+            const criteria = assessment.criteria;
+
+            if (criteria.waistCircumference.abnormal) {
+                factors.push({
+                    title: '腰圍過大',
+                    description: '中心型肥胖會增加心血管疾病風險'
+                });
+            }
+            if (criteria.bloodPressure.abnormal) {
+                factors.push({
+                    title: '血壓偏高',
+                    description: '高血壓是心血管疾病的主要危險因子'
+                });
+            }
+            if (criteria.triglycerides.abnormal) {
+                factors.push({
+                    title: '三酸甘油脂過高',
+                    description: '可能增加心血管疾病風險'
+                });
+            }
+
+            return factors;
+        }
+
+        // 輔助函數：渲染臨床評估
+        function renderClinicalAssessment(assessment, scores, riskFactors) {
+            const criteria = assessment.criteria;
+            const meetsCriteria = assessment.meetsCriteria;
+            const abnormalCount = assessment.abnormalCount;
+
+            let html = '';
+
+            // 代謝症候群警示
+            if (meetsCriteria) {
+                html += `
+                    <div class="alert-box critical">
+                        <span class="alert-icon">⚠️</span>
+                        <div class="alert-content">
+                            <h4>符合代謝症候群標準</h4>
+                            <p>符合代謝症候群診斷標準 ${abnormalCount}/5 項危險因子</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 健康評分總覽
+            html += `
+                <div class="lab-section">
+                    <h3>⏰ 健康評分總覽</h3>
+                    <div class="score-grid">
+                        <div class="score-card">
+                            <div class="score-value">${scores.overall}</div>
+                            <div class="score-label">整體健康</div>
+                        </div>
+                        <div class="score-card metabolic">
+                            <div class="score-value">${scores.metabolic}</div>
+                            <div class="score-label">代謝健康</div>
+                        </div>
+                        <div class="score-card cardiovascular">
+                            <div class="score-value">${scores.cardiovascular}</div>
+                            <div class="score-label">心血管健康</div>
+                        </div>
+                        <div class="score-card kidney-liver">
+                            <div class="score-value">${scores.kidneyLiver}</div>
+                            <div class="score-label">肝腎功能</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 五大危險因子檢查
+            html += `
+                <div class="lab-section">
+                    <h3>♥ 五大危險因子檢查</h3>
+                    <div class="metabolic-criteria">
+                        <div class="criteria-card ${criteria.waistCircumference.abnormal ? 'abnormal' : 'normal'}">
+                            <h4>腰圍</h4>
+                            <div class="criteria-value">${criteria.waistCircumference.value || '未測量'} cm</div>
+                            <div class="criteria-reference">參考值: < ${criteria.waistCircumference.threshold} cm</div>
+                            <span class="status-badge ${criteria.waistCircumference.abnormal ? 'status-abnormal' : 'status-normal'}">
+                                ${criteria.waistCircumference.abnormal ? '異常' : '正常'}
+                            </span>
+                        </div>
+                        <div class="criteria-card ${criteria.bloodPressure.abnormal ? 'abnormal' : 'normal'}">
+                            <h4>血壓</h4>
+                            <div class="criteria-value">${criteria.bloodPressure.systolic || '--'}/${criteria.bloodPressure.diastolic || '--'} mmHg</div>
+                            <div class="criteria-reference">參考值: < ${criteria.bloodPressure.threshold.systolic}/${criteria.bloodPressure.threshold.diastolic} mmHg</div>
+                            <span class="status-badge ${criteria.bloodPressure.abnormal ? 'status-abnormal' : 'status-normal'}">
+                                ${criteria.bloodPressure.abnormal ? '異常' : '正常'}
+                            </span>
+                        </div>
+                        <div class="criteria-card ${criteria.fastingGlucose.abnormal ? 'abnormal' : 'normal'}">
+                            <h4>空腹血糖</h4>
+                            <div class="criteria-value">${criteria.fastingGlucose.value || '未測量'} mg/dl</div>
+                            <div class="criteria-reference">參考值: < ${criteria.fastingGlucose.threshold} mg/dL</div>
+                            <span class="status-badge ${criteria.fastingGlucose.abnormal ? 'status-abnormal' : 'status-normal'}">
+                                ${criteria.fastingGlucose.abnormal ? '異常' : '正常'}
+                            </span>
+                        </div>
+                        <div class="criteria-card ${criteria.triglycerides.abnormal ? 'abnormal' : 'normal'}">
+                            <h4>三酸甘油脂</h4>
+                            <div class="criteria-value">${criteria.triglycerides.value || '未測量'} mg/dl</div>
+                            <div class="criteria-reference">參考值: < ${criteria.triglycerides.threshold} mg/dL</div>
+                            <span class="status-badge ${criteria.triglycerides.abnormal ? 'status-abnormal' : 'status-normal'}">
+                                ${criteria.triglycerides.abnormal ? '異常' : '正常'}
+                            </span>
+                        </div>
+                        <div class="criteria-card ${criteria.hdlCholesterol.abnormal ? 'abnormal' : 'normal'}">
+                            <h4>HDL膽固醇</h4>
+                            <div class="criteria-value">${criteria.hdlCholesterol.value || '未測量'} mg/dl</div>
+                            <div class="criteria-reference">參考值: > ${criteria.hdlCholesterol.gender === 'female' ? 50 : 40} mg/dL</div>
+                            <span class="status-badge ${criteria.hdlCholesterol.abnormal ? 'status-abnormal' : 'status-normal'}">
+                                ${criteria.hdlCholesterol.abnormal ? '異常' : '正常'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 危險因子分析
+            if (riskFactors.length > 0) {
+                html += `
+                    <div class="lab-section">
+                        <h3>⚠️ 危險因子分析</h3>
+                        <div class="risk-factors">
+                            ${riskFactors.map(factor => `
+                                <div class="risk-factor-card">
+                                    <span class="risk-icon">⚠️</span>
+                                    <div class="risk-content">
+                                        <h4>${factor.title}</h4>
+                                        <p>${factor.description}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            return html;
+        }
+
+        // 匯出 JSON
+        function exportJSON(resources) {
+            const jsonStr = JSON.stringify(resources, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `metabolic-syndrome-report-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            document.getElementById('export-result').innerHTML = `
+                <div class="alert-box" style="background: #d4edda; border-left-color: #28a745;">
+                    <span class="alert-icon">✓</span>
+                    <div class="alert-content">
+                        <h4 style="color: #155724;">匯出成功</h4>
+                        <p style="color: #155724;">JSON 檔案已下載</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 匯出 CSV
+        function exportCSV(resources) {
+            // 簡化的 CSV 匯出
+            let csv = '檢查項目,檢測結果,正常範圍,檢驗日期,判定\n';
+            
+            if (resources.observations) {
+                resources.observations.forEach(obs => {
+                    const code = obs.code?.coding?.[0]?.code;
+                    const display = getDisplayName(code, obs.code?.coding?.[0]?.display || '');
+                    const value = extractObservationValue(obs);
+                    const referenceRange = extractReferenceRange(obs);
+                    const date = obs.effectiveDateTime ? new Date(obs.effectiveDateTime).toLocaleDateString('zh-TW') : '未知';
+                    const interpretation = determineInterpretation(obs, referenceRange);
+                    
+                    csv += `${display},${value},${referenceRange},${date},${interpretation.label}\n`;
+                });
+            }
+
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `metabolic-syndrome-report-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            document.getElementById('export-result').innerHTML = `
+                <div class="alert-box" style="background: #d4edda; border-left-color: #28a745;">
+                    <span class="alert-icon">✓</span>
+                    <div class="alert-content">
+                        <h4 style="color: #155724;">匯出成功</h4>
+                        <p style="color: #155724;">CSV 檔案已下載</p>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

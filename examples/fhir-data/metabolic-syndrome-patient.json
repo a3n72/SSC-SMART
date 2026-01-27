@@ -1,0 +1,66 @@
+{
+  "resourceType": "Patient",
+  "id": "metabolic-syndrome-001",
+  "meta": {
+    "profile": ["http://twcore.mohw.gov.tw/fhir/StructureDefinition/tw-patient"]
+  },
+  "identifier": [
+    {
+      "system": "http://www.mohw.gov.tw/patient-id",
+      "value": "U121745652"
+    }
+  ],
+  "name": [
+    {
+      "family": "楊",
+      "given": ["一一"],
+      "text": "楊一一"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1991-12-14",
+  "address": [
+    {
+      "use": "home",
+      "postalCode": "4500",
+      "city": "花蓮縣",
+      "district": "秀林鄉",
+      "text": "4500花蓮縣"
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "86"
+    }
+  ],
+  "managingOrganization": {
+    "reference": "Organization/siulin-health-center",
+    "display": "秀林鄉衛生所"
+  },
+  "generalPractitioner": [
+    {
+      "reference": "Practitioner/tian-huiwen",
+      "display": "田惠文"
+    }
+  ],
+  "extension": [
+    {
+      "url": "http://twcore.mohw.gov.tw/fhir/StructureDefinition/tw-patient-social-history",
+      "extension": [
+        {
+          "url": "drinking",
+          "valueString": "偶爾喝酒或應酬才喝"
+        },
+        {
+          "url": "exercise",
+          "valueString": "有,且每週達150分鐘以上(2.5小時)"
+        },
+        {
+          "url": "betelNut",
+          "valueString": "不嚼檳榔"
+        }
+      ]
+    }
+  ]
+}

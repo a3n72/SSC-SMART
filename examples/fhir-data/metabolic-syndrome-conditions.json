@@ -1,0 +1,115 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "metabolic-syndrome-diagnosis",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active",
+              "display": "Active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed",
+              "display": "Confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "64572001",
+                "display": "Disease"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "44054006",
+              "display": "Metabolic syndrome"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10",
+              "code": "E88.9",
+              "display": "Metabolic disorder, unspecified"
+            }
+          ],
+          "text": "代謝症候群"
+        },
+        "subject": {
+          "reference": "Patient/metabolic-syndrome-001"
+        },
+        "onsetDateTime": "2025-07-15",
+        "recordedDate": "2025-07-15",
+        "evidence": [
+          {
+            "detail": [
+              {
+                "reference": "Observation/waist-circumference-001"
+              }
+            ]
+          },
+          {
+            "detail": [
+              {
+                "reference": "Observation/bp-001"
+              }
+            ]
+          },
+          {
+            "detail": [
+              {
+                "reference": "Observation/triglycerides-001"
+              }
+            ]
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://twcore.mohw.gov.tw/fhir/StructureDefinition/tw-condition-metabolic-syndrome-criteria",
+            "extension": [
+              {
+                "url": "waistCircumference",
+                "valueBoolean": true
+              },
+              {
+                "url": "bloodPressure",
+                "valueBoolean": true
+              },
+              {
+                "url": "fastingGlucose",
+                "valueBoolean": false
+              },
+              {
+                "url": "triglycerides",
+                "valueBoolean": true
+              },
+              {
+                "url": "hdlCholesterol",
+                "valueBoolean": false
+              },
+              {
+                "url": "abnormalCount",
+                "valueInteger": 3
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
