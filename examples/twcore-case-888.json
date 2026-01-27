@@ -1,0 +1,614 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "timestamp": "2025-11-14T09:30:00+08:00",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:patient-888-001",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-888-001",
+        "meta": {
+          "profile": [
+            "https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Patient-twcore"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "value": "A123456789"
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "Wang",
+            "given": [
+              "Mei-Ling"
+            ],
+            "text": "Wang Mei-Ling"
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "0912345678",
+            "use": "mobile"
+          },
+          {
+            "system": "email",
+            "value": "meiling.wang@example.com",
+            "use": "home"
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1956-05-14",
+        "address": [
+          {
+            "use": "home",
+            "line": [
+              "No. 1, Sec. 1, Zhongxiao E. Rd."
+            ],
+            "city": "Taipei City",
+            "district": "Zhongzheng Dist.",
+            "postalCode": "100",
+            "country": "TW"
+          }
+        ],
+        "contact": [
+          {
+            "relationship": [
+              {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0131",
+                    "code": "C",
+                    "display": "Emergency Contact"
+                  }
+                ]
+              }
+            ],
+            "name": {
+              "text": "Wang Jun"
+            },
+            "telecom": [
+              {
+                "system": "phone",
+                "value": "0987654321",
+                "use": "mobile"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:condition-htn-888-001",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "condition-htn-888-001",
+        "meta": {
+          "profile": [
+            "https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Condition-twcore"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "38341003",
+              "display": "Hypertensive disorder, systemic arterial (disorder)"
+            }
+          ],
+          "text": "Hypertension"
+        },
+        "subject": {
+          "reference": "Patient/patient-888-001"
+        },
+        "onsetDateTime": "2020-03-01"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:condition-dm-888-001",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "condition-dm-888-001",
+        "meta": {
+          "profile": [
+            "https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Condition-twcore"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "44054006",
+              "display": "Diabetes mellitus type 2 (disorder)"
+            }
+          ],
+          "text": "Type 2 diabetes mellitus"
+        },
+        "subject": {
+          "reference": "Patient/patient-888-001"
+        },
+        "onsetDateTime": "2018-06-10"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:observation-bp-888-001",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "observation-bp-888-001",
+        "meta": {
+          "profile": [
+            "https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Observation-bloodPressure-twcore"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "85354-9",
+              "display": "Blood pressure panel with all children optional"
+            }
+          ],
+          "text": "Blood pressure"
+        },
+        "subject": {
+          "reference": "Patient/patient-888-001"
+        },
+        "effectiveDateTime": "2025-11-14T09:05:00+08:00",
+        "component": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "8480-6",
+                  "display": "Systolic blood pressure"
+                }
+              ],
+              "text": "Systolic"
+            },
+            "valueQuantity": {
+              "value": 128,
+              "unit": "mmHg",
+              "system": "http://unitsofmeasure.org",
+              "code": "mm[Hg]"
+            }
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "8462-4",
+                  "display": "Diastolic blood pressure"
+                }
+              ],
+              "text": "Diastolic"
+            },
+            "valueQuantity": {
+              "value": 78,
+              "unit": "mmHg",
+              "system": "http://unitsofmeasure.org",
+              "code": "mm[Hg]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:observation-glucose-888-001",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "observation-glucose-888-001",
+        "meta": {
+          "profile": [
+            "https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Observation-laboratoryResult-twcore"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "33747-0",
+              "display": "Glucose [Mass/volume] in Blood --fasting"
+            }
+          ],
+          "text": "Fasting blood glucose"
+        },
+        "subject": {
+          "reference": "Patient/patient-888-001"
+        },
+        "effectiveDateTime": "2025-11-14T08:30:00+08:00",
+        "valueQuantity": {
+          "value": 98,
+          "unit": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:observation-weight-888-001",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "observation-weight-888-001",
+        "meta": {
+          "profile": [
+            "https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Observation-simple-twcore"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "29463-7",
+              "display": "Body weight"
+            }
+          ],
+          "text": "Body weight"
+        },
+        "subject": {
+          "reference": "Patient/patient-888-001"
+        },
+        "effectiveDateTime": "2025-11-14T09:10:00+08:00",
+        "valueQuantity": {
+          "value": 65.5,
+          "unit": "kg",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:observation-steps-888-001",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "observation-steps-888-001",
+        "meta": {
+          "profile": [
+            "https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Observation-vitalSigns-twcore"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "activity",
+                "display": "Activity"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "55423-8",
+              "display": "Number of steps"
+            }
+          ],
+          "text": "Step count"
+        },
+        "subject": {
+          "reference": "Patient/patient-888-001"
+        },
+        "effectiveDateTime": "2025-11-14T18:00:00+08:00",
+        "valueQuantity": {
+          "value": 5200,
+          "unit": "steps",
+          "system": "http://unitsofmeasure.org",
+          "code": "{steps}"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:observation-temp-888-001",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "observation-temp-888-001",
+        "meta": {
+          "profile": [
+            "https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Observation-vitalSigns-twcore"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8310-5",
+              "display": "Body temperature"
+            }
+          ],
+          "text": "Body temperature"
+        },
+        "subject": {
+          "reference": "Patient/patient-888-001"
+        },
+        "effectiveDateTime": "2025-11-14T09:15:00+08:00",
+        "valueQuantity": {
+          "value": 36.6,
+          "unit": "C",
+          "system": "http://unitsofmeasure.org",
+          "code": "Cel"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:observation-hr-888-001",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "observation-hr-888-001",
+        "meta": {
+          "profile": [
+            "https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Observation-vitalSigns-twcore"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8867-4",
+              "display": "Heart rate"
+            }
+          ],
+          "text": "Heart rate"
+        },
+        "subject": {
+          "reference": "Patient/patient-888-001"
+        },
+        "effectiveDateTime": "2025-11-14T09:20:00+08:00",
+        "valueQuantity": {
+          "value": 72,
+          "unit": "/min",
+          "system": "http://unitsofmeasure.org",
+          "code": "/min"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:observation-bmi-888-001",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "observation-bmi-888-001",
+        "meta": {
+          "profile": [
+            "https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Observation-vitalSigns-twcore"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "39156-5",
+              "display": "Body mass index (BMI) [Ratio]"
+            }
+          ],
+          "text": "Body mass index"
+        },
+        "subject": {
+          "reference": "Patient/patient-888-001"
+        },
+        "effectiveDateTime": "2025-11-14T09:12:00+08:00",
+        "valueQuantity": {
+          "value": 24.2,
+          "unit": "kg/m2",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg/m2"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:careplan-888-001",
+      "resource": {
+        "resourceType": "CarePlan",
+        "id": "careplan-888-001",
+        "meta": {
+          "profile": [
+            "https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/CarePlan-twcore"
+          ]
+        },
+        "status": "active",
+        "intent": "plan",
+        "subject": {
+          "reference": "Patient/patient-888-001"
+        },
+        "period": {
+          "start": "2025-11-14",
+          "end": "2026-02-14"
+        },
+        "description": "Lifestyle and metabolic syndrome management plan",
+        "activity": [
+          {
+            "detail": {
+              "kind": "ServiceRequest",
+              "code": {
+                "text": "Moderate exercise, 30 minutes/day, 5 days/week"
+              },
+              "status": "scheduled",
+              "description": "Walking or cycling"
+            }
+          },
+          {
+            "detail": {
+              "kind": "ServiceRequest",
+              "code": {
+                "text": "Dietary counseling"
+              },
+              "status": "scheduled",
+              "description": "Reduce sugar, saturated fat, and sodium"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:goal-888-001",
+      "resource": {
+        "resourceType": "Goal",
+        "id": "goal-888-001",
+        "meta": {
+          "profile": [
+            "https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Goal-twcore"
+          ]
+        },
+        "lifecycleStatus": "active",
+        "description": {
+          "text": "Reduce weight to 60 kg within 3 months"
+        },
+        "subject": {
+          "reference": "Patient/patient-888-001"
+        },
+        "target": [
+          {
+            "measure": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "29463-7",
+                  "display": "Body weight"
+                }
+              ],
+              "text": "Body weight"
+            },
+            "detailQuantity": {
+              "value": 60,
+              "unit": "kg",
+              "system": "http://unitsofmeasure.org",
+              "code": "kg"
+            },
+            "dueDate": "2026-02-14"
+          }
+        ]
+      }
+    }
+  ]
+}

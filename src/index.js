@@ -14,6 +14,11 @@ export {
   mapHeartRate,
   mapObservation
 } from "./mapper.js";
+export {
+  CDSHooksService,
+  SmartAlertHookHandlers,
+  createSmartAlertService
+} from "./cds-hooks.js";
 
 // 預設匯出 LTC888Client（方便使用）
 export { LTC888Client as default } from "./client.js";

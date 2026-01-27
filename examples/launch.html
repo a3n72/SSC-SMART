@@ -170,8 +170,11 @@
         <div class="info-box">
             <strong>📋 標準登入路徑：</strong><br>
             步驟 1: 開啟 launch.html（取得存取權限的「鑰匙」）<br>
-            步驟 2: 身分驗證（系統確認應用程式身分與權限範圍）<br>
-            步驟 3: 轉跳 index.html（帶著核發的鑰匙(TOKEN)安全開啟主程式）
+            步驟 2: 身分驗證（先選醫事人員 Practitioner → 再選病人 Patient → 同意授權）<br>
+            步驟 3: 轉跳 index.html（帶著核發的鑰匙(TOKEN)安全開啟主程式）<br>
+            <span style="display:block;margin-top:8px;color:#856404;">
+                ※ Standalone 與 EHR Launch 在沙盒中都會走「醫事人員 → 病人」順序
+            </span>
         </div>
 
         <div class="config-section">

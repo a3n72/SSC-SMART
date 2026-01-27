@@ -159,6 +159,14 @@ const temp = mapBodyTemperature(36.5, patientId, new Date());
 const hr = mapHeartRate(72, patientId, new Date());
 ```
 
+### TW Core IG 個案完整資料（範例）
+
+專案內提供一份符合 TW Core IG 的個案與相關完整資料（Patient、Condition、Observation、CarePlan、Goal）：
+
+- `examples/twcore-case-888.json`
+
+可用於沙盒測試區的資料檢視、欄位對照或匯入前的資料比對。
+
 ### 讀取資源
 
 ```javascript

@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>御管轉診平台 - 智慧提醒與警示 Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .header .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--card-color, #667eea);
+        }
+        .card.critical::before {
+            background: #e74c3c;
+        }
+        .card.warning::before {
+            background: #f39c12;
+        }
+        .card.info::before {
+            background: #3498db;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            flex: 1;
+        }
+        .card-indicator {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .card-indicator.critical {
+            background: #fee;
+            color: #e74c3c;
+        }
+        .card-indicator.warning {
+            background: #fff4e6;
+            color: #f39c12;
+        }
+        .card-indicator.info {
+            background: #e8f4f8;
+            color: #3498db;
+        }
+        .card-detail {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .card-source {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-bottom: 15px;
+        }
+        .card-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+        .btn-secondary:hover {
+            background: #d5dbdb;
+        }
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #229954;
+        }
+        .suggestions {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ecf0f1;
+        }
+        .suggestion-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .suggestion-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        .suggestion-label {
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .suggestion-action {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        .links {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ecf0f1;
+        }
+        .link-item {
+            display: inline-block;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            padding: 8px 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #667eea;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .link-item:hover {
+            background: #667eea;
+            color: white;
+        }
+        .filter-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .filter-group label {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        .filter-group select,
+        .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #95a5a6;
+        }
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        .refresh-btn:hover {
+            transform: rotate(180deg) scale(1.1);
+        }
+        .timestamp {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔔 智慧提醒與警示 Dashboard</h1>
+            <div class="subtitle">御管轉診平台 - 基於 HL7 FHIR CDS Hooks 標準實作</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="total-alerts">0</div>
+                <div class="stat-label">總提醒數</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="critical-alerts">0</div>
+                <div class="stat-label">緊急警示</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="warning-alerts">0</div>
+                <div class="stat-label">警告提醒</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="info-alerts">0</div>
+                <div class="stat-label">一般提醒</div>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label>警示等級：</label>
+                <select id="filter-indicator" onchange="filterCards()">
+                    <option value="all">全部</option>
+                    <option value="critical">緊急</option>
+                    <option value="warning">警告</option>
+                    <option value="info">一般</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>搜尋：</label>
+                <input type="text" id="search-input" placeholder="搜尋提醒內容..." oninput="filterCards()">
+            </div>
+            <div class="filter-group" style="margin-left: auto;">
+                <button class="btn btn-primary" onclick="loadAlerts()">重新載入</button>
+                <button class="btn btn-secondary" onclick="clearAllAlerts()">清除已讀</button>
+            </div>
+        </div>
+
+        <div class="dashboard-grid" id="cards-container">
+            <div class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <h3>載入中...</h3>
+                <p>正在從 CDS Hooks 服務載入提醒資料</p>
+            </div>
+        </div>
+    </div>
+
+    <button class="refresh-btn" onclick="loadAlerts()" title="重新載入">🔄</button>
+
+    <script type="module">
+        // CDS Hooks Dashboard 主程式
+        let allCards = [];
+        let filteredCards = [];
+
+        // 預寫的示範資料
+        const predefinedAlerts = [
+            {
+                summary: '血壓數值異常：數值超出正常範圍',
+                detail: '目前數值：165/95 mmHg，正常範圍上限：140/90 mmHg。個案血壓連續多日超標，建議立即追蹤處理。',
+                indicator: 'critical',
+                source: { label: '御管轉診平台 - 智慧提醒與警示' },
+                suggestions: [
+                    {
+                        label: '查看詳細資料',
+                        uuid: 'alert-bp-001',
+                        actions: [{
+                            type: 'link',
+                            description: '前往個案管理頁面',
+                            url: '/dashboard/patient/12345'
+                        }]
+                    },
+                    {
+                        label: '發送提醒通知',
+                        uuid: 'notify-bp-001',
+                        actions: [{
+                            type: 'create',
+                            description: '建立提醒通知'
+                        }]
+                    }
+                ],
+                links: [
+                    { label: '查看完整健康記錄', url: '/dashboard/observations/12345', type: 'absolute' },
+                    { label: '聯絡個管師', url: '/dashboard/contact/12345', type: 'absolute' }
+                ],
+                timestamp: new Date().toISOString()
+            },
+            {
+                summary: '安寧共照第二次訪視提醒',
+                detail: '個案於 2026-01-16 完成首訪，今日為第七日，建議進行第二次訪視。',
+                indicator: 'info',
+                source: { label: '御管轉診平台 - 智慧提醒與警示' },
+                suggestions: [
+                    {
+                        label: '安排訪視',
+                        uuid: 'schedule-visit-001',
+                        actions: [{
+                            type: 'create',
+                            description: '建立訪視預約'
+                        }]
+                    }
+                ],
+                links: [
+                    { label: '查看個案資料', url: '/dashboard/patient/12345', type: 'absolute' }
+                ],
+                timestamp: new Date().toISOString()
+            },
+            {
+                summary: '明日門診提醒',
+                detail: '個案預約於明日 10:00 進行門診，請提醒個案準時返診。',
+                indicator: 'info',
+                source: { label: '御管轉診平台 - 智慧提醒與警示' },
+                suggestions: [
+                    {
+                        label: '發送提醒訊息',
+                        uuid: 'send-reminder-001',
+                        actions: [{
+                            type: 'create',
+                            description: '建立提醒通知'
+                        }]
+                    }
+                ],
+                links: [
+                    { label: '查看預約詳情', url: '/dashboard/appointment/67890', type: 'absolute' }
+                ],
+                timestamp: new Date().toISOString()
+            },
+            {
+                summary: '早期 CKD 個案轉診提醒',
+                detail: '此個案為早期慢性腎臟病（CKD）個案，建議轉診至腎臟科門診進行專業追蹤。',
+                indicator: 'warning',
+                source: { label: '御管轉診平台 - 智慧提醒與警示' },
+                suggestions: [
+                    {
+                        label: '建立轉診單',
+                        uuid: 'referral-ckd-001',
+                        actions: [{
+                            type: 'create',
+                            description: '建立轉診單'
+                        }]
+                    }
+                ],
+                links: [
+                    { label: '查看個案完整資料', url: '/dashboard/patient/12345', type: 'absolute' },
+                    { label: '腎臟科門診資訊', url: '/dashboard/specialty/nephrology', type: 'absolute' }
+                ],
+                timestamp: new Date().toISOString()
+            },
+            {
+                summary: '血糖數值異常：數值超出正常範圍',
+                detail: '目前數值：145 mg/dL，正常範圍上限：126 mg/dL。建議追蹤處理。',
+                indicator: 'warning',
+                source: { label: '御管轉診平台 - 智慧提醒與警示' },
+                suggestions: [
+                    {
+                        label: '查看詳細資料',
+                        uuid: 'alert-glucose-001',
+                        actions: [{
+                            type: 'link',
+                            description: '前往個案管理頁面',
+                            url: '/dashboard/patient/12345'
+                        }]
+                    }
+                ],
+                links: [
+                    { label: '查看完整健康記錄', url: '/dashboard/observations/12345', type: 'absolute' }
+                ],
+                timestamp: new Date().toISOString()
+            },
+            {
+                summary: '戒菸門診提醒',
+                detail: '此個案目前有抽菸習慣，建議提供戒菸門診資訊並追蹤就醫情況。',
+                indicator: 'info',
+                source: { label: '御管轉診平台 - 智慧提醒與警示' },
+                suggestions: [
+                    {
+                        label: '發送戒菸資訊',
+                        uuid: 'smoking-info-001',
+                        actions: [{
+                            type: 'create',
+                            description: '建立衛教資料'
+                        }]
+                    }
+                ],
+                links: [
+                    { label: '戒菸門診查詢', url: '/dashboard/smoking-cessation', type: 'absolute' }
+                ],
+                timestamp: new Date().toISOString()
+            }
+        ];
+
+        // 載入提醒資料
+        window.loadAlerts = async function() {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⏳</div><h3>載入中...</h3></div>';
+
+            try {
+                // 嘗試從 CDS Hooks 服務載入（如果有的話）
+                const cdsHooksUrl = localStorage.getItem('cds-hooks-url') || 'http://localhost:3000/cds-services/patient-view';
+                
+                // 這裡可以實際呼叫 CDS Hooks 服務
+                // const response = await fetch(cdsHooksUrl, {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify({
+                //         hook: 'patient-view',
+                //         hookInstance: 'unique-instance-id',
+                //         context: {
+                //             patientId: '12345',
+                //             userId: 'user-001'
+                //         },
+                //         prefetch: {}
+                //     })
+                // });
+                // const data = await response.json();
+                // allCards = data.cards || [];
+
+                // 目前使用預寫資料作為示範
+                allCards = predefinedAlerts;
+                
+                filteredCards = [...allCards];
+                renderCards();
+                updateStats();
+            } catch (error) {
+                console.error('載入提醒失敗:', error);
+                // 如果服務不可用，使用預寫資料
+                allCards = predefinedAlerts;
+                filteredCards = [...allCards];
+                renderCards();
+                updateStats();
+            }
+        };
+
+        // 渲染卡片
+        function renderCards() {
+            const container = document.getElementById('cards-container');
+            
+            if (filteredCards.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">✅</div>
+                        <h3>目前沒有提醒</h3>
+                        <p>所有提醒都已處理完畢</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredCards.map((card, index) => {
+                const indicatorClass = card.indicator || 'info';
+                const timestamp = card.timestamp ? new Date(card.timestamp).toLocaleString('zh-TW') : '';
+                
+                let suggestionsHTML = '';
+                if (card.suggestions && card.suggestions.length > 0) {
+                    suggestionsHTML = `
+                        <div class="suggestions">
+                            <strong style="font-size: 12px; color: #7f8c8d; text-transform: uppercase;">建議動作：</strong>
+                            ${card.suggestions.map(suggestion => `
+                                <div class="suggestion-item" onclick="handleSuggestion('${suggestion.uuid}', ${index})">
+                                    <div class="suggestion-label">${suggestion.label}</div>
+                                    ${suggestion.actions && suggestion.actions.length > 0 ? 
+                                        `<div class="suggestion-action">${suggestion.actions[0].description || ''}</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                let linksHTML = '';
+                if (card.links && card.links.length > 0) {
+                    linksHTML = `
+                        <div class="links">
+                            ${card.links.map(link => `
+                                <a href="${link.url}" class="link-item" target="_blank">${link.label}</a>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="card ${indicatorClass}" data-index="${index}">
+                        <div class="card-header">
+                            <div class="card-title">${card.summary}</div>
+                            <span class="card-indicator ${indicatorClass}">${getIndicatorText(indicatorClass)}</span>
+                        </div>
+                        <div class="card-detail">${card.detail}</div>
+                        <div class="card-source">來源：${card.source?.label || '未知'}</div>
+                        ${suggestionsHTML}
+                        ${linksHTML}
+                        ${timestamp ? `<div class="timestamp">建立時間：${timestamp}</div>` : ''}
+                        <div class="card-actions">
+                            <button class="btn btn-primary" onclick="handleCardAction('view', ${index})">查看詳情</button>
+                            <button class="btn btn-success" onclick="handleCardAction('resolve', ${index})">標記已處理</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 取得警示等級文字
+        function getIndicatorText(indicator) {
+            const map = {
+                'critical': '緊急',
+                'warning': '警告',
+                'info': '一般'
+            };
+            return map[indicator] || indicator;
+        }
+
+        // 處理建議動作
+        window.handleSuggestion = function(uuid, cardIndex) {
+            const card = filteredCards[cardIndex];
+            const suggestion = card.suggestions?.find(s => s.uuid === uuid);
+            
+            if (suggestion) {
+                console.log('執行建議動作:', suggestion);
+                alert(`執行動作：${suggestion.label}\n\n這是一個示範，實際環境中會執行對應的 FHIR 資源操作。`);
+                
+                // 實際環境中可以執行對應的動作
+                if (suggestion.actions && suggestion.actions.length > 0) {
+                    const action = suggestion.actions[0];
+                    if (action.type === 'create' && action.resource) {
+                        // 建立 FHIR 資源
+                        console.log('建立資源:', action.resource);
+                    } else if (action.type === 'link' && action.url) {
+                        // 導向連結
+                        window.open(action.url, '_blank');
+                    }
+                }
+            }
+        };
+
+        // 處理卡片動作
+        window.handleCardAction = function(action, cardIndex) {
+            if (action === 'view') {
+                const card = filteredCards[cardIndex];
+                console.log('查看卡片詳情:', card);
+                alert(`查看詳情：${card.summary}\n\n${card.detail}`);
+            } else if (action === 'resolve') {
+                // 移除已處理的卡片
+                const card = filteredCards[cardIndex];
+                filteredCards = filteredCards.filter((_, i) => i !== cardIndex);
+                allCards = allCards.filter(c => c !== card);
+                renderCards();
+                updateStats();
+                console.log('已標記為處理:', card.summary);
+            }
+        };
+
+        // 過濾卡片
+        window.filterCards = function() {
+            const indicatorFilter = document.getElementById('filter-indicator').value;
+            const searchText = document.getElementById('search-input').value.toLowerCase();
+
+            filteredCards = allCards.filter(card => {
+                const matchIndicator = indicatorFilter === 'all' || card.indicator === indicatorFilter;
+                const matchSearch = !searchText || 
+                    card.summary.toLowerCase().includes(searchText) ||
+                    card.detail.toLowerCase().includes(searchText);
+                return matchIndicator && matchSearch;
+            });
+
+            renderCards();
+            updateStats();
+        };
+
+        // 更新統計
+        function updateStats() {
+            document.getElementById('total-alerts').textContent = allCards.length;
+            document.getElementById('critical-alerts').textContent = 
+                allCards.filter(c => c.indicator === 'critical').length;
+            document.getElementById('warning-alerts').textContent = 
+                allCards.filter(c => c.indicator === 'warning').length;
+            document.getElementById('info-alerts').textContent = 
+                allCards.filter(c => c.indicator === 'info').length;
+        }
+
+        // 清除已讀提醒
+        window.clearAllAlerts = function() {
+            if (confirm('確定要清除所有提醒嗎？')) {
+                allCards = [];
+                filteredCards = [];
+                renderCards();
+                updateStats();
+            }
+        };
+
+        // 初始化載入
+        loadAlerts();
+
+        // 定期自動重新載入（每 5 分鐘）
+        setInterval(loadAlerts, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
