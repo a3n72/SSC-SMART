@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>代謝健康紅綠燈 - Metabolic Syndrome Intelligent Warning System</title>
+    <title>御曲同工全人整合照護SMART平台</title>
     <style>
         * {
             margin: 0;
@@ -359,7 +359,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>代謝健康紅綠燈</h1>
+        <h1>御曲同工全人整合照護SMART平台</h1>
         <div class="subtitle">Metabolic Syndrome Intelligent Warning System</div>
     </div>
 
@@ -433,50 +433,21 @@
         </div>
     </div>
 
-    <script type="module">
-        import { LTC888Client } from '../src/index.js';
-
-        let client = null;
+    <!-- 載入 fhirclient CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/fhirclient@2.6.3/build/fhir-client.min.js"></script>
+    
+    <script>
+        // 全局變數
+        let fhirClient = null;
         let patientData = null;
         let observationsData = null;
         let conditionsData = null;
         let fhirResources = null;
+        let accessToken = null;
+        let fhirBaseUrl = null;
+        let patientId = null;
 
-        // 初始化
-        window.addEventListener('DOMContentLoaded', async () => {
-            try {
-                // 檢查授權狀態
-                const urlParams = new URLSearchParams(window.location.search);
-                const error = urlParams.get('error');
-                
-                if (error) {
-                    throw new Error(`授權失敗: ${urlParams.get('error_description') || error}`);
-                }
-
-                // 初始化 SDK 客戶端
-                client = new LTC888Client();
-                await client.initialize();
-
-                // 載入病人資料
-                await loadPatientData();
-            } catch (error) {
-                console.error('初始化失敗:', error);
-                document.getElementById('patient-content').innerHTML = `
-                    <div class="alert-box critical">
-                        <span class="alert-icon">⚠️</span>
-                        <div class="alert-content">
-                            <h4>初始化失敗</h4>
-                            <p>${error.message}</p>
-                            <p style="margin-top: 10px;">
-                                <a href="./launch.html" style="color: #721c24; text-decoration: underline;">請重新授權</a>
-                            </p>
-                        </div>
-                    </div>
-                `;
-            }
-        });
-
-        // 切換區塊顯示
+        // 切換區塊顯示 - 必須在全局作用域中定義，供 HTML onclick 調用
         window.showSection = function(section) {
             // 隱藏所有區塊
             document.querySelectorAll('.content-section').forEach(sec => {
@@ -504,14 +475,205 @@
             }
         };
 
+        // 登出 - 必須在全局作用域中定義
+        window.logout = async function() {
+            try {
+                sessionStorage.clear();
+                window.location.href = './launch.html';
+            } catch (error) {
+                console.error('登出失敗:', error);
+                sessionStorage.clear();
+                window.location.href = './launch.html';
+            }
+        };
+
+        // 匯出資料 - 必須在全局作用域中定義
+        window.exportData = async function(format) {
+            try {
+                if (!accessToken || !fhirBaseUrl || !patientId) {
+                    throw new Error('缺少授權資訊，請重新授權');
+                }
+
+                // 收集所有 FHIR 資源
+                const patientRes = await authorizedFetch(`${fhirBaseUrl}/Patient/${patientId}`);
+                const patient = await patientRes.json();
+                
+                const obsRes = await authorizedFetch(`${fhirBaseUrl}/Observation?subject=Patient/${patientId}`);
+                const observations = await obsRes.json();
+                
+                const condRes = await authorizedFetch(`${fhirBaseUrl}/Condition?subject=Patient/${patientId}`);
+                const conditions = await condRes.json();
+
+                fhirResources = {
+                    patient,
+                    observations: observations.entry?.map(e => e.resource) || [],
+                    conditions: conditions.entry?.map(e => e.resource) || []
+                };
+
+                if (format === 'json') {
+                    exportJSON(fhirResources);
+                } else if (format === 'csv') {
+                    exportCSV(fhirResources);
+                }
+            } catch (error) {
+                console.error('匯出失敗:', error);
+                document.getElementById('export-result').innerHTML = `
+                    <div class="alert-box critical">
+                        <span class="alert-icon">⚠️</span>
+                        <div class="alert-content">
+                            <h4>匯出失敗</h4>
+                            <p>${error.message}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        };
+
+        // 取得授權上下文
+        function getAuthContext() {
+            return {
+                iss: sessionStorage.getItem('oauth_iss'),
+                clientId: sessionStorage.getItem('oauth_client_id'),
+                redirectUri: sessionStorage.getItem('oauth_redirect_uri'),
+                scope: sessionStorage.getItem('oauth_scope'),
+                tokenEndpoint: sessionStorage.getItem('oauth_token_endpoint'),
+                state: sessionStorage.getItem('oauth_state'),
+                codeVerifier: sessionStorage.getItem('oauth_code_verifier')
+            };
+        }
+
+        // 授權的 fetch
+        async function authorizedFetch(url, options = {}) {
+            if (!accessToken) {
+                throw new Error('缺少 Access Token，請重新授權');
+            }
+            const headers = {
+                Accept: 'application/fhir+json',
+                Authorization: `Bearer ${accessToken}`,
+                ...(options.headers || {})
+            };
+            return fetch(url, { ...options, headers });
+        }
+
+        // 交換 Token
+        async function exchangeToken(code) {
+            const ctx = getAuthContext();
+            if (!ctx.tokenEndpoint || !ctx.clientId || !ctx.redirectUri || !ctx.codeVerifier) {
+                throw new Error('授權上下文不完整，請重新從 launch.html 開始');
+            }
+
+            const body = new URLSearchParams({
+                grant_type: 'authorization_code',
+                code: code,
+                redirect_uri: ctx.redirectUri,
+                client_id: ctx.clientId,
+                code_verifier: ctx.codeVerifier
+            });
+
+            const res = await fetch(ctx.tokenEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body
+            });
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(`交換 Token 失敗: ${res.status} ${res.statusText} - ${errorText}`);
+            }
+
+            const tokenResponse = await res.json();
+            sessionStorage.setItem('access_token', tokenResponse.access_token || '');
+            sessionStorage.setItem('token_response', JSON.stringify(tokenResponse));
+            if (tokenResponse.patient) {
+                sessionStorage.setItem('patient_id', tokenResponse.patient);
+            }
+            return tokenResponse;
+        }
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // 檢查授權狀態
+                const urlParams = new URLSearchParams(window.location.search);
+                const code = urlParams.get('code');
+                const state = urlParams.get('state');
+                const error = urlParams.get('error');
+
+                if (error) {
+                    throw new Error(`授權失敗: ${urlParams.get('error_description') || error}`);
+                }
+
+                const ctx = getAuthContext();
+                fhirBaseUrl = ctx.iss;
+                accessToken = sessionStorage.getItem('access_token');
+                patientId = sessionStorage.getItem('patient_id');
+
+                if (code) {
+                    if (!state || state !== ctx.state) {
+                        throw new Error('State 驗證失敗，可能是授權流程不完整或被攔截');
+                    }
+
+                    const tokenResponse = await exchangeToken(code);
+                    accessToken = tokenResponse.access_token;
+                    patientId = tokenResponse.patient || sessionStorage.getItem('patient_id');
+
+                    // 清除 URL 上的 code/state
+                    const cleanUrl = window.location.origin + window.location.pathname;
+                    window.history.replaceState({}, document.title, cleanUrl);
+                }
+
+                if (!accessToken || !fhirBaseUrl) {
+                    document.getElementById('patient-content').innerHTML = `
+                        <div class="alert-box critical">
+                            <span class="alert-icon">⚠️</span>
+                            <div class="alert-content">
+                                <h4>錯誤：缺少安全憑證</h4>
+                                <p>此應用程式使用 SMART on FHIR 標準協議，需要經過授權流程才能存取資料。</p>
+                                <p style="margin-top: 10px;">
+                                    <a href="./launch.html" style="color: #721c24; text-decoration: underline;">請重新授權</a>
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (!patientId) {
+                    throw new Error('授權完成但沒有取得病人 ID，請確認 scope 包含 launch/patient 並完成病人選擇');
+                }
+
+                // 載入病人資料
+                await loadPatientData();
+            } catch (error) {
+                console.error('初始化失敗:', error);
+                document.getElementById('patient-content').innerHTML = `
+                    <div class="alert-box critical">
+                        <span class="alert-icon">⚠️</span>
+                        <div class="alert-content">
+                            <h4>初始化失敗</h4>
+                            <p>${error.message}</p>
+                            <p style="margin-top: 10px;">
+                                <a href="./launch.html" style="color: #721c24; text-decoration: underline;">請重新授權</a>
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
         // 載入病人資料
         async function loadPatientData() {
             try {
-                if (!client) {
-                    throw new Error('客戶端未初始化');
+                if (!accessToken || !fhirBaseUrl || !patientId) {
+                    throw new Error('缺少授權資訊，請重新授權');
                 }
 
-                const patient = await client.getPatientInfo();
+                const res = await authorizedFetch(`${fhirBaseUrl}/Patient/${patientId}`);
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(`讀取病人資料失敗: ${res.status} ${res.statusText} - ${text}`);
+                }
+                const patient = await res.json();
                 patientData = patient;
 
                 // 格式化顯示
@@ -530,7 +692,8 @@
                 const phone = patient.telecom?.find(t => t.system === 'phone')?.value || '未提供';
 
                 // 取得社會史
-                const observations = await client.getObservation();
+                const observationsRes = await authorizedFetch(`${fhirBaseUrl}/Observation?subject=Patient/${patientId}`);
+                const observations = await observationsRes.json();
                 const socialHistory = extractSocialHistory(observations);
 
                 const html = `
@@ -613,11 +776,15 @@
         // 載入檢驗報告
         async function loadLabReports() {
             try {
-                if (!client) {
-                    throw new Error('客戶端未初始化');
+                if (!accessToken || !fhirBaseUrl || !patientId) {
+                    throw new Error('缺少授權資訊，請重新授權');
                 }
 
-                const observations = await client.getObservation();
+                const res = await authorizedFetch(`${fhirBaseUrl}/Observation?subject=Patient/${patientId}`);
+                if (!res.ok) {
+                    throw new Error(`讀取 Observation 失敗: ${res.status} ${res.statusText}`);
+                }
+                const observations = await res.json();
                 observationsData = observations;
 
                 const labData = categorizeObservations(observations);
@@ -641,15 +808,16 @@
         // 載入臨床評估
         async function loadClinicalAssessment() {
             try {
-                if (!client) {
-                    throw new Error('客戶端未初始化');
+                if (!accessToken || !fhirBaseUrl || !patientId) {
+                    throw new Error('缺少授權資訊，請重新授權');
                 }
 
                 // 取得所有相關資料
-                const observations = await client.getObservation();
-                const conditions = await client.readResource('Condition', null, {
-                    subject: `Patient/${await client.getPatientId()}`
-                });
+                const obsRes = await authorizedFetch(`${fhirBaseUrl}/Observation?subject=Patient/${patientId}`);
+                const observations = await obsRes.json();
+                
+                const condRes = await authorizedFetch(`${fhirBaseUrl}/Condition?subject=Patient/${patientId}`);
+                const conditions = await condRes.json();
 
                 conditionsData = conditions;
                 observationsData = observations;
@@ -676,59 +844,6 @@
             }
         }
 
-        // 匯出資料
-        window.exportData = async function(format) {
-            try {
-                if (!client) {
-                    throw new Error('客戶端未初始化');
-                }
-
-                // 收集所有 FHIR 資源
-                const patient = await client.getPatientInfo();
-                const observations = await client.getObservation();
-                const conditions = await client.readResource('Condition', null, {
-                    subject: `Patient/${patient.id}`
-                });
-
-                fhirResources = {
-                    patient,
-                    observations: observations.entry?.map(e => e.resource) || [],
-                    conditions: conditions.entry?.map(e => e.resource) || []
-                };
-
-                if (format === 'json') {
-                    exportJSON(fhirResources);
-                } else if (format === 'csv') {
-                    exportCSV(fhirResources);
-                }
-            } catch (error) {
-                console.error('匯出失敗:', error);
-                document.getElementById('export-result').innerHTML = `
-                    <div class="alert-box critical">
-                        <span class="alert-icon">⚠️</span>
-                        <div class="alert-content">
-                            <h4>匯出失敗</h4>
-                            <p>${error.message}</p>
-                        </div>
-                    </div>
-                `;
-            }
-        };
-
-        // 登出
-        window.logout = async function() {
-            try {
-                if (client) {
-                    await client.logout();
-                }
-                sessionStorage.clear();
-                window.location.href = './launch.html';
-            } catch (error) {
-                console.error('登出失敗:', error);
-                sessionStorage.clear();
-                window.location.href = './launch.html';
-            }
-        };
 
         // 輔助函數：提取社會史
         function extractSocialHistory(observations) {
