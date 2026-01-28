@@ -2,7 +2,7 @@
 
 ## 概述
 
-「代謝健康紅綠燈 (Metabolic Syndrome Intelligent Warning System)」是一個基於 SMART on FHIR 標準的健康評估系統，用於評估和管理代謝症候群相關的健康指標。
+「代謝健康紅綠燈 (SSC-SMART)」是一個基於 SMART on FHIR 標準的健康評估系統，用於評估和管理代謝症候群相關的健康指標。
 
 ## 功能特色
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>御曲同工全人整合照護SMART平台</title>
+    <title>御曲同工全人整合照護SMART平台 (SSC-SMART)</title>
     <style>
         * {
             margin: 0;
@@ -360,7 +360,7 @@
 <body>
     <div class="header">
         <h1>御曲同工全人整合照護SMART平台</h1>
-        <div class="subtitle">Metabolic Syndrome Intelligent Warning System</div>
+        <div class="subtitle">SSC-SMART</div>
     </div>
 
     <div class="nav">
@@ -368,13 +368,22 @@
             <span>👤</span> 病人資料
         </button>
         <button id="btnLab" onclick="showSection('lab')">
-            <span>🔍</span> 檢驗報告
+            <span>🔍</span> 生理數據
         </button>
         <button id="btnClinical" onclick="showSection('clinical')">
             <span>📊</span> 臨床評估
         </button>
         <button id="btnExport" onclick="showSection('export')">
             <span>📄</span> 匯出報告
+        </button>
+        <button id="btnManagement" onclick="window.location.href='./metabolic-syndrome-management.html'" style="background: #28a745; color: white;">
+            <span>📋</span> 疾病管理
+        </button>
+        <button id="btnBP" onclick="window.location.href='./blood-pressure-trend.html'" style="background: #17a2b8; color: white;">
+            <span>📈</span> 血壓趨勢
+        </button>
+        <button id="btnPhysio" onclick="window.location.href='./physiological-records.html'" style="background: #6f42c1; color: white;">
+            <span>💬</span> 生理紀錄
         </button>
         <button onclick="logout()" style="margin-left: auto; background: #dc3545; color: white;">
             <span>🚪</span> 登出
@@ -393,13 +402,13 @@
             </div>
         </div>
 
-        <!-- 檢驗報告區塊 -->
+        <!-- 生理數據區塊 -->
         <div id="section-lab" class="content-section">
-            <h2>🔍 檢驗報告</h2>
+            <h2>🔍 生理數據</h2>
             <div id="lab-content">
                 <div class="loading">
                     <div class="spinner"></div>
-                    <div>正在載入檢驗報告...</div>
+                    <div>正在載入生理數據...</div>
                 </div>
             </div>
         </div>
@@ -773,7 +782,7 @@
             }
         }
 
-        // 載入檢驗報告
+        // 載入生理數據
         async function loadLabReports() {
             try {
                 if (!accessToken || !fhirBaseUrl || !patientId) {
@@ -792,7 +801,7 @@
 
                 document.getElementById('lab-content').innerHTML = html;
             } catch (error) {
-                console.error('載入檢驗報告失敗:', error);
+                console.error('載入生理數據失敗:', error);
                 document.getElementById('lab-content').innerHTML = `
                     <div class="alert-box critical">
                         <span class="alert-icon">⚠️</span>
@@ -898,7 +907,7 @@
             return categories;
         }
 
-        // 輔助函數：渲染檢驗報告
+        // 輔助函數：渲染生理數據
         function renderLabReports(labData) {
             let html = '';
 
@@ -927,7 +936,7 @@
                 html += renderLabSection('⚗️ 腎功能', labData.kidneyFunction, 'kidneyFunction');
             }
 
-            return html || '<p>目前沒有檢驗報告資料</p>';
+            return html || '<p>目前沒有生理數據資料</p>';
         }
 
         // 輔助函數：渲染單一檢驗類別
