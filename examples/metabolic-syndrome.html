@@ -358,22 +358,31 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         /* 血壓趨勢圖表樣式 */
-        .chart-container {
-            background: white;
+        #section-bp {
             padding: 20px;
+        }
+        #section-bp .chart-container {
+            background: white;
+            padding: 25px;
             border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
-        .chart-title {
-            font-size: 18px;
+        #section-bp .chart-title {
+            font-size: 20px;
             color: #2c3e50;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             font-weight: 600;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
         }
-        .chart-wrapper {
+        #section-bp .chart-wrapper {
             position: relative;
-            height: 400px;
+            height: 500px;
+            min-height: 500px;
+        }
+        #section-bp canvas {
+            max-height: 100%;
         }
     </style>
 </head>
@@ -1505,16 +1514,18 @@
                 
                 // 渲染圖表
                 const html = `
-                    <div class="chart-container">
-                        <div class="chart-title">血壓趨勢圖</div>
-                        <div class="chart-wrapper">
-                            <canvas id="bpChart"></canvas>
+                    <div style="max-width: 1400px; margin: 0 auto;">
+                        <div class="chart-container">
+                            <div class="chart-title">血壓趨勢圖</div>
+                            <div class="chart-wrapper">
+                                <canvas id="bpChart"></canvas>
+                            </div>
                         </div>
-                    </div>
-                    <div class="chart-container">
-                        <div class="chart-title">血壓紀錄分布圖</div>
-                        <div class="chart-wrapper">
-                            <canvas id="bpDistributionChart"></canvas>
+                        <div class="chart-container">
+                            <div class="chart-title">血壓紀錄分布圖</div>
+                            <div class="chart-wrapper">
+                                <canvas id="bpDistributionChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1586,11 +1597,56 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            enabled: true,
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
                     scales: {
                         y: {
                             beginAtZero: false,
                             min: 70,
-                            max: 150
+                            max: 150,
+                            title: {
+                                display: true,
+                                text: '血壓 (mmHg)',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                stepSize: 10
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '日期',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
                         }
                     }
                 }
@@ -1619,12 +1675,63 @@
                             'rgba(75, 192, 192, 0.6)',
                             'rgba(255, 206, 86, 0.6)',
                             'rgba(255, 99, 132, 0.6)'
-                        ]
+                        ],
+                        borderColor: [
+                            'rgb(75, 192, 192)',
+                            'rgb(255, 206, 86)',
+                            'rgb(255, 99, 132)'
+                        ],
+                        borderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            enabled: true
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '記錄次數',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '血壓分類',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
                 }
             });
         }
