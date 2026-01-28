@@ -1,8 +1,12 @@
 {
   "resourceType": "Bundle",
-  "type": "collection",
+  "type": "transaction",
   "entry": [
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/bp-001"
+      },
       "resource": {
         "resourceType": "Observation",
         "id": "bp-001",
@@ -29,7 +33,7 @@
           "text": "血壓"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-07-15T08:00:00+08:00",
         "component": [
@@ -98,6 +102,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/glucose-001"
+      },
       "resource": {
         "resourceType": "Observation",
         "id": "glucose-001",
@@ -124,7 +132,7 @@
           "text": "空腹血糖"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-07-15T08:00:00+08:00",
         "valueQuantity": {
@@ -157,6 +165,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/cholesterol-total-001"
+      },
       "resource": {
         "resourceType": "Observation",
         "id": "cholesterol-total-001",
@@ -183,7 +195,7 @@
           "text": "總膽固醇"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-07-15T08:00:00+08:00",
         "valueQuantity": {
@@ -216,6 +228,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/triglycerides-001"
+      },
       "resource": {
         "resourceType": "Observation",
         "id": "triglycerides-001",
@@ -242,7 +258,7 @@
           "text": "三酸甘油脂"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-07-15T08:00:00+08:00",
         "valueQuantity": {
@@ -275,6 +291,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/hdl-001"
+      },
       "resource": {
         "resourceType": "Observation",
         "id": "hdl-001",
@@ -301,7 +321,7 @@
           "text": "HDL膽固醇"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-07-15T08:00:00+08:00",
         "valueQuantity": {
@@ -334,6 +354,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/ldl-001"
+      },
       "resource": {
         "resourceType": "Observation",
         "id": "ldl-001",
@@ -360,7 +384,7 @@
           "text": "LDL膽固醇"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-07-15T08:00:00+08:00",
         "valueQuantity": {
@@ -393,6 +417,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/alt-001"
+      },
       "resource": {
         "resourceType": "Observation",
         "id": "alt-001",
@@ -419,7 +447,7 @@
           "text": "ALT/GPT"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-07-15T08:00:00+08:00",
         "valueQuantity": {
@@ -452,6 +480,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/ast-001"
+      },
       "resource": {
         "resourceType": "Observation",
         "id": "ast-001",
@@ -478,7 +510,7 @@
           "text": "AST/GOT"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-07-15T08:00:00+08:00",
         "valueQuantity": {
@@ -511,6 +543,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/creatinine-001"
+      },
       "resource": {
         "resourceType": "Observation",
         "id": "creatinine-001",
@@ -537,7 +573,7 @@
           "text": "肌酸酐"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-07-15T08:00:00+08:00",
         "valueQuantity": {
@@ -570,6 +606,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/uric-acid-001"
+      },
       "resource": {
         "resourceType": "Observation",
         "id": "uric-acid-001",
@@ -596,7 +636,7 @@
           "text": "尿酸"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-07-15T08:00:00+08:00",
         "valueQuantity": {
@@ -629,6 +669,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/waist-circumference-001"
+      },
       "resource": {
         "resourceType": "Observation",
         "id": "waist-circumference-001",
@@ -655,7 +699,7 @@
           "text": "腰圍"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-07-15T08:00:00+08:00",
         "valueQuantity": {

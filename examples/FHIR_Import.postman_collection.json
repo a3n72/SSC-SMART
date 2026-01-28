@@ -1,0 +1,375 @@
+{
+	"info": {
+		"_postman_id": "fhir-import-collection",
+		"name": "FHIR Data Import",
+		"description": "匯入測試資料到 FHIR Server (https://thas.mohw.gov.tw/v/r4/fhir)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Import Patient",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/fhir+json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "fhir-data/metabolic-syndrome-patient.json"
+					}
+				},
+				"url": {
+					"raw": "{{fhir_base_url}}/Patient",
+					"host": [
+						"{{fhir_base_url}}"
+					],
+					"path": [
+						"Patient"
+					]
+				},
+				"description": "匯入 Patient 資源"
+			}
+		},
+		{
+			"name": "2. Import Observations (Basic)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/fhir+json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "fhir-data/metabolic-syndrome-observations.json"
+					}
+				},
+				"url": {
+					"raw": "{{fhir_base_url}}",
+					"host": [
+						"{{fhir_base_url}}"
+					]
+				},
+				"description": "匯入基本檢驗數據 Observation Bundle (血壓、血糖、血脂等)"
+			}
+		},
+		{
+			"name": "3. Import Conditions",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/fhir+json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "fhir-data/metabolic-syndrome-conditions.json"
+					}
+				},
+				"url": {
+					"raw": "{{fhir_base_url}}",
+					"host": [
+						"{{fhir_base_url}}"
+					]
+				},
+				"description": "匯入 Condition Bundle (代謝症候群診斷)"
+			}
+		},
+		{
+			"name": "4. Import Management Data",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/fhir+json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "fhir-data/metabolic-syndrome-management.json"
+					}
+				},
+				"url": {
+					"raw": "{{fhir_base_url}}",
+					"host": [
+						"{{fhir_base_url}}"
+					]
+				},
+				"description": "匯入疾病管理資料 Bundle (身高、體重、運動、抽菸、伴隨疾病、風險評估)"
+			}
+		},
+		{
+			"name": "5. Import Prescriptions",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/fhir+json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "fhir-data/exercise-diet-prescriptions.json"
+					}
+				},
+				"url": {
+					"raw": "{{fhir_base_url}}",
+					"host": [
+						"{{fhir_base_url}}"
+					]
+				},
+				"description": "匯入處方資料 Bundle (運動處方、飲食處方、照護計畫)"
+			}
+		},
+		{
+			"name": "6. Import Blood Pressure Trends",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/fhir+json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "fhir-data/blood-pressure-trends.json"
+					}
+				},
+				"url": {
+					"raw": "{{fhir_base_url}}",
+					"host": [
+						"{{fhir_base_url}}"
+					]
+				},
+				"description": "匯入血壓趨勢資料 Bundle (多筆血壓記錄)"
+			}
+		},
+		{
+			"name": "7. Import Physiological Records",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/fhir+json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "fhir-data/physiological-records.json"
+					}
+				},
+				"url": {
+					"raw": "{{fhir_base_url}}",
+					"host": [
+						"{{fhir_base_url}}"
+					]
+				},
+				"description": "匯入生理紀錄資料 Bundle (血壓、脈搏、血氧、體溫)"
+			}
+		},
+		{
+			"name": "Verify - Get Patient",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{fhir_base_url}}/Patient/metabolic-syndrome-001",
+					"host": [
+						"{{fhir_base_url}}"
+					],
+					"path": [
+						"Patient",
+						"metabolic-syndrome-001"
+					]
+				},
+				"description": "驗證 Patient 資源是否已成功匯入"
+			}
+		},
+		{
+			"name": "Verify - Get Observations",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{fhir_base_url}}/Observation?subject=Patient/metabolic-syndrome-001",
+					"host": [
+						"{{fhir_base_url}}"
+					],
+					"path": [
+						"Observation"
+					],
+					"query": [
+						{
+							"key": "subject",
+							"value": "Patient/metabolic-syndrome-001"
+						}
+					]
+				},
+				"description": "驗證 Observation 資源是否已成功匯入"
+			}
+		},
+		{
+			"name": "Verify - Get Conditions",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{fhir_base_url}}/Condition?subject=Patient/metabolic-syndrome-001",
+					"host": [
+						"{{fhir_base_url}}"
+					],
+					"path": [
+						"Condition"
+					],
+					"query": [
+						{
+							"key": "subject",
+							"value": "Patient/metabolic-syndrome-001"
+						}
+					]
+				},
+				"description": "驗證 Condition 資源是否已成功匯入"
+			}
+		},
+		{
+			"name": "Verify - Get ServiceRequests",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{fhir_base_url}}/ServiceRequest?subject=Patient/metabolic-syndrome-001",
+					"host": [
+						"{{fhir_base_url}}"
+					],
+					"path": [
+						"ServiceRequest"
+					],
+					"query": [
+						{
+							"key": "subject",
+							"value": "Patient/metabolic-syndrome-001"
+						}
+					]
+				},
+				"description": "驗證 ServiceRequest 資源是否已成功匯入"
+			}
+		},
+		{
+			"name": "Verify - Get NutritionOrders",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{fhir_base_url}}/NutritionOrder?patient=Patient/metabolic-syndrome-001",
+					"host": [
+						"{{fhir_base_url}}"
+					],
+					"path": [
+						"NutritionOrder"
+					],
+					"query": [
+						{
+							"key": "patient",
+							"value": "Patient/metabolic-syndrome-001"
+						}
+					]
+				},
+				"description": "驗證 NutritionOrder 資源是否已成功匯入"
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "fhir_base_url",
+			"value": "https://thas.mohw.gov.tw/v/r4/fhir",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

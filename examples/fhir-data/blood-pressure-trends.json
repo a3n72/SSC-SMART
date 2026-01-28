@@ -1,9 +1,13 @@
 {
   "resourceType": "Bundle",
-  "type": "collection",
+  "type": "transaction",
   "timestamp": "2025-11-14T10:00:00+08:00",
   "entry": [
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/bp-20230817"
+      },
       "fullUrl": "http://example.org/fhir/Observation/bp-20230817",
       "resource": {
         "resourceType": "Observation",
@@ -31,7 +35,7 @@
           "text": "血壓"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2023-08-17T14:14:00+08:00",
         "component": [
@@ -75,6 +79,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/bp-20230819"
+      },
       "fullUrl": "http://example.org/fhir/Observation/bp-20230819",
       "resource": {
         "resourceType": "Observation",
@@ -102,7 +110,7 @@
           "text": "血壓"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2023-08-19T14:08:00+08:00",
         "component": [
@@ -146,6 +154,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/bp-20230821"
+      },
       "fullUrl": "http://example.org/fhir/Observation/bp-20230821",
       "resource": {
         "resourceType": "Observation",
@@ -173,7 +185,7 @@
           "text": "血壓"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2023-08-21T14:07:00+08:00",
         "component": [
@@ -217,6 +229,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/bp-20230825"
+      },
       "fullUrl": "http://example.org/fhir/Observation/bp-20230825",
       "resource": {
         "resourceType": "Observation",
@@ -244,7 +260,7 @@
           "text": "血壓"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2023-08-25T14:07:00+08:00",
         "component": [
@@ -288,6 +304,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/bp-20230826"
+      },
       "fullUrl": "http://example.org/fhir/Observation/bp-20230826",
       "resource": {
         "resourceType": "Observation",
@@ -315,7 +335,7 @@
           "text": "血壓"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2023-08-26T17:06:00+08:00",
         "component": [

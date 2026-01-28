@@ -121,7 +121,7 @@
 </head>
 <body>
     <div class="header">
-        <button class="back-btn" onclick="goBack()">←</button>
+        <button class="back-btn" onclick="goBack()">← 返回御曲</button>
         <h1>御曲同工全人整合照護SMART平台 - 血壓趨勢</h1>
         <div class="header-icons">
             <span>🔔</span>
@@ -177,6 +177,19 @@
         </div>
     </div>
 
+    <!-- 全局函數定義（必須在模組之前，供 HTML onclick 使用） -->
+    <script>
+        // 返回主頁 - 必須在全局作用域中定義，供 HTML onclick 調用
+        window.goBack = function() {
+            window.location.href = './metabolic-syndrome.html';
+        };
+
+        // 編輯記錄
+        window.editRecord = function() {
+            alert('編輯功能開發中');
+        };
+    </script>
+
     <script type="module">
         import { LTC888Client } from '../src/index.js';
 
@@ -204,8 +217,8 @@
                 await loadBloodPressureData();
             } catch (error) {
                 console.error('初始化失敗:', error);
-                // 使用範例資料
-                renderChart(sampleData);
+                // 不自動使用範例資料，顯示錯誤訊息
+                showNoDataMessage('系統初始化失敗，請重新授權');
             }
         });
 
@@ -216,10 +229,18 @@
                 });
 
                 const bpData = parseObservations(observations);
+                
+                // 檢查是否有實際數據
+                if (bpData.length === 0) {
+                    showNoDataMessage();
+                    return;
+                }
+                
                 renderChart(bpData);
             } catch (error) {
                 console.error('載入資料失敗:', error);
-                renderChart(sampleData);
+                // 不自動使用範例資料，而是顯示錯誤訊息
+                showNoDataMessage(error.message);
             }
         }
 
@@ -236,6 +257,24 @@
                 };
             }).filter(d => d.systolic && d.diastolic)
               .sort((a, b) => new Date(a.date) - new Date(b.date));
+        }
+
+        function showNoDataMessage(errorMsg = null) {
+            const chartContainer = document.querySelector('.chart-container');
+            if (chartContainer) {
+                chartContainer.innerHTML = `
+                    <div class="chart-title">血壓趨勢圖</div>
+                    <div style="padding: 40px; text-align: center; color: #6c757d;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">📊</div>
+                        <h3 style="color: #495057; margin-bottom: 10px;">目前沒有血壓數據</h3>
+                        <p style="margin-bottom: 5px;">此病人的血壓數據尚未上傳到 FHIR 伺服器。</p>
+                        ${errorMsg ? `<p style="color: #dc3545; font-size: 14px; margin-top: 10px;">錯誤：${errorMsg}</p>` : ''}
+                        <p style="margin-top: 20px; font-size: 14px; color: #856404;">
+                            請先上傳血壓數據，或確認病人 ID 是否正確。
+                        </p>
+                    </div>
+                `;
+            }
         }
 
         function renderChart(data) {
@@ -341,13 +380,6 @@
             }
         };
 
-        window.editRecord = function() {
-            alert('編輯功能開發中');
-        };
-
-        window.goBack = function() {
-            window.location.href = './metabolic-syndrome.html';
-        };
     </script>
 </body>
 </html>

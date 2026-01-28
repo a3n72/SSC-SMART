@@ -1,9 +1,13 @@
 {
   "resourceType": "Bundle",
-  "type": "collection",
+  "type": "transaction",
   "timestamp": "2025-11-14T10:00:00+08:00",
   "entry": [
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/height-001"
+      },
       "fullUrl": "http://example.org/fhir/Observation/height-001",
       "resource": {
         "resourceType": "Observation",
@@ -31,7 +35,7 @@
           "text": "身高"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-11-14",
         "valueQuantity": {
@@ -43,6 +47,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/weight-001"
+      },
       "fullUrl": "http://example.org/fhir/Observation/weight-001",
       "resource": {
         "resourceType": "Observation",
@@ -70,7 +78,7 @@
           "text": "體重"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-11-14",
         "valueQuantity": {
@@ -82,6 +90,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/exercise-001"
+      },
       "fullUrl": "http://example.org/fhir/Observation/exercise-001",
       "resource": {
         "resourceType": "Observation",
@@ -109,7 +121,7 @@
           "text": "運動習慣"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-11-14",
         "valueCodeableConcept": {
@@ -125,6 +137,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/smoking-001"
+      },
       "fullUrl": "http://example.org/fhir/Observation/smoking-001",
       "resource": {
         "resourceType": "Observation",
@@ -152,7 +168,7 @@
           "text": "抽菸習慣"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-11-14",
         "valueCodeableConcept": {
@@ -168,6 +184,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Condition/diabetes-001"
+      },
       "fullUrl": "http://example.org/fhir/Condition/diabetes-001",
       "resource": {
         "resourceType": "Condition",
@@ -192,12 +212,16 @@
           "text": "糖尿病"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "onsetDateTime": "2025-11-14"
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Condition/hypertension-001"
+      },
       "fullUrl": "http://example.org/fhir/Condition/hypertension-001",
       "resource": {
         "resourceType": "Condition",
@@ -222,12 +246,16 @@
           "text": "高血壓"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "onsetDateTime": "2025-11-14"
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "RiskAssessment/coronary-risk-001"
+      },
       "fullUrl": "http://example.org/fhir/RiskAssessment/coronary-risk-001",
       "resource": {
         "resourceType": "RiskAssessment",
@@ -244,7 +272,7 @@
           "text": "冠心病風險"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "occurrenceDateTime": "2025-11-14",
         "prediction": [

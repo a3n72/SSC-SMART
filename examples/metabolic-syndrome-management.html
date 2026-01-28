@@ -281,7 +281,7 @@
 <body>
     <div class="container">
         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-            <button onclick="window.location.href='./metabolic-syndrome.html'" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">← 返回主頁</button>
+            <button onclick="window.location.href='./metabolic-syndrome.html'" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">← 返回御曲</button>
             <h1 style="margin: 0; flex: 1;">御曲同工全人整合照護SMART平台 - 疾病管理</h1>
         </div>
         
@@ -738,36 +738,9 @@
         </div>
     </div>
 
-    <script type="module">
-        import { LTC888Client } from '../src/index.js';
-
-        let client = null;
-        let patientId = null;
-
-        // 初始化
-        window.addEventListener('DOMContentLoaded', async () => {
-            try {
-                client = new LTC888Client();
-                await client.initialize();
-                patientId = await client.getPatientId();
-                
-                // 載入現有資料
-                await loadExistingData();
-            } catch (error) {
-                console.error('初始化失敗:', error);
-            }
-
-            // 設定 BMI 自動計算
-            document.getElementById('height').addEventListener('input', calculateBMI);
-            document.getElementById('weight').addEventListener('input', calculateBMI);
-
-            // 設定單選按鈕樣式
-            setupRadioButtons();
-            setupCheckboxes();
-            setupRiskOptions();
-        });
-
-        // 顯示標籤
+    <!-- 全局函數定義（必須在模組之前，供 HTML onclick 使用） -->
+    <script>
+        // 顯示標籤 - 必須在全局作用域中定義，供 HTML onclick 調用
         window.showTab = function(tabName, event) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
@@ -784,6 +757,54 @@
             }
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
         };
+
+        // 儲存運動處方 - 調用模組內的函數
+        window.saveExercisePrescription = async function() {
+            if (window.saveExercisePrescriptionInternal) {
+                await window.saveExercisePrescriptionInternal();
+            } else {
+                alert('系統正在初始化，請稍候再試');
+            }
+        };
+
+        // 儲存飲食處方 - 調用模組內的函數
+        window.saveDietPrescription = async function() {
+            if (window.saveDietPrescriptionInternal) {
+                await window.saveDietPrescriptionInternal();
+            } else {
+                alert('系統正在初始化，請稍候再試');
+            }
+        };
+
+        // 開啟運動處方
+        window.openExercisePrescription = function() {
+            document.getElementById('exerciseModal').classList.add('active');
+        };
+
+        // 開啟飲食處方
+        window.openDietPrescription = function() {
+            document.getElementById('dietModal').classList.add('active');
+        };
+
+        // 關閉模態框
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        };
+
+        // 結案
+        window.closeCase = function() {
+            if (confirm('確定要結案嗎？')) {
+                // 執行結案邏輯
+                alert('已結案');
+            }
+        };
+    </script>
+
+    <script type="module">
+        import { LTC888Client } from '../src/index.js';
+
+        let client = null;
+        let patientId = null;
 
         // 計算 BMI
         function calculateBMI() {
@@ -847,20 +868,6 @@
             });
         }
 
-        // 開啟運動處方
-        window.openExercisePrescription = function() {
-            document.getElementById('exerciseModal').classList.add('active');
-        };
-
-        // 開啟飲食處方
-        window.openDietPrescription = function() {
-            document.getElementById('dietModal').classList.add('active');
-        };
-
-        // 關閉模態框
-        window.closeModal = function(modalId) {
-            document.getElementById(modalId).classList.remove('active');
-        };
 
         // 儲存基本資料
         window.saveBasicData = async function() {
@@ -894,8 +901,8 @@
             }
         };
 
-        // 儲存運動處方
-        window.saveExercisePrescription = async function() {
+        // 儲存運動處方（模組內版本，由全局函數調用）
+        async function saveExercisePrescriptionInternal() {
             try {
                 if (!client) {
                     throw new Error('客戶端未初始化');
@@ -909,16 +916,16 @@
 
                 const fhirResource = convertExercisePrescriptionToFHIR(data);
                 await client.createResource(fhirResource);
-                closeModal('exerciseModal');
+                window.closeModal('exerciseModal');
                 alert('運動處方已成功儲存！');
             } catch (error) {
                 console.error('儲存失敗:', error);
                 alert('儲存失敗: ' + error.message);
             }
-        };
+        }
 
-        // 儲存飲食處方
-        window.saveDietPrescription = async function() {
+        // 儲存飲食處方（模組內版本，由全局函數調用）
+        async function saveDietPrescriptionInternal() {
             try {
                 if (!client) {
                     throw new Error('客戶端未初始化');
@@ -932,13 +939,17 @@
 
                 const fhirResource = convertDietPrescriptionToFHIR(data);
                 await client.createResource(fhirResource);
-                closeModal('dietModal');
+                window.closeModal('dietModal');
                 alert('飲食處方已成功儲存！');
             } catch (error) {
                 console.error('儲存失敗:', error);
                 alert('儲存失敗: ' + error.message);
             }
-        };
+        }
+
+        // 將內部函數暴露到全局，供全局函數調用
+        window.saveExercisePrescriptionInternal = saveExercisePrescriptionInternal;
+        window.saveDietPrescriptionInternal = saveDietPrescriptionInternal;
 
         // 收集基本資料
         function collectBasicData() {
@@ -1580,13 +1591,6 @@
             }
         };
 
-        // 結案
-        window.closeCase = function() {
-            if (confirm('確定要結案嗎？')) {
-                // 執行結案邏輯
-                alert('已結案');
-            }
-        };
     </script>
 </body>
 </html>

@@ -382,9 +382,6 @@
         <button id="btnBP" onclick="window.location.href='./blood-pressure-trend.html'" style="background: #17a2b8; color: white;">
             <span>📈</span> 血壓趨勢
         </button>
-        <button id="btnPhysio" onclick="window.location.href='./physiological-records.html'" style="background: #6f42c1; color: white;">
-            <span>💬</span> 生理紀錄
-        </button>
         <button onclick="logout()" style="margin-left: auto; background: #dc3545; color: white;">
             <span>🚪</span> 登出
         </button>
@@ -795,6 +792,24 @@
                 }
                 const observations = await res.json();
                 observationsData = observations;
+
+                // 檢查是否有數據
+                const entries = observations.entry || [];
+                if (entries.length === 0) {
+                    document.getElementById('lab-content').innerHTML = `
+                        <div class="alert-box" style="background: #fff3cd; border-left-color: #ffc107;">
+                            <span class="alert-icon">ℹ️</span>
+                            <div class="alert-content">
+                                <h4>目前沒有生理數據</h4>
+                                <p>此病人的生理數據尚未上傳到 FHIR 伺服器。</p>
+                                <p style="margin-top: 10px; font-size: 14px; color: #856404;">
+                                    請先上傳生理數據，或確認病人 ID 是否正確。
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
 
                 const labData = categorizeObservations(observations);
                 const html = renderLabReports(labData);

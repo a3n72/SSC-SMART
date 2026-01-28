@@ -1,6 +1,5 @@
 {
   "resourceType": "Patient",
-  "id": "metabolic-syndrome-001",
   "meta": {
     "profile": ["http://twcore.mohw.gov.tw/fhir/StructureDefinition/tw-patient"]
   },
@@ -40,8 +39,8 @@
   },
   "generalPractitioner": [
     {
-      "reference": "Practitioner/tian-huiwen",
-      "display": "田惠文"
+      "reference": "Practitioner/147533",
+      "display": "Dr. Albertine Orn"
     }
   ],
   "extension": [

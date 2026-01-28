@@ -1,9 +1,13 @@
 {
   "resourceType": "Bundle",
-  "type": "collection",
+  "type": "transaction",
   "timestamp": "2025-11-14T10:00:00+08:00",
   "entry": [
     {
+      "request": {
+        "method": "PUT",
+        "url": "ServiceRequest/exercise-prescription-001"
+      },
       "fullUrl": "http://example.org/fhir/ServiceRequest/exercise-prescription-001",
       "resource": {
         "resourceType": "ServiceRequest",
@@ -21,11 +25,12 @@
           "text": "運動處方"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "authoredOn": "2025-11-14T10:00:00+08:00",
         "requester": {
-          "reference": "Practitioner/current"
+          "reference": "Practitioner/147533",
+          "display": "Dr. Albertine Orn"
         },
         "extension": [
           {
@@ -54,17 +59,22 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "NutritionOrder/diet-prescription-001"
+      },
       "fullUrl": "http://example.org/fhir/NutritionOrder/diet-prescription-001",
       "resource": {
         "resourceType": "NutritionOrder",
         "id": "diet-prescription-001",
         "status": "active",
         "patient": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "dateTime": "2025-11-14T10:00:00+08:00",
         "orderer": {
-          "reference": "Practitioner/current"
+          "reference": "Practitioner/147533",
+          "display": "Dr. Albertine Orn"
         },
         "oralDiet": {
           "type": {
@@ -164,6 +174,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "CarePlan/metabolic-syndrome-careplan-001"
+      },
       "fullUrl": "http://example.org/fhir/CarePlan/metabolic-syndrome-careplan-001",
       "resource": {
         "resourceType": "CarePlan",
@@ -183,14 +197,15 @@
           }
         ],
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "period": {
           "start": "2025-11-14"
         },
         "created": "2025-11-14T10:00:00+08:00",
         "author": {
-          "reference": "Practitioner/current"
+          "reference": "Practitioner/147533",
+          "display": "Dr. Albertine Orn"
         },
         "activity": [
           {
@@ -212,7 +227,7 @@
               },
               "performer": [
                 {
-                  "reference": "Patient/metabolic-syndrome-001"
+                  "reference": "Patient/701084"
                 }
               ]
             }

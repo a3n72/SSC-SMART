@@ -1,9 +1,13 @@
 {
   "resourceType": "Bundle",
-  "type": "collection",
+  "type": "transaction",
   "timestamp": "2025-11-14T10:00:00+08:00",
   "entry": [
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/physio-20240417"
+      },
       "fullUrl": "http://example.org/fhir/Observation/physio-20240417",
       "resource": {
         "resourceType": "Observation",
@@ -31,7 +35,7 @@
           "text": "血壓"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2024-04-17T17:02:00+08:00",
         "component": [
@@ -75,6 +79,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/pulse-20240417"
+      },
       "fullUrl": "http://example.org/fhir/Observation/pulse-20240417",
       "resource": {
         "resourceType": "Observation",
@@ -102,7 +110,7 @@
           "text": "脈搏"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2024-04-17T17:02:00+08:00",
         "valueQuantity": {
@@ -114,6 +122,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/spo2-20240417"
+      },
       "fullUrl": "http://example.org/fhir/Observation/spo2-20240417",
       "resource": {
         "resourceType": "Observation",
@@ -141,7 +153,7 @@
           "text": "血氧"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2024-04-17T17:02:00+08:00",
         "valueQuantity": {
@@ -153,6 +165,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/temp-20240417"
+      },
       "fullUrl": "http://example.org/fhir/Observation/temp-20240417",
       "resource": {
         "resourceType": "Observation",
@@ -180,7 +196,7 @@
           "text": "體溫"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2024-04-17T17:02:00+08:00",
         "valueQuantity": {
@@ -192,6 +208,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/physio-20240418"
+      },
       "fullUrl": "http://example.org/fhir/Observation/physio-20240418",
       "resource": {
         "resourceType": "Observation",
@@ -219,7 +239,7 @@
           "text": "血壓"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2024-04-18T08:50:00+08:00",
         "component": [
@@ -263,6 +283,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/pulse-20240418"
+      },
       "fullUrl": "http://example.org/fhir/Observation/pulse-20240418",
       "resource": {
         "resourceType": "Observation",
@@ -290,7 +314,7 @@
           "text": "脈搏"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2024-04-18T08:50:00+08:00",
         "valueQuantity": {
@@ -302,6 +326,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/spo2-20240418"
+      },
       "fullUrl": "http://example.org/fhir/Observation/spo2-20240418",
       "resource": {
         "resourceType": "Observation",
@@ -329,7 +357,7 @@
           "text": "血氧"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2024-04-18T08:50:00+08:00",
         "valueQuantity": {
@@ -341,6 +369,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/temp-20240418"
+      },
       "fullUrl": "http://example.org/fhir/Observation/temp-20240418",
       "resource": {
         "resourceType": "Observation",
@@ -368,7 +400,7 @@
           "text": "體溫"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2024-04-18T08:50:00+08:00",
         "valueQuantity": {
@@ -380,6 +412,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/physio-20240419"
+      },
       "fullUrl": "http://example.org/fhir/Observation/physio-20240419",
       "resource": {
         "resourceType": "Observation",
@@ -407,7 +443,7 @@
           "text": "血壓"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2024-04-19T16:51:00+08:00",
         "component": [
@@ -451,6 +487,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/pulse-20240419"
+      },
       "fullUrl": "http://example.org/fhir/Observation/pulse-20240419",
       "resource": {
         "resourceType": "Observation",
@@ -478,7 +518,7 @@
           "text": "脈搏"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2024-04-19T16:51:00+08:00",
         "valueQuantity": {
@@ -490,6 +530,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/spo2-20240419"
+      },
       "fullUrl": "http://example.org/fhir/Observation/spo2-20240419",
       "resource": {
         "resourceType": "Observation",
@@ -517,7 +561,7 @@
           "text": "血氧"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2024-04-19T16:51:00+08:00",
         "valueQuantity": {
@@ -529,6 +573,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/temp-20240419"
+      },
       "fullUrl": "http://example.org/fhir/Observation/temp-20240419",
       "resource": {
         "resourceType": "Observation",
@@ -556,7 +604,7 @@
           "text": "體溫"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2024-04-19T16:51:00+08:00",
         "valueQuantity": {

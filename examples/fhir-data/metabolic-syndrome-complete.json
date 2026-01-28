@@ -1,13 +1,17 @@
 {
   "resourceType": "Bundle",
-  "type": "collection",
+  "type": "transaction",
   "timestamp": "2025-07-15T10:00:00+08:00",
   "entry": [
     {
-      "fullUrl": "http://example.org/fhir/Patient/metabolic-syndrome-001",
+      "request": {
+        "method": "PUT",
+        "url": "Patient/701084"
+      },
+      "fullUrl": "http://example.org/fhir/Patient/701084",
       "resource": {
         "resourceType": "Patient",
-        "id": "metabolic-syndrome-001",
+        "id": "701084",
         "meta": {
           "profile": ["http://twcore.mohw.gov.tw/fhir/StructureDefinition/tw-patient"]
         },
@@ -47,8 +51,8 @@
         },
         "generalPractitioner": [
           {
-            "reference": "Practitioner/tian-huiwen",
-            "display": "田惠文"
+            "reference": "Practitioner/147533",
+            "display": "Dr. Albertine Orn"
           }
         ],
         "extension": [
@@ -73,6 +77,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/bp-001"
+      },
       "fullUrl": "http://example.org/fhir/Observation/bp-001",
       "resource": {
         "resourceType": "Observation",
@@ -100,7 +108,7 @@
           "text": "血壓"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-07-15T08:00:00+08:00",
         "component": [
@@ -169,6 +177,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/glucose-001"
+      },
       "fullUrl": "http://example.org/fhir/Observation/glucose-001",
       "resource": {
         "resourceType": "Observation",
@@ -196,7 +208,7 @@
           "text": "空腹血糖"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-07-15T08:00:00+08:00",
         "valueQuantity": {
@@ -229,6 +241,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/triglycerides-001"
+      },
       "fullUrl": "http://example.org/fhir/Observation/triglycerides-001",
       "resource": {
         "resourceType": "Observation",
@@ -256,7 +272,7 @@
           "text": "三酸甘油脂"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-07-15T08:00:00+08:00",
         "valueQuantity": {
@@ -289,6 +305,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/hdl-001"
+      },
       "fullUrl": "http://example.org/fhir/Observation/hdl-001",
       "resource": {
         "resourceType": "Observation",
@@ -316,7 +336,7 @@
           "text": "HDL膽固醇"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "effectiveDateTime": "2025-07-15T08:00:00+08:00",
         "valueQuantity": {
@@ -349,6 +369,10 @@
       }
     },
     {
+      "request": {
+        "method": "PUT",
+        "url": "Condition/metabolic-syndrome-diagnosis"
+      },
       "fullUrl": "http://example.org/fhir/Condition/metabolic-syndrome-diagnosis",
       "resource": {
         "resourceType": "Condition",
@@ -382,7 +406,7 @@
           "text": "代謝症候群"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "onsetDateTime": "2025-07-15",
         "evidence": [

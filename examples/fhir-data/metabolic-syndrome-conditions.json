@@ -1,8 +1,12 @@
 {
   "resourceType": "Bundle",
-  "type": "collection",
+  "type": "transaction",
   "entry": [
     {
+      "request": {
+        "method": "PUT",
+        "url": "Condition/metabolic-syndrome-diagnosis"
+      },
       "resource": {
         "resourceType": "Condition",
         "id": "metabolic-syndrome-diagnosis",
@@ -51,7 +55,7 @@
           "text": "代謝症候群"
         },
         "subject": {
-          "reference": "Patient/metabolic-syndrome-001"
+          "reference": "Patient/701084"
         },
         "onsetDateTime": "2025-07-15",
         "recordedDate": "2025-07-15",
