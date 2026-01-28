@@ -613,8 +613,8 @@
         <button id="btnBP" onclick="showSection('bp')">
             <span>📈</span> 血壓趨勢
         </button>
-        <button onclick="logout()" style="margin-left: auto; background: #dc3545; color: white;">
-            <span>🚪</span> 登出
+        <button onclick="goBack()" style="margin-left: auto; background: #6c757d; color: white;">
+            <span>←</span> 返回
         </button>
     </div>
 
@@ -727,16 +727,9 @@
             }
         };
 
-        // 登出 - 必須在全局作用域中定義
-        window.logout = async function() {
-            try {
-                sessionStorage.clear();
-                window.location.href = './launch.html';
-            } catch (error) {
-                console.error('登出失敗:', error);
-                sessionStorage.clear();
-                window.location.href = './launch.html';
-            }
+        // 返回 - 必須在全局作用域中定義
+        window.goBack = function() {
+            window.location.href = 'https://nurse.longterm.9rise-healthcare.com/tools';
         };
 
         // 匯出資料 - 必須在全局作用域中定義
