@@ -177,8 +177,17 @@
         </div>
     </div>
 
-    <!-- 全局函數定義（必須在模組之前，供 HTML onclick 使用） -->
+    <!-- 載入 fhirclient CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/fhirclient@2.6.3/build/fhir-client.min.js"></script>
+    
     <script>
+        // 全局變數
+        let bpChart = null;
+        let distributionChart = null;
+        let accessToken = null;
+        let fhirBaseUrl = null;
+        let patientId = null;
+
         // 返回主頁 - 必須在全局作用域中定義，供 HTML onclick 調用
         window.goBack = function() {
             window.location.href = './metabolic-syndrome.html';
@@ -188,15 +197,91 @@
         window.editRecord = function() {
             alert('編輯功能開發中');
         };
-    </script>
 
-    <script type="module">
-        import { LTC888Client } from '../src/index.js';
+        // 切換期間
+        window.switchPeriod = function(period, event) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+            // 重新載入資料（可以根據 period 過濾資料）
+            if (accessToken && fhirBaseUrl && patientId) {
+                loadBloodPressureData();
+            }
+        };
 
-        let client = null;
-        let patientId = null;
-        let bpChart = null;
-        let distributionChart = null;
+        // 切換視圖
+        window.switchView = function(view, event) {
+            if (event && event.target) {
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+            // 切換視圖邏輯
+            if (view === 'list') {
+                alert('列表視圖功能開發中');
+            }
+        };
+
+        // 取得授權上下文
+        function getAuthContext() {
+            return {
+                iss: sessionStorage.getItem('oauth_iss'),
+                clientId: sessionStorage.getItem('oauth_client_id'),
+                redirectUri: sessionStorage.getItem('oauth_redirect_uri'),
+                scope: sessionStorage.getItem('oauth_scope'),
+                tokenEndpoint: sessionStorage.getItem('oauth_token_endpoint'),
+                state: sessionStorage.getItem('oauth_state'),
+                codeVerifier: sessionStorage.getItem('oauth_code_verifier')
+            };
+        }
+
+        // 授權的 fetch
+        async function authorizedFetch(url, options = {}) {
+            if (!accessToken) {
+                throw new Error('缺少 Access Token，請重新授權');
+            }
+            const headers = {
+                Accept: 'application/fhir+json',
+                Authorization: `Bearer ${accessToken}`,
+                ...(options.headers || {})
+            };
+            return fetch(url, { ...options, headers });
+        }
+
+        // 交換 Token
+        async function exchangeToken(code) {
+            const ctx = getAuthContext();
+            if (!ctx.tokenEndpoint || !ctx.clientId || !ctx.redirectUri || !ctx.codeVerifier) {
+                throw new Error('授權上下文不完整，請重新從 launch.html 開始');
+            }
+
+            const body = new URLSearchParams({
+                grant_type: 'authorization_code',
+                code: code,
+                redirect_uri: ctx.redirectUri,
+                client_id: ctx.clientId,
+                code_verifier: ctx.codeVerifier
+            });
+
+            const res = await fetch(ctx.tokenEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body
+            });
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(`交換 Token 失敗: ${res.status} ${res.statusText} - ${errorText}`);
+            }
+
+            const tokenResponse = await res.json();
+            sessionStorage.setItem('access_token', tokenResponse.access_token || '');
+            sessionStorage.setItem('token_response', JSON.stringify(tokenResponse));
+            if (tokenResponse.patient) {
+                sessionStorage.setItem('patient_id', tokenResponse.patient);
+            }
+            return tokenResponse;
+        }
 
         // 範例資料
         const sampleData = [
@@ -207,26 +292,68 @@
             { date: '2023-08-26T17:06:00', systolic: 140, diastolic: 89 }
         ];
 
+        // 初始化
         window.addEventListener('DOMContentLoaded', async () => {
             try {
-                client = new LTC888Client();
-                await client.initialize();
-                patientId = await client.getPatientId();
-                
+                // 檢查授權狀態
+                const urlParams = new URLSearchParams(window.location.search);
+                const code = urlParams.get('code');
+                const state = urlParams.get('state');
+                const error = urlParams.get('error');
+
+                if (error) {
+                    throw new Error(`授權失敗: ${urlParams.get('error_description') || error}`);
+                }
+
+                const ctx = getAuthContext();
+                fhirBaseUrl = ctx.iss;
+                accessToken = sessionStorage.getItem('access_token');
+                patientId = sessionStorage.getItem('patient_id');
+
+                if (code) {
+                    if (!state || state !== ctx.state) {
+                        throw new Error('State 驗證失敗，可能是授權流程不完整或被攔截');
+                    }
+
+                    const tokenResponse = await exchangeToken(code);
+                    accessToken = tokenResponse.access_token;
+                    patientId = tokenResponse.patient || sessionStorage.getItem('patient_id');
+
+                    // 清除 URL 上的 code/state
+                    const cleanUrl = window.location.origin + window.location.pathname;
+                    window.history.replaceState({}, document.title, cleanUrl);
+                }
+
+                if (!accessToken || !fhirBaseUrl) {
+                    showNoDataMessage('缺少授權資訊，請重新授權');
+                    return;
+                }
+
+                if (!patientId) {
+                    throw new Error('授權完成但沒有取得病人 ID，請確認 scope 包含 launch/patient 並完成病人選擇');
+                }
+
                 // 載入血壓資料
                 await loadBloodPressureData();
             } catch (error) {
                 console.error('初始化失敗:', error);
-                // 不自動使用範例資料，顯示錯誤訊息
-                showNoDataMessage('系統初始化失敗，請重新授權');
+                showNoDataMessage(error.message || '系統初始化失敗，請重新授權');
             }
         });
 
+        // 載入血壓資料
         async function loadBloodPressureData() {
             try {
-                const observations = await client.getObservation(null, {
-                    code: 'http://loinc.org|85354-9'
-                });
+                if (!accessToken || !fhirBaseUrl || !patientId) {
+                    throw new Error('缺少授權資訊，請重新授權');
+                }
+
+                // 查詢血壓 Observation（LOINC code: 85354-9）
+                const res = await authorizedFetch(`${fhirBaseUrl}/Observation?subject=Patient/${patientId}&code=85354-9`);
+                if (!res.ok) {
+                    throw new Error(`讀取 Observation 失敗: ${res.status} ${res.statusText}`);
+                }
+                const observations = await res.json();
 
                 const bpData = parseObservations(observations);
                 
@@ -237,9 +364,9 @@
                 }
                 
                 renderChart(bpData);
+                renderDistributionChart(bpData);
             } catch (error) {
                 console.error('載入資料失敗:', error);
-                // 不自動使用範例資料，而是顯示錯誤訊息
                 showNoDataMessage(error.message);
             }
         }
@@ -318,7 +445,10 @@
                 }
             });
 
-            // 分布圖
+        }
+
+        // 渲染分布圖
+        function renderDistributionChart(data) {
             const distCtx = document.getElementById('bpDistributionChart').getContext('2d');
             if (distributionChart) {
                 distributionChart.destroy();
@@ -358,28 +488,6 @@
             });
             return [normal, high, veryHigh];
         }
-
-        window.switchPeriod = function(period, event) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            if (event && event.target) {
-                event.target.classList.add('active');
-            }
-            // 重新載入資料（可以根據 period 過濾資料）
-            loadBloodPressureData();
-        };
-
-        window.switchView = function(view, event) {
-            if (event && event.target) {
-                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-                event.target.classList.add('active');
-            }
-            // 切換視圖邏輯
-            if (view === 'list') {
-                // 顯示列表視圖
-                alert('列表視圖功能開發中');
-            }
-        };
-
     </script>
 </body>
 </html>

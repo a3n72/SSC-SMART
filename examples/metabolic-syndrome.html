@@ -649,6 +649,7 @@
                 }
 
                 // 驗證並更新 patientId（如果需要的話）
+                // 只有在查詢失敗時才使用 identifier 備援，查詢成功則信任該 Patient ID
                 try {
                     const verifyRes = await authorizedFetch(`${fhirBaseUrl}/Patient/${patientId}`);
                     if (!verifyRes.ok) {
@@ -665,24 +666,16 @@
                             }
                         }
                     } else {
-                        // 驗證 Patient 是否為正確的病人
+                        // 查詢成功，驗證 identifier（僅用於日誌記錄，不強制要求）
                         const patient = await verifyRes.json();
                         const expectedIdentifier = patient.identifier?.find(
                             id => id.system === "http://www.mohw.gov.tw/patient-id" && id.value === "U121745652"
                         );
-                        if (!expectedIdentifier) {
-                            console.warn(`Patient ID ${patientId} 不是正確的病人，嘗試使用 identifier 查找...`);
-                            const identifierQuery = `${fhirBaseUrl}/Patient?identifier=http://www.mohw.gov.tw/patient-id|U121745652`;
-                            const identifierRes = await authorizedFetch(identifierQuery);
-                            if (identifierRes.ok) {
-                                const bundle = await identifierRes.json();
-                                if (bundle.entry && bundle.entry.length > 0) {
-                                    const actualPatient = bundle.entry[0].resource;
-                                    patientId = actualPatient.id;
-                                    sessionStorage.setItem('patient_id', patientId);
-                                    console.log(`已更新 Patient ID: ${patientId}`);
-                                }
-                            }
+                        if (expectedIdentifier) {
+                            console.log(`✓ Patient ID ${patientId} 驗證通過，identifier 匹配`);
+                        } else {
+                            // 僅記錄資訊，不視為錯誤（因為 Patient ID 查詢已成功）
+                            console.info(`ℹ Patient ID ${patientId} 查詢成功，但 identifier 不匹配（這可能是正常的，取決於 FHIR Server 的資料結構）`);
                         }
                     }
                 } catch (error) {
@@ -740,8 +733,24 @@
                     }
                 } else {
                     patient = await res.json();
+                    // 確保使用 Patient 資源中的實際 ID
+                    if (patient.id && patient.id !== patientId) {
+                        console.log(`更新 Patient ID: ${patientId} -> ${patient.id}`);
+                        patientId = patient.id;
+                        sessionStorage.setItem('patient_id', patientId);
+                    }
+                    // 記錄 identifier 驗證（僅用於日誌，不影響流程）
+                    const expectedIdentifier = patient.identifier?.find(
+                        id => id.system === "http://www.mohw.gov.tw/patient-id" && id.value === "U121745652"
+                    );
+                    if (expectedIdentifier) {
+                        console.log(`✓ Patient ID ${patientId} 驗證通過，identifier 匹配`);
+                    } else {
+                        console.info(`ℹ Patient ID ${patientId} 查詢成功，identifier 驗證：${patient.identifier ? 'identifier 存在但值不匹配' : 'identifier 不存在'}`);
+                    }
                 }
                 
+                console.log('載入的 Patient:', { id: patient.id, identifier: patient.identifier });
                 patientData = patient;
 
                 // 格式化顯示
@@ -759,10 +768,8 @@
                     '未提供';
                 const phone = patient.telecom?.find(t => t.system === 'phone')?.value || '未提供';
 
-                // 取得社會史
-                const observationsRes = await authorizedFetch(`${fhirBaseUrl}/Observation?subject=Patient/${patientId}`);
-                const observations = await observationsRes.json();
-                const socialHistory = extractSocialHistory(observations);
+                // 取得社會史（從 Patient 資源的 extension 中提取）
+                const socialHistory = extractSocialHistory(patient);
 
                 const html = `
                     <div class="info-grid">
@@ -932,15 +939,33 @@
 
 
         // 輔助函數：提取社會史
-        function extractSocialHistory(observations) {
+        function extractSocialHistory(patient) {
             const socialHistory = {
                 drinking: '未提供',
                 exercise: '未提供',
                 betelNut: '未提供'
             };
 
-            // 這裡應該從 Observation 中提取社會史資料
-            // 暫時使用預設值，實際應該從 FHIR 資源中解析
+            // 從 Patient 資源的 extension 中提取社會史資料
+            if (patient && patient.extension) {
+                // 尋找社會史 extension
+                const socialHistoryExtension = patient.extension.find(
+                    ext => ext.url === "http://twcore.mohw.gov.tw/fhir/StructureDefinition/tw-patient-social-history"
+                );
+
+                if (socialHistoryExtension && socialHistoryExtension.extension) {
+                    socialHistoryExtension.extension.forEach(ext => {
+                        if (ext.url === "drinking" && ext.valueString) {
+                            socialHistory.drinking = ext.valueString;
+                        } else if (ext.url === "exercise" && ext.valueString) {
+                            socialHistory.exercise = ext.valueString;
+                        } else if (ext.url === "betelNut" && ext.valueString) {
+                            socialHistory.betelNut = ext.valueString;
+                        }
+                    });
+                }
+            }
+
             return socialHistory;
         }
 
