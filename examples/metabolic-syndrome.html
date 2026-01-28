@@ -1181,6 +1181,7 @@
         // 輔助函數：取得顯示名稱
         function getDisplayName(code, display) {
             const nameMap = {
+                '8280-0': '腰圍',
                 '8480-6': '收縮壓',
                 '8462-4': '舒張壓',
                 '33747-0': '空腹血糖',
@@ -1212,8 +1213,12 @@
                 const obs = entry.resource;
                 const code = obs.code?.coding?.[0]?.code;
 
+                // 腰圍
+                if (code === '8280-0' && obs.valueQuantity) {
+                    criteria.waistCircumference.value = obs.valueQuantity.value;
+                }
                 // 血壓
-                if (code === '85354-9' && obs.component) {
+                else if (code === '85354-9' && obs.component) {
                     const systolic = obs.component.find(c => c.code?.coding?.[0]?.code === '8480-6');
                     const diastolic = obs.component.find(c => c.code?.coding?.[0]?.code === '8462-4');
                     if (systolic) criteria.bloodPressure.systolic = systolic.valueQuantity.value;
@@ -1579,17 +1584,23 @@
                 ...data.map(d => d.diastolic)
             ].filter(v => v != null && !isNaN(v));
             
+            if (allValues.length === 0) {
+                console.warn('沒有有效的血壓數據');
+                return;
+            }
+            
             const minValue = Math.min(...allValues);
             const maxValue = Math.max(...allValues);
             
-            // 設定 y 軸範圍，留出一些邊距以便完整顯示
-            const padding = Math.max(10, (maxValue - minValue) * 0.1);
-            const yMin = Math.max(0, Math.floor(minValue - padding));
+            // 設定 y 軸範圍，留出一些邊距以便完整顯示所有數據（包括低於 70 的值）
+            const dataRange = maxValue - minValue;
+            const padding = Math.max(5, dataRange * 0.15); // 增加邊距到 15%，確保低值也能完整顯示
+            const yMin = Math.floor(minValue - padding); // 不限制最小值，允許顯示低於 0 的值（雖然血壓不會是負數）
             const yMax = Math.ceil(maxValue + padding);
             
             // 計算合適的步長
-            const range = yMax - yMin;
-            const stepSize = range <= 30 ? 5 : range <= 60 ? 10 : range <= 120 ? 20 : 25;
+            const yAxisRange = yMax - yMin;
+            const stepSize = yAxisRange <= 30 ? 5 : yAxisRange <= 60 ? 10 : yAxisRange <= 120 ? 20 : 25;
 
             bpChart = new Chart(ctx, {
                 type: 'line',
