@@ -59,10 +59,56 @@ export class LTC888Client {
   async getPatientInfo() {
     try {
       const client = this.getClient();
-      const patient = await client.patient.read();
+      let patient = await client.patient.read();
+      
+      // 驗證 Patient 是否為正確的病人（使用 identifier 驗證）
+      // 如果 identifier 不匹配，嘗試使用 identifier 重新查詢
+      const expectedIdentifier = "U121745652";
+      const patientIdentifier = patient.identifier?.find(
+        id => id.system === "http://www.mohw.gov.tw/patient-id" && id.value === expectedIdentifier
+      );
+      
+      if (!patientIdentifier) {
+        console.warn("授權流程返回的 Patient ID 可能不正確，嘗試使用 identifier 查詢...");
+        // 使用 identifier 查詢正確的 Patient
+        const searchResult = await client.request("Patient", {
+          searchParams: {
+            identifier: `http://www.mohw.gov.tw/patient-id|${expectedIdentifier}`
+          }
+        });
+        
+        if (searchResult.entry && searchResult.entry.length > 0) {
+          patient = searchResult.entry[0].resource;
+          console.log(`找到正確的 Patient，ID: ${patient.id}`);
+          // 更新 client 的 patient context（如果可能）
+          if (client.patient && client.patient.id !== patient.id) {
+            console.warn(`Patient ID 已更新: ${client.patient.id} -> ${patient.id}`);
+          }
+        }
+      }
+      
       return patient;
     } catch (error) {
       console.error("讀取病人資料失敗:", error);
+      // 如果使用授權流程的 ID 查詢失敗，嘗試使用 identifier 查詢
+      try {
+        console.warn("嘗試使用 identifier 查詢 Patient...");
+        const client = this.getClient();
+        const searchResult = await client.request("Patient", {
+          searchParams: {
+            identifier: "http://www.mohw.gov.tw/patient-id|U121745652"
+          }
+        });
+        
+        if (searchResult.entry && searchResult.entry.length > 0) {
+          const patient = searchResult.entry[0].resource;
+          console.log(`使用 identifier 找到 Patient，ID: ${patient.id}`);
+          return patient;
+        }
+      } catch (fallbackError) {
+        console.error("使用 identifier 查詢也失敗:", fallbackError);
+      }
+      
       throw new Error(`讀取病人資料失敗: ${error.message}`);
     }
   }

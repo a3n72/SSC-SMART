@@ -648,6 +648,47 @@
                     throw new Error('授權完成但沒有取得病人 ID，請確認 scope 包含 launch/patient 並完成病人選擇');
                 }
 
+                // 驗證並更新 patientId（如果需要的話）
+                try {
+                    const verifyRes = await authorizedFetch(`${fhirBaseUrl}/Patient/${patientId}`);
+                    if (!verifyRes.ok) {
+                        console.warn(`Patient ID ${patientId} 查詢失敗，嘗試使用 identifier 查找...`);
+                        const identifierQuery = `${fhirBaseUrl}/Patient?identifier=http://www.mohw.gov.tw/patient-id|U121745652`;
+                        const identifierRes = await authorizedFetch(identifierQuery);
+                        if (identifierRes.ok) {
+                            const bundle = await identifierRes.json();
+                            if (bundle.entry && bundle.entry.length > 0) {
+                                const actualPatient = bundle.entry[0].resource;
+                                patientId = actualPatient.id;
+                                sessionStorage.setItem('patient_id', patientId);
+                                console.log(`已更新 Patient ID: ${patientId}`);
+                            }
+                        }
+                    } else {
+                        // 驗證 Patient 是否為正確的病人
+                        const patient = await verifyRes.json();
+                        const expectedIdentifier = patient.identifier?.find(
+                            id => id.system === "http://www.mohw.gov.tw/patient-id" && id.value === "U121745652"
+                        );
+                        if (!expectedIdentifier) {
+                            console.warn(`Patient ID ${patientId} 不是正確的病人，嘗試使用 identifier 查找...`);
+                            const identifierQuery = `${fhirBaseUrl}/Patient?identifier=http://www.mohw.gov.tw/patient-id|U121745652`;
+                            const identifierRes = await authorizedFetch(identifierQuery);
+                            if (identifierRes.ok) {
+                                const bundle = await identifierRes.json();
+                                if (bundle.entry && bundle.entry.length > 0) {
+                                    const actualPatient = bundle.entry[0].resource;
+                                    patientId = actualPatient.id;
+                                    sessionStorage.setItem('patient_id', patientId);
+                                    console.log(`已更新 Patient ID: ${patientId}`);
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.warn('驗證 Patient ID 時發生錯誤，繼續使用原始 ID:', error);
+                }
+
                 // 載入病人資料
                 await loadPatientData();
             } catch (error) {
@@ -674,12 +715,33 @@
                     throw new Error('缺少授權資訊，請重新授權');
                 }
 
-                const res = await authorizedFetch(`${fhirBaseUrl}/Patient/${patientId}`);
+                let res = await authorizedFetch(`${fhirBaseUrl}/Patient/${patientId}`);
+                let patient;
+                
+                // 如果使用 ID 查詢失敗，嘗試使用 identifier 查詢
                 if (!res.ok) {
-                    const text = await res.text();
-                    throw new Error(`讀取病人資料失敗: ${res.status} ${res.statusText} - ${text}`);
+                    console.warn(`使用 Patient ID ${patientId} 查詢失敗，嘗試使用 identifier 查詢...`);
+                    // 使用 identifier 查詢（假設 identifier 為 U121745652）
+                    const identifierQuery = `${fhirBaseUrl}/Patient?identifier=http://www.mohw.gov.tw/patient-id|U121745652`;
+                    res = await authorizedFetch(identifierQuery);
+                    if (!res.ok) {
+                        const text = await res.text();
+                        throw new Error(`讀取病人資料失敗: ${res.status} ${res.statusText} - ${text}`);
+                    }
+                    const bundle = await res.json();
+                    if (bundle.entry && bundle.entry.length > 0) {
+                        patient = bundle.entry[0].resource;
+                        // 更新 patientId 為實際的 ID
+                        patientId = patient.id;
+                        sessionStorage.setItem('patient_id', patientId);
+                        console.log(`找到 Patient，實際 ID: ${patientId}`);
+                    } else {
+                        throw new Error('使用 identifier 查詢未找到 Patient');
+                    }
+                } else {
+                    patient = await res.json();
                 }
-                const patient = await res.json();
+                
                 patientData = patient;
 
                 // 格式化顯示
@@ -705,7 +767,7 @@
                 const html = `
                     <div class="info-grid">
                         <div class="info-card">
-                            <h3>受檢者基本資料</h3>
+                            <h3>基本資料</h3>
                             <div class="info-row">
                                 <span class="info-label">姓名</span>
                                 <span class="info-value">${name}</span>
