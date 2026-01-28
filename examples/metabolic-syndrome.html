@@ -267,6 +267,25 @@
             color: #555;
             font-size: 14px;
         }
+        .share-to-chat-btn {
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .share-to-chat-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
         .metabolic-criteria {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -598,20 +617,20 @@
         <button id="btnPatient" class="active" onclick="showSection('patient')">
             <span>👤</span> 病人資料
         </button>
+        <button id="btnManagement" onclick="window.location.href='./metabolic-syndrome-management.html'" style="background: #28a745; color: white;">
+            <span>📋</span> 疾病管理
+        </button>
         <button id="btnLab" onclick="showSection('lab')">
             <span>🔍</span> 生理數據
         </button>
         <button id="btnClinical" onclick="showSection('clinical')">
             <span>📊</span> 臨床評估
         </button>
-        <button id="btnExport" onclick="showSection('export')">
-            <span>📄</span> 匯出報告
-        </button>
-        <button id="btnManagement" onclick="window.location.href='./metabolic-syndrome-management.html'" style="background: #28a745; color: white;">
-            <span>📋</span> 疾病管理
-        </button>
         <button id="btnBP" onclick="showSection('bp')">
             <span>📈</span> 血壓趨勢
+        </button>
+        <button id="btnExport" onclick="showSection('export')">
+            <span>📄</span> 匯出資料
         </button>
         <button onclick="goBack()" style="margin-left: auto; background: #6c757d; color: white;">
             <span>←</span> 返回
@@ -663,9 +682,9 @@
             </div>
         </div>
 
-        <!-- 匯出報告區塊 -->
+        <!-- 匯出資料區塊 -->
         <div id="section-export" class="content-section">
-            <h2>📄 匯出報告</h2>
+            <h2>📄 匯出資料</h2>
             <div id="export-content">
                 <p style="margin-bottom: 20px; color: #555;">選擇匯出格式以下載完整的健康報告資料：</p>
                 <div class="export-buttons">
@@ -731,6 +750,80 @@
         window.goBack = function() {
             window.location.href = 'https://nurse.longterm.9rise-healthcare.com/tools';
         };
+
+        // 分享個案至聊天室 - 必須在全局作用域中定義
+        window.shareCaseToChat = function() {
+            // 顯示確認對話框
+            const confirmed = confirm('將個案分享至聊天室\n\n確認要分享嗎？');
+            
+            if (confirmed) {
+                // 跳轉至聊天室
+                window.location.href = 'https://nurse.longterm.9rise-healthcare.com/chat/eR3u83';
+            }
+        };
+
+        // 生成個案敘述
+        function generateCaseDescription() {
+            if (!patientData || !fhirResources) {
+                return '個案資料載入中，請稍後再試。';
+            }
+
+            const patient = patientData;
+            const name = patient.name?.[0] ? 
+                `${patient.name[0].family || ''}${patient.name[0].given?.join('') || ''}`.trim() : 
+                '未知';
+            const gender = patient.gender === 'male' ? '男性' : patient.gender === 'female' ? '女性' : '未知';
+            const birthDate = patient.birthDate || '未知';
+            const age = birthDate !== '未知' ? 
+                Math.floor((new Date() - new Date(birthDate)) / (365.25 * 24 * 60 * 60 * 1000)) : 
+                '未知';
+
+            // 獲取評估結果
+            let assessmentInfo = '';
+            let riskFactorsInfo = '';
+            if (observationsData) {
+                try {
+                    const assessment = assessMetabolicSyndrome(observationsData, patient);
+                    const criteria = assessment.criteria;
+                    const abnormalCount = assessment.abnormalCount;
+                    const meetsCriteria = assessment.meetsCriteria;
+
+                    assessmentInfo = `\n\n【代謝症候群評估】\n`;
+                    assessmentInfo += `符合標準：${meetsCriteria ? '是' : '否'} (${abnormalCount}/5 項異常)\n`;
+                    
+                    if (criteria.waistCircumference.value) {
+                        assessmentInfo += `腰圍：${criteria.waistCircumference.value} cm ${criteria.waistCircumference.abnormal ? '(異常)' : '(正常)'}\n`;
+                    }
+                    if (criteria.bloodPressure.systolic && criteria.bloodPressure.diastolic) {
+                        assessmentInfo += `血壓：${criteria.bloodPressure.systolic}/${criteria.bloodPressure.diastolic} mmHg ${criteria.bloodPressure.abnormal ? '(異常)' : '(正常)'}\n`;
+                    }
+                    if (criteria.fastingGlucose.value) {
+                        assessmentInfo += `空腹血糖：${criteria.fastingGlucose.value} mg/dL ${criteria.fastingGlucose.abnormal ? '(異常)' : '(正常)'}\n`;
+                    }
+                    if (criteria.triglycerides.value) {
+                        assessmentInfo += `三酸甘油脂：${criteria.triglycerides.value} mg/dL ${criteria.triglycerides.abnormal ? '(異常)' : '(正常)'}\n`;
+                    }
+                    if (criteria.hdlCholesterol.value) {
+                        assessmentInfo += `HDL膽固醇：${criteria.hdlCholesterol.value} mg/dL ${criteria.hdlCholesterol.abnormal ? '(異常)' : '(正常)'}\n`;
+                    }
+
+                    // 獲取危險因子分析
+                    const riskFactors = identifyRiskFactors(assessment);
+                    if (riskFactors.length > 0) {
+                        riskFactorsInfo = `\n\n【危險因子分析】\n`;
+                        riskFactors.forEach((factor, index) => {
+                            riskFactorsInfo += `${index + 1}. ${factor.title}\n   ${factor.description}\n`;
+                        });
+                    }
+                } catch (error) {
+                    console.error('生成評估資訊時發生錯誤:', error);
+                }
+            }
+
+            const description = `【個案分享】\n\n姓名：${name}\n性別：${gender}\n年齡：${age} 歲\n出生日期：${birthDate}${assessmentInfo}${riskFactorsInfo}\n\n評估時間：${new Date().toLocaleString('zh-TW')}\n\n此個案已透過御曲同工全人整合照護SMART平台進行代謝症候群評估，請協助後續追蹤與照護。`;
+
+            return description;
+        }
 
         // 匯出資料 - 必須在全局作用域中定義
         window.exportData = async function(format) {
@@ -1613,6 +1706,9 @@
                                 </div>
                             `).join('')}
                         </div>
+                        <button class="share-to-chat-btn" onclick="shareCaseToChat()">
+                            <span>💬</span> 分享個案至聊天室
+                        </button>
                     </div>
                 `;
             }
