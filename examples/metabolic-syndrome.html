@@ -704,7 +704,7 @@
     <script src="https://cdn.jsdelivr.net/npm/fhirclient@2.6.3/build/fhir-client.min.js"></script>
     
     <script type="module">
-        import { loadLaunchSettings } from './app-config.js';
+        import { loadLaunchSettings, mergeLaunchSettings } from './app-config.js';
         import {
             exchangeToken,
             getAuthContext,
@@ -736,10 +736,7 @@
 
         async function getLaunchDefaults() {
             const launchDefaults = await loadLaunchSettings();
-            return {
-                ...launchDefaults,
-                ...readSavedDefaults()
-            };
+            return mergeLaunchSettings(launchDefaults, readSavedDefaults());
         }
 
         async function startLaunchFromPage({ iss, launch = '' }) {
@@ -942,7 +939,14 @@
                 accessToken = sessionStorage.getItem('access_token');
                 patientId = sessionStorage.getItem('patient_id');
 
-                if (!accessToken && iss) {
+                const shouldRestartLaunch =
+                    !!iss && (
+                        !accessToken ||
+                        ctx.iss !== iss ||
+                        (launch && ctx.launch !== launch)
+                    );
+
+                if (shouldRestartLaunch) {
                     await startLaunchFromPage({ iss, launch });
                     return;
                 }

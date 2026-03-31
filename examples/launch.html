@@ -270,7 +270,7 @@
     <button id="toggleAdvanced" class="advanced-toggle" type="button" onclick="toggleAdvanced()">顯示詳細設定</button>
 
     <script type="module">
-        import { loadLaunchSettings } from './app-config.js';
+        import { loadLaunchSettings, mergeLaunchSettings } from './app-config.js';
         import {
             DEFAULT_SCOPE,
             prepareLaunch,
@@ -293,10 +293,7 @@
 
         async function getMergedDefaults() {
             const launchDefaults = await loadLaunchSettings();
-            return {
-                ...launchDefaults,
-                ...readSavedDefaults()
-            };
+            return mergeLaunchSettings(launchDefaults, readSavedDefaults());
         }
 
         function fillForm(defaults = {}) {
