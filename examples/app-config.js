@@ -8,7 +8,7 @@ export const defaultLaunchSettings = {
   clientSecret: "79f04b56b33491716c0880af72cdef7d3f0629111421cedd18353651cd313d9e",
   scope: "launch/patient patient/*.read patient/*.write openid fhirUser",
   redirectUri: "./metabolic-syndrome.html",
-  tokenAuthMethod: "client_secret_post",
+  tokenAuthMethod: "client_secret_basic",
   loginType: "",
   issUrl: ""
 };

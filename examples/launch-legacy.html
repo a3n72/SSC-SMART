@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>888 長照 SDK - 啟動授權</title>
+    <title>888 長照 SDK - 舊版啟動授權</title>
     <style>
         * {
             margin: 0;
@@ -24,7 +24,7 @@
             padding: 40px;
             border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            max-width: 600px;
+            max-width: 640px;
             width: 100%;
         }
         h1 {
@@ -77,7 +77,8 @@
             margin-bottom: 5px;
             font-size: 14px;
         }
-        .config-item input {
+        .config-item input,
+        .config-item select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -124,12 +125,22 @@
         .info-box strong {
             color: #1976D2;
         }
-        .mode-switch {
+        .warning-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #856404;
+        }
+        .legacy-switch {
             display: flex;
             gap: 12px;
-            margin: 16px 0 20px;
+            margin-top: 16px;
         }
-        .mode-switch a {
+        .legacy-switch a {
             flex: 1;
             text-align: center;
             text-decoration: none;
@@ -140,7 +151,7 @@
             background: #fff;
             font-size: 14px;
         }
-        .mode-switch a.active {
+        .legacy-switch a.active {
             background: #2c3e50;
             color: #fff;
             border-color: #2c3e50;
@@ -173,9 +184,7 @@
             cursor: pointer;
             box-shadow: 0 6px 16px rgba(0,0,0,0.2);
             z-index: 1000;
-        }
-        .advanced-toggle:hover {
-            background: #1f2d3a;
+            width: auto;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -186,71 +195,73 @@
 <body>
     <div class="container">
         <h1>🔐 888 長照 SDK</h1>
-        <p class="subtitle">SMART on FHIR 授權啟動</p>
+        <p class="subtitle">舊版 THAS / 沙盒啟動授權</p>
 
-        <div class="mode-switch">
-            <a href="./launch.html" class="active">新版私人 Launcher</a>
-            <a href="./launch-legacy.html">舊版 THAS 流程</a>
+        <div class="legacy-switch">
+            <a href="./launch.html">新版私人 Launcher</a>
+            <a href="./launch-legacy.html" class="active">舊版 THAS 流程</a>
+        </div>
+
+        <div class="warning-box">
+            <strong>保留用途：</strong><br>
+            本頁保留舊版 `my-client-id` 與 THAS 沙盒流程，供既有測試或比對使用。若要進行工研院第二階段私人 Launcher 測試，請改用新版入口。
         </div>
         
         <div class="info-box">
-            <strong>📋 啟動說明：</strong><br>
-            步驟 1: 設定 Launcher/FHIR 相關參數<br>
-            步驟 2: 由私人 Launcher、EHR Launch 或本頁發起授權<br>
-            步驟 3: 授權完成後轉跳到主程式頁面並交換 Token<br>
+            <strong>📋 標準登入路徑：</strong><br>
+            步驟 1: 開啟 launch-legacy.html（取得存取權限的「鑰匙」）<br>
+            步驟 2: 身分驗證（先選醫事人員 Practitioner → 再選病人 Patient → 同意授權）<br>
+            步驟 3: 轉跳 index.html（帶著核發的鑰匙(TOKEN)安全開啟主程式）<br>
             <span style="display:block;margin-top:8px;color:#856404;">
-                ※ 本頁支援衛福部沙盒與私人 Launcher；若私人 Launcher 直接帶入 `iss`/`launch`，會自動開始流程
-            </span>
-            <span style="display:block;margin-top:8px;color:#5c6b77;">
-                若要使用舊版 `my-client-id` / THAS 沙盒邏輯，請改走上方「舊版 THAS 流程」。
+                ※ Standalone 與 EHR Launch 在沙盒中都會走「醫事人員 → 病人」順序
             </span>
         </div>
 
         <div class="config-section">
             <div class="config-item">
                 <label for="launchMode">Launch Mode（啟動模式）</label>
-                <select id="launchMode" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="standalone">Standalone Launch</option>
+                <select id="launchMode">
+                    <option value="provider-standalone">PROVIDER_STANDALONE_LAUNCH</option>
                     <option value="ehr-launch">EHR Launch</option>
                 </select>
-                <small>若由私人 Launcher 或 EHR 直接導向本頁，系統會自動帶入對應的 `iss` / `launch`</small>
+                <small>若從 EHR/SAND-BOX 觸發啟動，請選 EHR Launch（系統會自動帶入 iss/launch）</small>
             </div>
 
             <div class="config-item">
                 <label for="issUrl">ISS Server URL（資源所在地）</label>
-                <input type="text" id="issUrl" 
-                    value=""
-                    placeholder="https://launcher.example.org/v/r4/fhir">
-                <small>可填 FHIR Server 或私人 Launcher 回傳的 `iss`，未填時會優先使用 `app-config.js` 的預設值</small>
+                <input type="text" id="issUrl"
+                    value="https://thas.mohw.gov.tw/v/r4/sim/WzIsIiIsIiIsIkFVVE8iLDAsMCwwLCIiLCIiLCIiLCIiLCIiLCIiLCIiLDAsMSwiIl0/fhir"
+                    placeholder="https://thas.mohw.gov.tw/v/r4/sim/.../fhir">
+                <small>衛福部 FHIR 伺服器的網址，告訴程式要連往哪台電腦取得資料</small>
+            </div>
+
+            <div class="config-item">
+                <label for="patientViewer">Patient Viewer（病人瀏覽）</label>
+                <input type="text" id="patientViewer" value="https://thas.mohw.gov.tw/patient-browser/" readonly>
+                <small>Provider Standalone 測試用病人瀏覽器（如需手動查看病人）</small>
             </div>
 
             <div class="config-item advanced-only">
                 <label for="authEndpoint">Authorization Endpoint（授權端點）</label>
-                <input type="text" id="authEndpoint" value="" placeholder="https://launcher.example.org/provider-login">
-                <small>若可讀取 SMART `.well-known` 設定會自動帶入，否則依 ISS 網域推算</small>
+                <input type="text" id="authEndpoint" value="https://thas.mohw.gov.tw/provider-login" placeholder="https://thas.mohw.gov.tw/provider-login">
+                <small>THAS 授權頁面端點（Provider 登入），若可讀取 SMART 配置會自動帶入</small>
             </div>
 
             <div class="config-item advanced-only">
                 <label for="tokenEndpoint">Token Endpoint（交換 Token 端點）</label>
-                <input type="text" id="tokenEndpoint" value="" placeholder="https://launcher.example.org/auth/token">
+                <input type="text" id="tokenEndpoint" value="" placeholder="https://.../fhir/auth/token">
                 <small>授權碼交換 Access Token 的端點，若可讀取 SMART 配置會自動帶入</small>
             </div>
             
             <div class="config-item">
                 <label for="clientId">Client ID（系統身分證）</label>
-                <input type="text" id="clientId" value="" placeholder="請填入註冊的 client_id">
-                <small>請填入測試單位提供或已註冊的真實 `client_id`</small>
-            </div>
-
-            <div class="config-item advanced-only">
-                <label for="clientSecret">Client Secret（機密金鑰）</label>
-                <input type="password" id="clientSecret" value="" placeholder="如第二階段要求 confidential client 再填寫">
-                <small>僅限測試或受控環境使用。正式前端不建議直接保存 secret。</small>
+                <input type="text" id="clientId" value="my-client-id" readonly>
+                <small>測試專用：已自動帶入通用 Client ID（my-client-id）</small>
             </div>
             
             <div class="config-item">
                 <label for="scope">Scope（權限範圍清單）</label>
-                <input type="text" id="scope" 
+                <input type="text" id="scope"
                     value="launch/patient patient/*.read patient/*.write openid fhirUser"
                     placeholder="launch/patient patient/*.read openid fhirUser">
                 <small>明確定義這把鑰匙能開哪些門、可以讀取哪些病人資料</small>
@@ -272,17 +283,6 @@
             </div>
 
             <div class="config-item advanced-only">
-                <label for="tokenAuthMethod">Token 驗證方式</label>
-                <select id="tokenAuthMethod" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="auto">auto</option>
-                    <option value="none">none</option>
-                    <option value="client_secret_post">client_secret_post</option>
-                    <option value="client_secret_basic">client_secret_basic</option>
-                </select>
-                <small>若私人 Launcher 對 confidential client 有指定交換方式，請在此明確設定</small>
-            </div>
-
-            <div class="config-item advanced-only">
                 <label for="launchParam">Launch（EHR Launch Token）</label>
                 <input type="text" id="launchParam" value="" placeholder="從 EHR/SAND-BOX 帶入的 launch">
                 <small>EHR Launch 必填；Provider Standalone 不需要</small>
@@ -298,83 +298,71 @@
 
     <button id="toggleAdvanced" class="advanced-toggle" type="button" onclick="toggleAdvanced()">顯示詳細設定</button>
 
-    <script type="module">
-        import { loadLaunchSettings, mergeLaunchSettings } from './app-config.js';
-        import {
-            DEFAULT_SCOPE,
-            prepareLaunch,
-            readLaunchParams
-        } from '../src/smart-auth.js';
-
-        const LOCAL_CONFIG_KEY = 'smart_launch_defaults';
-
-        function readSavedDefaults() {
-            try {
-                return JSON.parse(localStorage.getItem(LOCAL_CONFIG_KEY) || '{}');
-            } catch (error) {
-                return {};
-            }
-        }
-
-        function saveDefaults(defaults) {
-            localStorage.setItem(LOCAL_CONFIG_KEY, JSON.stringify(defaults));
-        }
-
-        async function getMergedDefaults() {
-            const launchDefaults = await loadLaunchSettings();
-            return mergeLaunchSettings(launchDefaults, readSavedDefaults());
-        }
-
-        function fillForm(defaults = {}) {
-            document.getElementById('issUrl').value = defaults.issUrl || '';
-            document.getElementById('clientId').value = defaults.clientId || '';
-            document.getElementById('clientSecret').value = defaults.clientSecret || '';
-            document.getElementById('scope').value = defaults.scope || DEFAULT_SCOPE;
-            document.getElementById('redirectUri').value = defaults.redirectUri || './metabolic-syndrome.html';
-            document.getElementById('loginType').value = defaults.loginType || '';
-            document.getElementById('tokenAuthMethod').value = defaults.tokenAuthMethod || 'auto';
-        }
-
-        // 更新狀態訊息
+    <script>
         function updateStatus(message, type = 'info') {
             const statusDiv = document.getElementById('status');
             statusDiv.textContent = message;
             statusDiv.className = `status ${type}`;
         }
-        
-        // 顯示詳細錯誤資訊
-        function showDetailedError(error, authParams) {
-            const errorDetails = `
-                <div style="margin-top: 15px; padding: 15px; background-color: #fee; border-radius: 5px; border-left: 4px solid #e74c3c;">
-                    <strong style="color: #c0392b;">錯誤詳情：</strong><br>
-                    <code>${error.message}</code><br><br>
-                    <strong>請檢查以下項目：</strong><br>
-                    <ol style="margin: 10px 0; padding-left: 20px;">
-                        <li><strong>Client ID：</strong>必須使用測試單位或 launcher 註冊的真實 ID，不能留空或使用範例值<br>
-                            <code>${authParams.clientId}</code></li>
-                        <li><strong>Redirect URI：</strong>必須與 launcher / FHIR 平台註冊時設定完全一致（包括協議、域名、路徑、端口）<br>
-                            <code>${authParams.redirectUri}</code></li>
-                        <li><strong>ISS URL：</strong>確認 URL 正確且可訪問<br>
-                            <code>${authParams.iss}</code></li>
-                        <li><strong>Scope：</strong>確認權限範圍正確<br>
-                            <code>${authParams.scope}</code></li>
-                    </ol>
-                    <p style="margin-top: 10px;"><strong>常見問題：</strong></p>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>如果看到 "invalid_request" 錯誤，通常是 Client ID 或 Redirect URI 不正確</li>
-                        <li>如果看到 JSON 解析錯誤，可能是參數格式問題，請確認所有參數都正確</li>
-                        <li>請確認已完成應用程式註冊，且目前站台允許連到對應 launcher / FHIR 網域</li>
-                    </ul>
-                </div>
-            `;
-            document.getElementById('status').innerHTML += errorDetails;
-        }
 
-        // 顯示載入動畫
         function showLoading() {
             const statusDiv = document.getElementById('status');
             statusDiv.innerHTML = '<div class="spinner"></div><div>正在處理授權流程...</div>';
             statusDiv.className = 'status loading';
+        }
+
+        function randomString(length) {
+            const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+            const values = new Uint8Array(length);
+            window.crypto.getRandomValues(values);
+            return Array.from(values, (v) => charset[v % charset.length]).join('');
+        }
+
+        function base64UrlEncode(buffer) {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            bytes.forEach((b) => (binary += String.fromCharCode(b)));
+            return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+
+        async function sha256(plain) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(plain);
+            return crypto.subtle.digest('SHA-256', data);
+        }
+
+        async function generatePkce() {
+            const codeVerifier = randomString(96);
+            const hashed = await sha256(codeVerifier);
+            const codeChallenge = base64UrlEncode(hashed);
+            return { codeVerifier, codeChallenge };
+        }
+
+        function toAbsoluteUrl(input) {
+            const currentUrl = new URL(window.location.href);
+            const basePath = currentUrl.pathname.substring(0, currentUrl.pathname.lastIndexOf('/') + 1);
+            if (input.startsWith('http://') || input.startsWith('https://')) {
+                return input;
+            }
+            if (input.startsWith('./')) {
+                return currentUrl.origin + basePath + input.substring(2);
+            }
+            if (input.startsWith('/')) {
+                return currentUrl.origin + input;
+            }
+            return currentUrl.origin + basePath + input;
+        }
+
+        async function resolveSmartConfig(issUrl) {
+            try {
+                const configUrl = `${issUrl}/.well-known/smart-configuration`;
+                const res = await fetch(configUrl);
+                if (!res.ok) return null;
+                return await res.json();
+            } catch (error) {
+                console.warn('SMART 配置讀取失敗:', error);
+                return null;
+            }
         }
 
         function toggleAdvanced() {
@@ -383,26 +371,16 @@
             btn.textContent = isOpen ? '隱藏詳細設定' : '顯示詳細設定';
         }
 
-        window.toggleAdvanced = toggleAdvanced;
-
-        // 處理啟動授權
         async function handleLaunch() {
             try {
-                // 取得設定值
                 const mode = document.getElementById('launchMode').value;
-                const mergedDefaults = await getMergedDefaults();
-                const issUrl = document.getElementById('issUrl').value.trim() || mergedDefaults.issUrl || '';
+                const showAdvanced = document.body.classList.contains('show-advanced');
+                const issUrl = document.getElementById('issUrl').value.trim();
                 const clientId = document.getElementById('clientId').value.trim();
-                const clientSecret = document.getElementById('clientSecret').value.trim();
                 const scope = document.getElementById('scope').value.trim();
-                const redirectUri = document.getElementById('redirectUri').value.trim() || './index.html';
+                let redirectUri = document.getElementById('redirectUri').value.trim();
                 const launchParam = document.getElementById('launchParam').value.trim();
-                const authEndpoint = document.getElementById('authEndpoint').value.trim();
-                const tokenEndpoint = document.getElementById('tokenEndpoint').value.trim();
-                const loginType = document.getElementById('loginType').value.trim();
-                const tokenAuthMethod = document.getElementById('tokenAuthMethod').value;
 
-                // 驗證必填欄位
                 if (!issUrl) {
                     updateStatus('❌ 錯誤：請輸入 ISS Server URL', 'error');
                     return;
@@ -418,9 +396,53 @@
                     return;
                 }
 
-                // 顯示載入狀態
+                const authEndpointInput = showAdvanced ? document.getElementById('authEndpoint').value.trim() : '';
+                const tokenEndpointInput = showAdvanced ? document.getElementById('tokenEndpoint').value.trim() : '';
+                const loginType = showAdvanced ? document.getElementById('loginType').value.trim() : '';
+
+                if (!redirectUri) {
+                    redirectUri = './index.html';
+                    document.getElementById('redirectUri').value = redirectUri;
+                }
+
+                redirectUri = toAbsoluteUrl(redirectUri);
+                document.getElementById('redirectUri').value = redirectUri;
+
                 showLoading();
                 document.getElementById('btnLaunch').disabled = true;
+
+                updateStatus('正在產生授權參數與 PKCE...', 'loading');
+
+                const smartConfig = await resolveSmartConfig(issUrl);
+                const issOrigin = new URL(issUrl).origin;
+                const defaultAuthEndpoint =
+                    mode === 'ehr-launch'
+                        ? ((smartConfig && smartConfig.authorization_endpoint) || `${issOrigin}/auth/authorize`)
+                        : `${issOrigin}/provider-login`;
+                const authEndpoint = authEndpointInput || defaultAuthEndpoint;
+                const tokenEndpoint =
+                    tokenEndpointInput ||
+                    (smartConfig && smartConfig.token_endpoint) ||
+                    `${issOrigin}/auth/token`;
+
+                document.getElementById('authEndpoint').value = authEndpoint;
+                document.getElementById('tokenEndpoint').value = tokenEndpoint;
+
+                const { codeVerifier, codeChallenge } = await generatePkce();
+                const state = randomString(24);
+
+                sessionStorage.setItem('oauth_state', state);
+                sessionStorage.setItem('oauth_code_verifier', codeVerifier);
+                sessionStorage.setItem('oauth_iss', issUrl);
+                sessionStorage.setItem('oauth_client_id', clientId);
+                sessionStorage.setItem('oauth_redirect_uri', redirectUri);
+                sessionStorage.setItem('oauth_scope', scope);
+                sessionStorage.setItem('oauth_auth_endpoint', authEndpoint);
+                sessionStorage.setItem('oauth_token_endpoint', tokenEndpoint);
+                sessionStorage.setItem('oauth_login_type', loginType);
+                if (mode === 'ehr-launch') {
+                    sessionStorage.setItem('oauth_launch', launchParam);
+                }
 
                 if (mode === 'ehr-launch' && !launchParam) {
                     updateStatus('❌ 錯誤：EHR Launch 需要 launch 參數', 'error');
@@ -428,59 +450,41 @@
                     return;
                 }
 
-                updateStatus('正在產生授權參數與 PKCE...', 'loading');
+                const authUrl = new URL(authEndpoint);
+                authUrl.searchParams.set('response_type', 'code');
+                authUrl.searchParams.set('client_id', clientId);
+                authUrl.searchParams.set('redirect_uri', redirectUri);
+                authUrl.searchParams.set('scope', scope);
+                authUrl.searchParams.set('state', state);
+                authUrl.searchParams.set('code_challenge', codeChallenge);
+                authUrl.searchParams.set('code_challenge_method', 'S256');
+                authUrl.searchParams.set('aud', issUrl);
+                if (mode === 'ehr-launch') {
+                    authUrl.searchParams.set('launch', launchParam);
+                } else if (loginType) {
+                    authUrl.searchParams.set('login_type', loginType);
+                }
 
-                saveDefaults({
-                    issUrl,
-                    clientId,
-                    clientSecret,
-                    scope,
-                    redirectUri,
-                    loginType,
-                    tokenAuthMethod
-                });
-
-                const { authUrl, context } = await prepareLaunch({
-                    iss: issUrl,
-                    clientId,
-                    clientSecret,
-                    scope,
-                    redirectUri,
-                    authEndpoint,
-                    tokenEndpoint,
-                    loginType,
-                    launch: launchParam,
-                    mode,
-                    tokenAuthMethod
-                });
-
-                document.getElementById('authEndpoint').value = context.authEndpoint || '';
-                document.getElementById('tokenEndpoint').value = context.tokenEndpoint || '';
-                document.getElementById('redirectUri').value = context.redirectUri || redirectUri;
-
-                console.log('授權 URL:', authUrl);
-                updateStatus('正在導向授權頁面...', 'loading');
-
-                window.location.href = authUrl;
-
+                window.location.href = authUrl.toString();
             } catch (error) {
                 console.error('授權錯誤:', error);
                 updateStatus(`❌ 授權失敗: ${error.message}`, 'error');
                 document.getElementById('btnLaunch').disabled = false;
             }
         }
-        window.handleLaunch = handleLaunch;
 
-        // 頁面載入時檢查是否已有授權狀態
         window.addEventListener('DOMContentLoaded', async () => {
             try {
-                fillForm(await getMergedDefaults());
+                document.getElementById('clientId').value = 'my-client-id';
 
-                // 檢查 URL 參數，看是否是從授權頁面返回或 EHR Launch
-                const { code, state, iss, launch } = readLaunchParams(window.location.search);
-                
+                const urlParams = new URLSearchParams(window.location.search);
+                const code = urlParams.get('code');
+                const state = urlParams.get('state');
+                const iss = urlParams.get('iss');
+                const launch = urlParams.get('launch');
+
                 if (code && state) {
-                    updateStatus('✓ 授權完成，請稍候回到主程式頁面...', 'success');
+                    updateStatus('✓ 授權完成，正在導向主程式...', 'success');
                     setTimeout(() => {
                         window.location.href = './index.html';
                     }, 1000);
@@ -498,24 +502,11 @@
                     return;
                 }
 
-                if (iss) {
-                    document.getElementById('launchMode').value = 'standalone';
-                    document.getElementById('issUrl').value = iss;
-                    updateStatus('已偵測到 Launcher 提供的 ISS，正在啟動授權流程...', 'loading');
-                    setTimeout(() => {
-                        handleLaunch();
-                    }, 300);
-                    return;
-                }
-                
-                // 避免登出後立即重複啟動流程
                 const logoutOnce = sessionStorage.getItem('logout_once');
                 if (logoutOnce) {
                     sessionStorage.removeItem('logout_once');
-                    return;
                 }
             } catch (error) {
-                // 如果無法恢復，這是正常的（首次訪問）
                 console.log('首次訪問或需要重新授權:', error);
             }
         });

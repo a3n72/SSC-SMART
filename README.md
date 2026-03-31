@@ -26,6 +26,7 @@ http://localhost:8000/examples/launch.html
 
 - `examples/app-config.js`: 部署預設 SMART 設定
 - `examples/launch.html`: 手動啟動與除錯入口
+- `examples/launch-legacy.html`: 舊版 THAS / `my-client-id` 保留入口
 - `examples/index.html`: 主程式頁
 - `examples/metabolic-syndrome.html`: 主要測試頁
 - `src/smart-auth.js`: 瀏覽器共用授權模組
