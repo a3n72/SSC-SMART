@@ -19,6 +19,22 @@ export {
   SmartAlertHookHandlers,
   createSmartAlertService
 } from "./cds-hooks.js";
+export {
+  DEFAULT_SCOPE,
+  getStorageKeys,
+  getAuthContext,
+  persistAuthContext,
+  clearAuthArtifacts,
+  readLaunchParams,
+  toAbsoluteUrl,
+  generatePkce,
+  fetchSmartConfiguration,
+  resolveSmartEndpoints,
+  buildAuthorizationUrl,
+  prepareLaunch,
+  buildTokenRequest,
+  exchangeToken
+} from "./smart-auth.js";
 
 // 預設匯出 LTC888Client（方便使用）
 export { LTC888Client as default } from "./client.js";

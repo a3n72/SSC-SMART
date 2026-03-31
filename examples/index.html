@@ -232,12 +232,58 @@
     <!-- 載入 Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
-    <script>
+    <script type="module">
+        import { loadLaunchSettings } from './app-config.js';
+        import {
+            exchangeToken,
+            getAuthContext,
+            prepareLaunch,
+            readLaunchParams
+        } from '../src/smart-auth.js';
+
+        const LOCAL_CONFIG_KEY = 'smart_launch_defaults';
         let accessToken = null;
         let fhirBaseUrl = null;
         let patientId = null;
         let patientData = null;
         let observationsData = null;
+
+        function readSavedDefaults() {
+            try {
+                return JSON.parse(localStorage.getItem(LOCAL_CONFIG_KEY) || '{}');
+            } catch (error) {
+                return {};
+            }
+        }
+
+        async function getLaunchDefaults() {
+            const launchDefaults = await loadLaunchSettings();
+            return {
+                ...launchDefaults,
+                ...readSavedDefaults()
+            };
+        }
+
+        async function startLaunchFromPage({ iss, launch = '' }) {
+            const defaults = await getLaunchDefaults();
+            if (!defaults.clientId) {
+                throw new Error('尚未設定 Client ID，請先至 launch.html 或 app-config.js 完成設定');
+            }
+
+            const { authUrl } = await prepareLaunch({
+                iss,
+                launch,
+                mode: launch ? 'ehr-launch' : 'standalone',
+                clientId: defaults.clientId,
+                clientSecret: defaults.clientSecret,
+                scope: defaults.scope,
+                redirectUri: window.location.pathname,
+                loginType: defaults.loginType,
+                tokenAuthMethod: defaults.tokenAuthMethod || 'auto'
+            });
+
+            window.location.href = authUrl;
+        }
 
         // 更新狀態訊息
         function updateStatus(sectionId, message, type = 'info') {
@@ -256,18 +302,6 @@
             }
         }
 
-        function getAuthContext() {
-            return {
-                iss: sessionStorage.getItem('oauth_iss'),
-                clientId: sessionStorage.getItem('oauth_client_id'),
-                redirectUri: sessionStorage.getItem('oauth_redirect_uri'),
-                scope: sessionStorage.getItem('oauth_scope'),
-                tokenEndpoint: sessionStorage.getItem('oauth_token_endpoint'),
-                state: sessionStorage.getItem('oauth_state'),
-                codeVerifier: sessionStorage.getItem('oauth_code_verifier')
-            };
-        }
-
         async function authorizedFetch(url, options = {}) {
             if (!accessToken) {
                 throw new Error('缺少 Access Token，請重新授權');
@@ -278,40 +312,6 @@
                 ...(options.headers || {})
             };
             return fetch(url, { ...options, headers });
-        }
-
-        async function exchangeToken(code) {
-            const ctx = getAuthContext();
-            if (!ctx.tokenEndpoint || !ctx.clientId || !ctx.redirectUri || !ctx.codeVerifier) {
-                throw new Error('授權上下文不完整，請重新從 launch.html 開始');
-            }
-
-            const body = new URLSearchParams({
-                grant_type: 'authorization_code',
-                code: code,
-                redirect_uri: ctx.redirectUri,
-                client_id: ctx.clientId,
-                code_verifier: ctx.codeVerifier
-            });
-
-            const res = await fetch(ctx.tokenEndpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body
-            });
-
-            if (!res.ok) {
-                const errorText = await res.text();
-                throw new Error(`交換 Token 失敗: ${res.status} ${res.statusText} - ${errorText}`);
-            }
-
-            const tokenResponse = await res.json();
-            sessionStorage.setItem('access_token', tokenResponse.access_token || '');
-            sessionStorage.setItem('token_response', JSON.stringify(tokenResponse));
-            if (tokenResponse.patient) {
-                sessionStorage.setItem('patient_id', tokenResponse.patient);
-            }
-            return tokenResponse;
         }
 
         // 切換區塊顯示 - 必須在全局作用域中定義，供 HTML onclick 調用
@@ -715,14 +715,10 @@
             try {
                 updateStatus('patient', '正在初始化...', 'info');
 
-                const urlParams = new URLSearchParams(window.location.search);
-                const code = urlParams.get('code');
-                const state = urlParams.get('state');
-                const error = urlParams.get('error');
+                const { code, state, error, errorDescription, iss, launch } = readLaunchParams(window.location.search);
 
                 if (error) {
-                    const errorDesc = urlParams.get('error_description') || error;
-                    throw new Error(`授權失敗: ${errorDesc}`);
+                    throw new Error(`授權失敗: ${errorDescription || error}`);
                 }
 
                 const ctx = getAuthContext();
@@ -730,13 +726,19 @@
                 accessToken = sessionStorage.getItem('access_token');
                 patientId = sessionStorage.getItem('patient_id');
 
+                if (!accessToken && iss) {
+                    updateStatus('patient', '正在根據 Launcher 參數發起授權...', 'info');
+                    await startLaunchFromPage({ iss, launch });
+                    return;
+                }
+
                 if (code) {
                     if (!state || state !== ctx.state) {
                         throw new Error('State 驗證失敗，可能是授權流程不完整或被攔截');
                     }
 
                     updateStatus('patient', '正在交換 Access Token...', 'info');
-                    const tokenResponse = await exchangeToken(code);
+                    const tokenResponse = await exchangeToken({ code, context: ctx });
                     accessToken = tokenResponse.access_token;
                     patientId = tokenResponse.patient || sessionStorage.getItem('patient_id');
 

@@ -37,14 +37,19 @@ export class FHIRAuth {
         throw new Error("必須提供 redirectUri（在 Node.js 環境中需要明確指定）");
       }
       
-      // 使用 fhirclient 進行 EHR Launch 授權
-      this.client = await FHIR.oauth2.authorize({
+      const authorizeOptions = {
         iss: iss,
         launch: launch,
         redirectUri: redirectUri,
         clientId: options.clientId || "ltc-888-sdk",
+        clientSecret: options.clientSecret,
         scope: options.scope || "launch/patient openid fhiruser patient/*.read",
-      });
+        pkceMode: options.pkceMode || "ifSupported",
+        ...(options.authorizeOptions || {})
+      };
+
+      // 使用 fhirclient 進行 EHR Launch 授權
+      this.client = await FHIR.oauth2.authorize(authorizeOptions);
 
       return this.client;
     } catch (error) {
@@ -70,13 +75,18 @@ export class FHIRAuth {
         throw new Error("必須提供 redirectUri（在 Node.js 環境中需要明確指定）");
       }
       
-      // 使用 fhirclient 進行 Standalone Launch 授權
-      this.client = await FHIR.oauth2.authorize({
+      const authorizeOptions = {
         iss: this.serverUrl,
         redirectUri: redirectUri,
         clientId: options.clientId || "ltc-888-sdk",
+        clientSecret: options.clientSecret,
         scope: options.scope || "launch/patient openid fhiruser patient/*.read",
-      });
+        pkceMode: options.pkceMode || "ifSupported",
+        ...(options.authorizeOptions || {})
+      };
+
+      // 使用 fhirclient 進行 Standalone Launch 授權
+      this.client = await FHIR.oauth2.authorize(authorizeOptions);
 
       return this.client;
     } catch (error) {

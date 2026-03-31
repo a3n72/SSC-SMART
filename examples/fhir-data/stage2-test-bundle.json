@@ -1,0 +1,260 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "timestamp": "2026-03-31T12:00:00+08:00",
+  "entry": [
+    {
+      "request": {
+        "method": "PUT",
+        "url": "Patient/stage2-patient-001"
+      },
+      "fullUrl": "http://example.org/fhir/Patient/stage2-patient-001",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "stage2-patient-001",
+        "meta": {
+          "profile": [
+            "http://twcore.mohw.gov.tw/fhir/StructureDefinition/tw-patient"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "http://www.mohw.gov.tw/patient-id",
+            "value": "TEST-STAGE2-001"
+          }
+        ],
+        "name": [
+          {
+            "family": "Test",
+            "given": [
+              "Stage2"
+            ],
+            "text": "Test Stage2"
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1968-04-12",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "0900000000"
+          }
+        ],
+        "address": [
+          {
+            "use": "home",
+            "postalCode": "100",
+            "city": "Taipei City",
+            "district": "Zhongzheng Dist.",
+            "text": "Test Address"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "Condition/stage2-condition-htn-001"
+      },
+      "fullUrl": "http://example.org/fhir/Condition/stage2-condition-htn-001",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "stage2-condition-htn-001",
+        "meta": {
+          "profile": [
+            "http://twcore.mohw.gov.tw/fhir/StructureDefinition/tw-condition"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "38341003",
+              "display": "Hypertensive disorder"
+            }
+          ],
+          "text": "Hypertension"
+        },
+        "subject": {
+          "reference": "Patient/stage2-patient-001"
+        },
+        "onsetDateTime": "2024-01-15"
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/stage2-bp-001"
+      },
+      "fullUrl": "http://example.org/fhir/Observation/stage2-bp-001",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "stage2-bp-001",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "85354-9",
+              "display": "Blood pressure panel with all children optional"
+            }
+          ],
+          "text": "Blood pressure"
+        },
+        "subject": {
+          "reference": "Patient/stage2-patient-001"
+        },
+        "effectiveDateTime": "2026-03-25T09:00:00+08:00",
+        "component": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "8480-6"
+                }
+              ]
+            },
+            "valueQuantity": {
+              "value": 136,
+              "unit": "mmHg",
+              "system": "http://unitsofmeasure.org",
+              "code": "mm[Hg]"
+            }
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "8462-4"
+                }
+              ]
+            },
+            "valueQuantity": {
+              "value": 84,
+              "unit": "mmHg",
+              "system": "http://unitsofmeasure.org",
+              "code": "mm[Hg]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "Observation/stage2-glucose-001"
+      },
+      "fullUrl": "http://example.org/fhir/Observation/stage2-glucose-001",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "stage2-glucose-001",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "33747-0",
+              "display": "Glucose [Mass/volume] in Capillary blood by Glucometer"
+            }
+          ],
+          "text": "Fasting blood glucose"
+        },
+        "subject": {
+          "reference": "Patient/stage2-patient-001"
+        },
+        "effectiveDateTime": "2026-03-25T08:30:00+08:00",
+        "valueQuantity": {
+          "value": 102,
+          "unit": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/dL"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "CarePlan/stage2-careplan-001"
+      },
+      "fullUrl": "http://example.org/fhir/CarePlan/stage2-careplan-001",
+      "resource": {
+        "resourceType": "CarePlan",
+        "id": "stage2-careplan-001",
+        "status": "active",
+        "intent": "plan",
+        "title": "Stage2 hypertension self-management plan",
+        "subject": {
+          "reference": "Patient/stage2-patient-001"
+        },
+        "period": {
+          "start": "2026-03-01",
+          "end": "2026-06-30"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "Goal/stage2-goal-001"
+      },
+      "fullUrl": "http://example.org/fhir/Goal/stage2-goal-001",
+      "resource": {
+        "resourceType": "Goal",
+        "id": "stage2-goal-001",
+        "lifecycleStatus": "active",
+        "description": {
+          "text": "Maintain blood pressure below 130/80"
+        },
+        "subject": {
+          "reference": "Patient/stage2-patient-001"
+        },
+        "target": [
+          {
+            "measure": {
+              "text": "Blood pressure"
+            },
+            "detailString": "<130/80 mmHg"
+          }
+        ]
+      }
+    }
+  ]
+}

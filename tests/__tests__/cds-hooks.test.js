@@ -8,6 +8,7 @@ import {
   SmartAlertHookHandlers,
   createSmartAlertService
 } from '../../src/cds-hooks.js';
+import { jest } from '@jest/globals';
 
 describe('CDS Hooks 模組', () => {
   describe('CDSHooksService', () => {
