@@ -2,7 +2,9 @@ import { defaultLaunchSettings, mergeLaunchSettings } from "../../examples/app-c
 
 describe("app-config merge behavior", () => {
   test("正式部署的憑證與 redirect 設定不應被舊 localStorage 覆蓋", () => {
-    const merged = mergeLaunchSettings(defaultLaunchSettings, {
+    // 憑證已移到本機設定檔，這裡用假的部署值驗證合併規則
+    const deployed = { ...defaultLaunchSettings, clientId: "deployed-id", clientSecret: "deployed-secret" };
+    const merged = mergeLaunchSettings(deployed, {
       clientId: "old-client-id",
       clientSecret: "old-secret",
       redirectUri: "./index.html",
@@ -10,8 +12,8 @@ describe("app-config merge behavior", () => {
       issUrl: "https://launcher.example/fhir"
     });
 
-    expect(merged.clientId).toBe(defaultLaunchSettings.clientId);
-    expect(merged.clientSecret).toBe(defaultLaunchSettings.clientSecret);
+    expect(merged.clientId).toBe("deployed-id");
+    expect(merged.clientSecret).toBe("deployed-secret");
     expect(merged.redirectUri).toBe(defaultLaunchSettings.redirectUri);
     expect(merged.tokenAuthMethod).toBe(defaultLaunchSettings.tokenAuthMethod);
     expect(merged.issUrl).toBe("https://launcher.example/fhir");

@@ -8,6 +8,7 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "dev": "node --watch src/index.js",
     "example": "node examples/basic-usage.js",
+    "demo": "node examples/demo-server.js",
     "cds-hooks-server": "node examples/cds-hooks-server.js"
   },
   "keywords": [

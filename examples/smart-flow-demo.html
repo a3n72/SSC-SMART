@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMART on FHIR 授權流程逐步演示</title>
+<style>
+  body { font-family: "Microsoft JhengHei", "PingFang TC", sans-serif; margin: 0; background: #f4f6f8; color: #1f2933; font-size: 18px; }
+  header { background: #1f3a5f; color: #fff; padding: 16px 28px; }
+  header h1 { margin: 0; font-size: 26px; }
+  header p { margin: 6px 0 0; opacity: .85; font-size: 16px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 20px 28px 60px; }
+  section { background: #fff; border: 1px solid #d9e2ec; border-radius: 8px; padding: 18px 22px; margin-bottom: 16px; }
+  section.locked { opacity: .45; }
+  section.done { border-left: 6px solid #2f855a; }
+  section.active { border-left: 6px solid #d69e2e; }
+  h2 { margin: 0 0 6px; font-size: 22px; }
+  h2 .num { display: inline-block; width: 34px; height: 34px; line-height: 34px; text-align: center; border-radius: 50%; background: #1f3a5f; color: #fff; font-size: 18px; margin-right: 10px; }
+  p.desc { margin: 4px 0 12px; color: #52606d; }
+  label { display: block; font-size: 15px; color: #52606d; margin-top: 10px; }
+  input[type=text] { width: 100%; box-sizing: border-box; padding: 8px 10px; font-size: 15px; font-family: Consolas, monospace; border: 1px solid #bcccdc; border-radius: 4px; }
+  button { font-size: 17px; padding: 9px 20px; border: 0; border-radius: 6px; background: #1f3a5f; color: #fff; cursor: pointer; margin: 6px 8px 6px 0; }
+  button:disabled { background: #9fb3c8; cursor: not-allowed; }
+  button.secondary { background: #627d98; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; font-size: 15px; table-layout: fixed; }
+  th, td { border: 1px solid #d9e2ec; padding: 6px 10px; text-align: left; vertical-align: top; word-break: break-all; }
+  th { background: #f0f4f8; }
+  td.k { width: 190px; font-family: Consolas, monospace; font-weight: bold; }
+  td.v { font-family: Consolas, monospace; }
+  td.n { width: 300px; color: #52606d; word-break: normal; }
+  pre { background: #102a43; color: #d9e2ec; padding: 12px 14px; border-radius: 6px; font-size: 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; margin: 10px 0 0; }
+  .msg { margin-top: 10px; padding: 8px 12px; border-radius: 4px; font-size: 16px; }
+  .msg.ok { background: #e3f9e5; color: #1b5e20; }
+  .msg.err { background: #ffe3e3; color: #a61b1b; }
+  .msg.info { background: #e6f6ff; color: #0b4f71; }
+  .mode { display: inline-block; padding: 2px 12px; border-radius: 12px; background: #d69e2e; color: #fff; font-size: 15px; margin-left: 10px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>SMART on FHIR 授權流程逐步演示 <span class="mode" id="modeTag">Standalone Launch</span></h1>
+  <p>每一步按一次按鈕，畫面會顯示 App 實際送出與收到的內容。預設連到 SMART Health IT 公開 Launcher，全部是模擬病人資料。</p>
+</header>
+<main>
+
+<section id="s0" class="active">
+  <h2><span class="num">0</span>設定</h2>
+  <p class="desc">Standalone Launch 直接使用預設值即可。若從 Launcher 以 EHR Launch 開啟本頁，iss 與 launch 會自動帶入。</p>
+  <label>iss（FHIR Server 網址）</label><input type="text" id="iss">
+  <label>client_id（公開 Launcher 接受任意值）</label><input type="text" id="clientId">
+  <label>scope</label><input type="text" id="scope">
+  <label>redirect_uri（授權後導回本頁）</label><input type="text" id="redirectUri" readonly>
+  <label>launch（EHR Launch 才有）</label><input type="text" id="launch" readonly>
+  <div><button class="secondary" id="btnReset">重新開始</button></div>
+</section>
+
+<section id="s1" class="active">
+  <h2><span class="num">1</span>Discovery：詢問 FHIR Server 的授權端點</h2>
+  <p class="desc">App 只知道 FHIR Server 網址，先讀取 .well-known/smart-configuration 取得授權端點與 token 端點。</p>
+  <button id="btn1">執行</button>
+  <div id="out1"></div>
+</section>
+
+<section id="s2" class="locked">
+  <h2><span class="num">2</span>產生 PKCE 與 state</h2>
+  <p class="desc">code_verifier 是 App 自己保管的隨機字串，code_challenge 是它的 SHA-256；state 用來確認導回的回應屬於這次請求。</p>
+  <button id="btn2" disabled>執行</button>
+  <div id="out2"></div>
+</section>
+
+<section id="s3" class="locked">
+  <h2><span class="num">3</span>組出授權網址，把使用者導向授權伺服器</h2>
+  <p class="desc">App 不經手帳號密碼；登入、選病人、同意授權都在授權伺服器的頁面上完成。</p>
+  <button id="btn3" disabled>組出授權網址</button>
+  <button id="btn3go" disabled>前往授權伺服器</button>
+  <div id="out3"></div>
+</section>
+
+<section id="s4" class="locked">
+  <h2><span class="num">4</span>導回 App：收到授權碼 code</h2>
+  <p class="desc">授權伺服器把瀏覽器導回 redirect_uri，網址上帶著 code 與 state。code 只能用一次，而且很快過期。</p>
+  <div id="out4"></div>
+</section>
+
+<section id="s5" class="locked">
+  <h2><span class="num">5</span>用 code 與 code_verifier 換 access token</h2>
+  <p class="desc">App 對 token 端點送 POST。回應除了 access_token，還有 SMART 的 context：這次授權針對哪一位病人。</p>
+  <button id="btn5" disabled>執行</button>
+  <div id="out5"></div>
+</section>
+
+<section id="s6" class="locked">
+  <h2><span class="num">6</span>帶著 access token 呼叫 FHIR API</h2>
+  <p class="desc">之後就是第 4 堂練過的 FHIR API，只是每個請求多了 Authorization: Bearer 標頭。</p>
+  <button id="btn6a" disabled>讀取病人</button>
+  <button id="btn6b" disabled>查生命徵象</button>
+  <button id="btn6c" disabled>查診斷</button>
+  <div id="out6"></div>
+</section>
+
+</main>
+<script type="module">
+import { generatePkce, fetchSmartConfiguration, buildAuthorizationUrl, buildTokenRequest, randomString, readLaunchParams } from '../src/smart-auth.js';
+
+// 預設：SMART Health IT 公開 Launcher 的 Provider Standalone Launch（R4）
+const DEFAULT_ISS = 'https://launch.smarthealthit.org/v/r4/sim/WzIsIiIsIiIsIkFVVE8iLDAsMCwwLCIiLCIiLCIiLCIiLCIiLCIiLCIiLDAsMSwiIl0/fhir';
+const KEY = 'itri_smart_flow_demo';
+const $ = (id) => document.getElementById(id);
+
+const load = () => { try { return JSON.parse(sessionStorage.getItem(KEY)) || {}; } catch { return {}; } };
+const save = (patch) => { const next = { ...load(), ...patch }; sessionStorage.setItem(KEY, JSON.stringify(next)); return next; };
+
+// 所有來自伺服器的內容都用 textContent 放進畫面，不組 HTML 字串
+function el(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  Object.assign(node, props);
+  for (const child of [].concat(children)) node.append(child);
+  return node;
+}
+const msg = (kind, text) => el('div', { className: `msg ${kind}`, textContent: text });
+const pre = (text) => el('pre', { textContent: typeof text === 'string' ? text : JSON.stringify(text, null, 2) });
+function table(rows, head = ['參數', '值', '說明']) {
+  const t = el('table');
+  t.append(el('tr', {}, head.map((h) => el('th', { textContent: h }))));
+  for (const [k, v, n] of rows) {
+    t.append(el('tr', {}, [el('td', { className: 'k', textContent: k }), el('td', { className: 'v', textContent: String(v ?? '') }), el('td', { className: 'n', textContent: n ?? '' })]));
+  }
+  return t;
+}
+const show = (id, ...nodes) => { $(id).replaceChildren(...nodes); };
+const shorten = (s, n = 40) => (s && s.length > n ? `${s.slice(0, n)}…（共 ${s.length} 字元）` : s);
+function decodeJwt(token) {
+  try {
+    const part = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const bytes = Uint8Array.from(atob(part), (c) => c.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes));
+  } catch { return null; }
+}
+function setStep(n) {
+  // n = 目前可執行的步驟；之前的標成完成，之後的鎖住
+  for (let i = 1; i <= 6; i += 1) {
+    $(`s${i}`).className = i < n ? 'done' : i === n ? 'active' : 'locked';
+  }
+  $('btn1').disabled = false;
+  $('btn2').disabled = n < 2;
+  $('btn3').disabled = n < 3;
+  $('btn3go').disabled = !(n === 3 && load().authUrl);
+  $('btn5').disabled = n !== 5;
+  for (const id of ['btn6a', 'btn6b', 'btn6c']) $(id).disabled = n < 6;
+}
+function fail(outId, error) { show(outId, msg('err', `失敗：${error.message || error}`)); }
+
+// ---- 步驟 1 ----
+function render1(cfg) {
+  show('out1',
+    pre(`GET ${load().iss.replace(/\/+$/, '')}/.well-known/smart-configuration`),
+    table([
+      ['authorization_endpoint', cfg.authorization_endpoint, '步驟 3 要把使用者導去的地方'],
+      ['token_endpoint', cfg.token_endpoint, '步驟 5 換 token 的地方'],
+      ['code_challenge_methods', (cfg.code_challenge_methods_supported || []).join(', '), '支援的 PKCE 方法'],
+      ['capabilities', (cfg.capabilities || []).join(', '), '支援的啟動方式、client 類型與 context']
+    ], ['欄位', '值', '說明']));
+}
+$('btn1').onclick = async () => {
+  const iss = $('iss').value.trim();
+  save({ iss, clientId: $('clientId').value.trim(), scope: $('scope').value.trim(), redirectUri: $('redirectUri').value, launch: $('launch').value });
+  show('out1', msg('info', '讀取中…'));
+  const cfg = await fetchSmartConfiguration(iss);
+  if (!cfg?.authorization_endpoint) return fail('out1', new Error('讀不到 smart-configuration，請確認 iss 與網路'));
+  save({ cfg: { authorization_endpoint: cfg.authorization_endpoint, token_endpoint: cfg.token_endpoint, code_challenge_methods_supported: cfg.code_challenge_methods_supported, capabilities: cfg.capabilities }, authUrl: '' });
+  render1(cfg); setStep(2);
+};
+
+// ---- 步驟 2 ----
+function render2(s) {
+  show('out2', table([
+    ['code_verifier', s.codeVerifier, '只存在 App 這邊，步驟 5 才送出'],
+    ['code_challenge', s.codeChallenge, 'BASE64URL( SHA-256( code_verifier ) )，步驟 3 送出'],
+    ['state', s.state, '隨機字串，步驟 4 回來時比對']
+  ]));
+}
+$('btn2').onclick = async () => {
+  try {
+    const { codeVerifier, codeChallenge } = await generatePkce();
+    render2(save({ codeVerifier, codeChallenge, state: randomString(24), authUrl: '' })); setStep(3);
+  } catch (e) { fail('out2', e); }
+};
+
+// ---- 步驟 3 ----
+function render3(s) {
+  const p = new URL(s.authUrl).searchParams;
+  const rows = [
+    ['response_type', p.get('response_type'), '要求回傳授權碼（Authorization Code Flow）'],
+    ['client_id', p.get('client_id'), 'App 在授權伺服器註冊的身分'],
+    ['redirect_uri', p.get('redirect_uri'), '授權完成後導回的網址，必須與註冊值一致'],
+    ['scope', p.get('scope'), 'App 要求的權限'],
+    ['state', p.get('state'), '步驟 2 產生，防止偽造的回應'],
+    ['aud', p.get('aud'), 'App 打算存取的 FHIR Server'],
+    ['code_challenge', p.get('code_challenge'), '步驟 2 產生的 PKCE challenge'],
+    ['code_challenge_method', p.get('code_challenge_method'), '固定為 S256']
+  ];
+  if (p.get('launch')) rows.push(['launch', p.get('launch'), 'EHR 啟動 App 時給的代碼，代表 EHR 當下的病人與使用者']);
+  show('out3', pre(s.authUrl), table(rows));
+}
+$('btn3').onclick = () => {
+  try {
+    const s = load();
+    const authUrl = buildAuthorizationUrl({
+      authEndpoint: s.cfg.authorization_endpoint, clientId: s.clientId, redirectUri: s.redirectUri, scope: s.scope,
+      state: s.state, codeChallenge: s.codeChallenge, iss: s.iss, launch: s.launch, mode: s.launch ? 'ehr-launch' : 'standalone'
+    });
+    render3(save({ authUrl })); setStep(3);
+  } catch (e) { fail('out3', e); }
+};
+$('btn3go').onclick = () => { window.location.assign(load().authUrl); };
+
+// ---- 步驟 4 ----
+function render4(params, s) {
+  if (params.error) {
+    show('out4', msg('err', `授權伺服器回報錯誤：${params.error} ${params.errorDescription}`));
+    return false;
+  }
+  const match = params.state === s.state;
+  show('out4',
+    pre(window.location.href),
+    table([
+      ['code', params.code, '授權碼，下一步拿去換 token'],
+      ['state', params.state, match ? '與步驟 2 產生的值相同' : '與步驟 2 的值不同']
+    ]),
+    msg(match ? 'ok' : 'err', match ? 'state 比對相符，可以繼續。' : 'state 不相符，這個回應不屬於本次請求，流程中止。'));
+  return match;
+}
+
+// ---- 步驟 5 ----
+function render5(s) {
+  const t = s.token;
+  const display = { ...t, access_token: shorten(t.access_token), id_token: shorten(t.id_token), refresh_token: shorten(t.refresh_token) };
+  const nodes = [
+    pre(`POST ${s.cfg.token_endpoint}\nContent-Type: application/x-www-form-urlencoded\n\n${s.tokenRequestBody}`),
+    msg('ok', `取得 access token，${t.expires_in} 秒後過期。`),
+    table([
+      ['token_type', t.token_type, '呼叫 API 時放在 Authorization 標頭的類型'],
+      ['scope', t.scope, '實際核發的權限，可能比要求的少'],
+      ['patient', t.patient, 'SMART context：這次授權針對的病人 ID'],
+      ...(t.encounter ? [['encounter', t.encounter, 'SMART context：EHR 當下的就診 ID']] : []),
+      ['expires_in', t.expires_in, '有效秒數'],
+      ['access_token', shorten(t.access_token), '呼叫 FHIR API 的憑證'],
+      ['id_token', shorten(t.id_token), '登入者的身分（OpenID Connect）']
+    ], ['欄位', '值', '說明']),
+    pre(display)
+  ];
+  const id = t.id_token && decodeJwt(t.id_token);
+  if (id) nodes.push(msg('info', 'id_token 解開後的內容（fhirUser 是登入者在 FHIR Server 上的 Resource）：'), pre(id));
+  show('out5', ...nodes);
+}
+$('btn5').onclick = async () => {
+  try {
+    const s = load();
+    const req = buildTokenRequest({ code: s.code, clientId: s.clientId, redirectUri: s.redirectUri, codeVerifier: s.codeVerifier, tokenEndpoint: s.cfg.token_endpoint, tokenAuthMethod: 'none' });
+    const tokenRequestBody = req.init.body.toString().replace(/&/g, '\n&');
+    show('out5', msg('info', '交換中…'));
+    const res = await fetch(req.url, req.init);
+    const text = await res.text();
+    if (!res.ok) throw new Error(`${res.status} ${text}`);
+    render5(save({ token: JSON.parse(text), tokenRequestBody }));
+    // code 只能用一次：把網址上的 code 拿掉，重新整理時不會再拿舊的 code 去換
+    window.history.replaceState({}, '', window.location.pathname);
+    setStep(6);
+  } catch (e) { fail('out5', e); }
+};
+
+// ---- 步驟 6 ----
+async function callFhir(path, summarize) {
+  const s = load();
+  const url = `${s.iss.replace(/\/+$/, '')}/${path}`;
+  const header = pre(`GET ${url}\nAuthorization: Bearer ${shorten(s.token.access_token, 30)}\nAccept: application/fhir+json`);
+  show('out6', header, msg('info', '讀取中…'));
+  try {
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${s.token.access_token}`, Accept: 'application/fhir+json' } });
+    const body = await res.json();
+    if (!res.ok) throw new Error(`${res.status} ${JSON.stringify(body).slice(0, 300)}`);
+    show('out6', header, msg('ok', `HTTP ${res.status}`), ...summarize(body));
+  } catch (e) { show('out6', header, msg('err', `失敗：${e.message}`)); }
+}
+const codeText = (c) => c?.text || c?.coding?.[0]?.display || c?.coding?.[0]?.code || '';
+function obsValue(o) {
+  if (o.valueQuantity) return `${Math.round(o.valueQuantity.value * 10) / 10} ${o.valueQuantity.unit || ''}`;
+  if (o.component) return o.component.map((c) => `${codeText(c.code)} ${Math.round((c.valueQuantity?.value ?? 0) * 10) / 10} ${c.valueQuantity?.unit || ''}`).join('；');
+  return o.valueString || codeText(o.valueCodeableConcept);
+}
+$('btn6a').onclick = () => callFhir(`Patient/${load().token.patient}`, (p) => {
+  const n = p.name?.[0] || {};
+  return [table([
+    ['姓名', n.text || [...(n.prefix || []), ...(n.given || []), n.family].filter(Boolean).join(' ')],
+    ['性別', p.gender], ['生日', p.birthDate], ['id', p.id]
+  ], ['欄位', '值', '']), pre(JSON.stringify(p, null, 2).slice(0, 1500) + '\n…')];
+});
+$('btn6b').onclick = () => callFhir(`Observation?patient=${load().token.patient}&category=vital-signs&_sort=-date&_count=8`, (b) => [
+  msg('info', `Bundle total = ${b.total ?? '未提供'}，顯示前 ${(b.entry || []).length} 筆`),
+  table((b.entry || []).map((e) => [codeText(e.resource.code), obsValue(e.resource), (e.resource.effectiveDateTime || '').slice(0, 10)]), ['項目', '數值', '日期'])
+]);
+$('btn6c').onclick = () => callFhir(`Condition?patient=${load().token.patient}&_count=8`, (b) => [
+  msg('info', `Bundle total = ${b.total ?? '未提供'}，顯示前 ${(b.entry || []).length} 筆`),
+  table((b.entry || []).map((e) => [codeText(e.resource.code), codeText(e.resource.clinicalStatus), (e.resource.onsetDateTime || '').slice(0, 10)]), ['診斷', '狀態', '發病日'])
+]);
+
+// ---- 啟動 ----
+$('btnReset').onclick = () => { sessionStorage.removeItem(KEY); window.location.assign(window.location.pathname); };
+
+(function init() {
+  const params = readLaunchParams(window.location.search);
+  const here = window.location.origin + window.location.pathname;
+  let s = load();
+
+  if (params.code || params.error) {
+    // 從授權伺服器導回：還原前三步的畫面，停在步驟 4
+    if (!s.cfg || !s.state) {
+      show('out4', msg('err', '找不到這次授權的暫存資料，請按「重新開始」。'));
+    } else {
+      render1(s.cfg); render2(s); render3(s);
+      const ok = render4(params, s);
+      if (ok) { save({ code: params.code }); setStep(5); $('s4').className = 'done'; } else { setStep(4); }
+    }
+  } else if (params.iss && params.launch) {
+    // EHR Launch：Launcher 帶著 iss 與 launch 開啟本頁
+    sessionStorage.removeItem(KEY);
+    s = save({ iss: params.iss, launch: params.launch, scope: 'launch openid fhirUser patient/*.read' });
+    setStep(1);
+  } else if (s.token) {
+    render1(s.cfg); render2(s); render3(s); render5(s); setStep(6);
+    show('out4', msg('ok', '已完成授權（code 已使用）。'));
+  } else {
+    setStep(1);
+  }
+
+  s = load();
+  $('iss').value = s.iss || DEFAULT_ISS;
+  $('clientId').value = s.clientId || 'itri-smart-demo';
+  $('scope').value = s.scope || 'launch/patient openid fhirUser patient/*.read';
+  $('redirectUri').value = here;
+  $('launch').value = s.launch || '';
+  $('modeTag').textContent = s.launch ? 'EHR Launch' : 'Standalone Launch';
+})();
+</script>
+</body>
+</html>

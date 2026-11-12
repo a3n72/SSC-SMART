@@ -188,6 +188,14 @@
         <h1>🔐 888 長照 SDK</h1>
         <p class="subtitle">SMART on FHIR 授權啟動</p>
 
+        <div id="thasChooser" class="info-box" style="display:none;">
+            <strong>已由 THAS 沙盒連入，請選擇要進入的流程：</strong>
+            <div style="margin-top:12px;">
+                <button type="button" id="btnFlowDemo">📖 範例演示（逐步顯示授權流程）</button>
+                <button type="button" id="btnOriginalFlow" style="margin-top:8px;">🚀 原本的流程（直接進入主程式）</button>
+            </div>
+        </div>
+
         <div class="mode-switch">
             <a href="./launch.html" class="active">新版私人 Launcher</a>
             <a href="./launch-legacy.html">舊版 THAS 流程</a>
@@ -471,6 +479,14 @@
         }
         window.handleLaunch = handleLaunch;
 
+        function isThasIss(iss) {
+            try {
+                return new URL(iss).hostname === 'thas.mohw.gov.tw';
+            } catch (error) {
+                return false;
+            }
+        }
+
         // 頁面載入時檢查是否已有授權狀態
         window.addEventListener('DOMContentLoaded', async () => {
             try {
@@ -491,6 +507,22 @@
                     document.getElementById('launchMode').value = 'ehr-launch';
                     document.getElementById('issUrl').value = iss;
                     document.getElementById('launchParam').value = launch;
+
+                    // 由 THAS 沙盒連入時不自動啟動，先讓使用者選「範例演示」或「原本的流程」
+                    if (isThasIss(iss)) {
+                        const chooser = document.getElementById('thasChooser');
+                        chooser.style.display = 'block';
+                        document.getElementById('btnFlowDemo').onclick = () => {
+                            window.location.href = './smart-flow-demo.html' + window.location.search;
+                        };
+                        document.getElementById('btnOriginalFlow').onclick = () => {
+                            chooser.style.display = 'none';
+                            updateStatus('正在啟動授權流程...', 'loading');
+                            handleLaunch();
+                        };
+                        return;
+                    }
+
                     updateStatus('已偵測到 EHR Launch 參數，正在啟動授權流程...', 'loading');
                     setTimeout(() => {
                         handleLaunch();

@@ -2,13 +2,15 @@
  * 部署前請依測試單位提供的資訊調整這份設定。
  * 這些值會作為 launch.html 與 redirect 頁面的預設值，
  * 讓私人 launcher 直接打到 redirect URI 時也能自動發起授權。
+ * client_secret 不放在這裡：預設以公開 client + PKCE 授權（tokenAuthMethod "auto"）。
+ * 需要 confidential client 時，把 clientSecret 與 tokenAuthMethod 放在 examples/app-config.local.js（不進版本控制）。
  */
 export const defaultLaunchSettings = {
   clientId: "cc344727-6f90-496c-94fd-c7829aa9a51d",
-  clientSecret: "79f04b56b33491716c0880af72cdef7d3f0629111421cedd18353651cd313d9e",
+  clientSecret: "",
   scope: "launch/patient patient/*.read patient/*.write openid fhirUser",
   redirectUri: "./metabolic-syndrome.html",
-  tokenAuthMethod: "client_secret_basic",
+  tokenAuthMethod: "auto",
   loginType: "",
   issUrl: ""
 };
