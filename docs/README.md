@@ -8,7 +8,7 @@
 - `project-structure.md`: 專案結構、核心模組分工與維護建議
 - `testing-and-data.md`: 第二階段測試準備、FHIR 測試資料與執行檢查清單
 - `cds-hooks.md`: CDS Hooks 範例與服務端使用方式
-- `itri-demo-script.md`: 課堂演示腳本（SMART 授權流程逐步演示頁）
+- `smart-demo-script.md`: 課堂演示腳本（SMART 授權流程逐步演示頁）
 
 ## 歷史文件
 

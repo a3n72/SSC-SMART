@@ -1,6 +1,6 @@
 # 課堂演示腳本：SMART on FHIR 授權流程
 
-對象：工研院產業學院「FHIR × AI 智慧醫療創新應用實務」第 5 堂。
+用途：SMART on FHIR 課程的現場演示。
 演示頁：`examples/smart-flow-demo.html`，把授權流程拆成六步，每按一次按鈕顯示 App 實際送出與收到的內容。
 授權環境：SMART Health IT 公開 Launcher（https://launch.smarthealthit.org ），免註冊，全部是模擬病人資料。
 

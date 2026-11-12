@@ -104,7 +104,7 @@ import { generatePkce, fetchSmartConfiguration, buildAuthorizationUrl, buildToke
 
 // 預設：SMART Health IT 公開 Launcher 的 Provider Standalone Launch（R4）
 const DEFAULT_ISS = 'https://launch.smarthealthit.org/v/r4/sim/WzIsIiIsIiIsIkFVVE8iLDAsMCwwLCIiLCIiLCIiLCIiLCIiLCIiLCIiLDAsMSwiIl0/fhir';
-const KEY = 'itri_smart_flow_demo';
+const KEY = 'smart_flow_demo';
 const $ = (id) => document.getElementById(id);
 
 const load = () => { try { return JSON.parse(sessionStorage.getItem(KEY)) || {}; } catch { return {}; } };
@@ -335,7 +335,7 @@ $('btnReset').onclick = () => { sessionStorage.removeItem(KEY); window.location.
 
   s = load();
   $('iss').value = s.iss || DEFAULT_ISS;
-  $('clientId').value = s.clientId || 'itri-smart-demo';
+  $('clientId').value = s.clientId || 'smart-flow-demo';
   $('scope').value = s.scope || 'launch/patient openid fhirUser patient/*.read';
   $('redirectUri').value = here;
   $('launch').value = s.launch || '';
