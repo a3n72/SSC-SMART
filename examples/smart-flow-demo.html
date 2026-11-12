@@ -98,6 +98,15 @@
   <div id="out6"></div>
 </section>
 
+<section id="s7" class="locked">
+  <h2><span class="num">7</span>沒有授權會怎樣</h2>
+  <p class="desc">不走前面的流程，直接向伺服器要資料。做完步驟 1 就能按，可以和步驟 6 的結果對照。</p>
+  <button id="btn7a" disabled>不帶 token 讀病人</button>
+  <button id="btn7b" disabled>帶自編的 token</button>
+  <button id="btn7c" disabled>用自編的 code 換 token</button>
+  <div id="out7"></div>
+</section>
+
 </main>
 <script type="module">
 import { generatePkce, fetchSmartConfiguration, buildAuthorizationUrl, buildTokenRequest, randomString, readLaunchParams } from '../src/smart-auth.js';
@@ -147,6 +156,9 @@ function setStep(n) {
   $('btn3go').disabled = !(n === 3 && load().authUrl);
   $('btn5').disabled = n !== 5;
   for (const id of ['btn6a', 'btn6b', 'btn6c']) $(id).disabled = n < 6;
+  // 步驟 7 不屬於授權流程：只要做過 Discovery（知道端點）就能試
+  $('s7').className = n >= 2 ? 'active' : 'locked';
+  for (const id of ['btn7a', 'btn7b', 'btn7c']) $(id).disabled = n < 2;
 }
 function fail(outId, error) { show(outId, msg('err', `失敗：${error.message || error}`)); }
 
@@ -303,6 +315,36 @@ $('btn6c').onclick = () => callFhir(`Condition?patient=${load().token.patient}&_
   msg('info', `Bundle total = ${b.total ?? '未提供'}，顯示前 ${(b.entry || []).length} 筆`),
   table((b.entry || []).map((e) => [codeText(e.resource.code), codeText(e.resource.clinicalStatus), (e.resource.onsetDateTime || '').slice(0, 10)]), ['診斷', '狀態', '發病日'])
 ]);
+
+// ---- 步驟 7：沒有授權會怎樣 ----
+async function tryWithoutAuth(requestText, url, init, explain) {
+  const header = pre(requestText);
+  show('out7', header, msg('info', '送出中…'));
+  try {
+    const res = await fetch(url, init);
+    const text = await res.text();
+    show('out7', header, msg(res.ok ? 'ok' : 'err', `HTTP ${res.status}`), pre(text.slice(0, 400)), msg('info', explain(res.status)));
+  } catch (e) { show('out7', header, msg('err', `失敗：${e.message}`)); }
+}
+const patientUrl = () => `${load().iss.replace(/\/+$/, '')}/Patient?_count=1`;
+$('btn7a').onclick = () => tryWithoutAuth(`GET ${patientUrl()}\nAccept: application/fhir+json\n（沒有 Authorization 標頭）`, patientUrl(),
+  { headers: { Accept: 'application/fhir+json' } },
+  (status) => (status === 401 || status === 403
+    ? '伺服器要求授權。App 該做的事：把使用者導向授權端點，也就是回到步驟 2、3。'
+    : '這台是公開的練習沙盒，模擬資料開放讀取，所以不帶 token 也讀得到。正式環境會回 401，App 要回到步驟 2、3 走授權流程。'));
+$('btn7b').onclick = () => tryWithoutAuth(`GET ${patientUrl()}\nAuthorization: Bearer not-a-real-token\nAccept: application/fhir+json`, patientUrl(),
+  { headers: { Authorization: 'Bearer not-a-real-token', Accept: 'application/fhir+json' } },
+  (status) => (status === 401 || status === 403
+    ? 'token 沒辦法自己編。過期或被撤銷的 token 也會得到同樣的回應，App 該做的事：清掉手上的 token，回到步驟 2、3 重新授權。'
+    : '這台伺服器沒有檢查 token。'));
+$('btn7c').onclick = () => {
+  const s = load();
+  const req = buildTokenRequest({ code: 'made-up-code', clientId: s.clientId, redirectUri: s.redirectUri, codeVerifier: 'made-up-verifier', tokenEndpoint: s.cfg.token_endpoint, tokenAuthMethod: 'none' });
+  return tryWithoutAuth(`POST ${req.url}\nContent-Type: application/x-www-form-urlencoded\n\n${req.init.body.toString().replace(/&/g, '\n&')}`, req.url, req.init,
+    (status) => (status >= 400
+      ? 'code 只能由授權端點在使用者登入並同意之後核發，而且只能用一次。換不到 token 時，App 要從步驟 2 重新開始。'
+      : '這台伺服器接受了自編的 code。'));
+};
 
 // ---- 啟動 ----
 $('btnReset').onclick = () => { sessionStorage.removeItem(KEY); window.location.assign(window.location.pathname); };

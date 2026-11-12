@@ -1,8 +1,10 @@
 # 課堂演示腳本：SMART on FHIR 授權流程
 
 用途：SMART on FHIR 課程的現場演示。
-演示頁：`examples/smart-flow-demo.html`，把授權流程拆成六步，每按一次按鈕顯示 App 實際送出與收到的內容。
+演示頁：`examples/smart-flow-demo.html`，把授權流程拆成六步，另有步驟 7 示範沒有授權時的狀況，每按一次按鈕顯示 App 實際送出與收到的內容。
 授權環境：SMART Health IT 公開 Launcher（https://launch.smarthealthit.org ），免註冊，全部是模擬病人資料。
+
+線上版：https://a3n72.github.io/SSC-SMART/examples/smart-flow-demo.html 。從 THAS 沙盒連入 `examples/launch.html` 時，畫面會先讓你選「範例演示」或「原本的流程」。
 
 ## 上課前（5 分鐘）
 
@@ -31,6 +33,7 @@
 | 4 | 自動回到演示頁 | 網址列帶著 code 與 state；state 與步驟 2 相同才繼續 |
 | 5 | 按「執行」 | POST 到 token 端點，送 code 與 code_verifier；回應有 access_token、patient（context）、scope、id_token |
 | 6 | 依序按「讀取病人」「查生命徵象」「查診斷」 | 就是第 4 堂的 FHIR API，多一個 `Authorization: Bearer` 標頭；病人 ID 來自 token 回應，不是使用者輸入 |
+| 7 | 依序按「不帶 token 讀病人」「帶自編的 token」「用自編的 code 換 token」 | 沙盒不帶 token 回 200，正式環境會回 401；自編的 token 回 401；自編的 code 換不到 token。沒有授權時，App 唯一的路是回到步驟 2、3 |
 
 ## 演示二：EHR Launch（約 6 分鐘）
 
@@ -51,7 +54,7 @@
 
 ## 已知行為與備案
 
-- 公開 Launcher 的 FHIR Server 不帶 token 也會回 200（它是開放的教學環境），所以不要現場示範「沒有 token 會被拒絕」；帶錯誤的 token 才會回 401。
+- 公開 Launcher 與 THAS 沙盒的 FHIR Server 不帶 token 也會回 200（開放的教學環境）。步驟 7 的第一顆按鈕會照實顯示 200 並說明正式環境會回 401；要看到被拒絕，按第二、三顆。
 - code 只能用一次。步驟 5 成功後頁面會把網址上的 code 拿掉；若步驟 5 失敗，按「重新開始」重走即可。
 - 若教室網路連不到 Launcher，改用投影片的流程圖講解。
 - 連接埠被占用時：`set PORT=8080 && npm run demo`（PowerShell 用 `$env:PORT=8080; npm run demo`），Launch URL 的連接埠也要跟著改。
